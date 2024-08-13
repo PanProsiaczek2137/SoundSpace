@@ -10,7 +10,7 @@ let songToSelect;
 let AllPlayLists = ['PlayList1', 'PlayList2', 'PlayList3', 'PlayList4']
 let AllArtists = ['Tame Impala', 'Pink Floyd', 'Led Zeppelin', 'Daft Punk',]
 let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
-let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'allResources/audio/WelcomeToSoundSpaceEcho.wav', artist: 'SoundSpace', album: '-', icon: 'allResources/icon/NewUser.svg'},
+let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.wav', artist: 'SoundSpace', album: '-', icon: 'NewUser.svg'},
                 {name: 'Inside Out', audio: 'song.opus', artist: 'Pink Floyd', album: 'Devision Bell', icon: 'DivisionBell.webp'},
                 {name: 'The Serpentine', audio: 'TheSerpentine.opus', artist: 'Tame Impala', album: '-', icon: 'Lonerism.jpg'},
                 {name: 'COCOLINI', audio: 'COCOLINI - TEENZ.opus', artist: 'TEENZ', album: '-', icon: 'unnamed.jpg'}];
@@ -25,13 +25,16 @@ let playingList = [[1, 2, 3], [2,1,1,2,2,3]];
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: 'Witaj w soundSpace!',
                         artist: 'SounsSpace',
-                        album: 'Przywitanko',
+                        album: 'Witamy!',
                         artwork: [
                             { src: 'allResources/img/1.jpg', sizes: '512x512', type: 'image/svg' }
                         ]
                     });
                 }
 
+                setTimeout(() => {
+                    playSingleSong(0, false, false);
+                }, 1);
 
 const ImageStar = document.getElementById('star')
 const tabTitle = document.getElementById('open-tab');
@@ -277,21 +280,21 @@ function highlightTheSongOnRightBar(){
 
 
 
-function playPlaylist(whichOne, withFullScreen, startForm){
+function playPlaylist(whichOne, withFullScreen, startForm, playOnStart){
     WhichPlaylistSelected = whichOne;
-    setSongTo(playingList[WhichPlaylistSelected][startForm], withFullScreen);
+    setSongTo(playingList[WhichPlaylistSelected][startForm], withFullScreen, playOnStart);
     newSelected('playlist');
     playingSongFromPlaylist = startForm;
 }
 
-function playSingleSong(whichOne, withFullScreen){
-    setSongTo(whichOne, withFullScreen);
+function playSingleSong(whichOne, withFullScreen, playOnStart){
+    setSongTo(whichOne, withFullScreen, playOnStart);
     newSelected('song');
     playingSongFromPlaylist = -1;
 }
 
 
-function setSongTo(Song, withFullScreen){
+function setSongTo(Song, withFullScreen, playOnStart){
     if (audio) {
         audio.pause();
     }
@@ -328,8 +331,12 @@ function setSongTo(Song, withFullScreen){
     }, 10);
     
 
-    isPlaying = true
-    audio.play();
+    if(playOnStart){
+        audio.play();
+        isPlaying = true
+    }else{
+        
+    }
     stopPlay.src = "allResources/icon/pause.svg"
     if(withFullScreen){
         fullScreenOnOff(true)
