@@ -1,0 +1,140 @@
+#library-content{
+    position: absolute;
+    z-index: 2;
+    visibility: hidden;
+}
+
+#library-content{
+    width: 100%;
+    height: 100%;
+    background-color: var(--darkest-gray);
+}
+
+/* Stylizacja przycisku menu */
+.librarybtn {
+    padding: 10px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px; /* Jeśli chcesz większe zaokrąglenie, dostosuj wartość */
+    margin-left: 10px;
+    top: 10px;
+    position: relative;
+    font-family: var(--main-font);
+    border: var(--lightest-gray) 1px solid;
+}
+
+.librarybtnMakeBigger{
+    padding: 12px;
+    top: 9px;
+    position: relative;
+}
+
+/* Kontener dla menu dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Zawartość dropdown - domyślnie ukryta */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--light-grey);
+    min-width: 160px;
+    z-index: 1000; /* Ustaw z-index na wyższą wartość, aby zapewnić widoczność */
+    margin-top: 5px;
+    left: 10px;
+    border-radius: 5px; /* Użyj większej wartości jeśli chcesz większe zaokrąglenie */
+    overflow: hidden; /* Aby zaokrąglenie działało prawidłowo */
+    position: absolute;
+    top: 50px;
+}
+
+/* Linki w dropdown */
+.dropdown-content p {
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 1rem;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: solid 1px var(--darkest-gray); /* Zmniejsz grubość obramowania */
+}
+
+/* Stylizacja linków na hover */
+.dropdown-content p:hover {
+    background-color: var(--lightest-gray);
+}
+
+/* Usuwanie dolnego border-bottom w ostatnim linku */
+.dropdown-content p:last-child {
+    border-bottom: none;
+}
+
+
+#add-song-playlist{
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    display: flex;
+}
+
+#add-song-playlist p{
+    font-family: var(--main-font);
+    font-size: 1.2rem;
+    color: var(--white);
+    background-color: var(--medium-gray);
+    border-radius: 5px;
+    padding: 10px;
+    margin-left: 15px;
+    border: var(--lightest-gray) 1px solid;
+}
+
+#songs{
+    height: calc(100% - 65px);
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-wrap: wrap; /* Pozwala na łamanie wierszy */
+    align-content: flex-start;
+}
+
+/* Stylizacja całego suwaka */
+#songs::-webkit-scrollbar {
+    width: 8px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#songs::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#songs::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#songs::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+.songToSelectInLibrary{
+    flex: 1 0 50%; /* Dzieci zajmują po 50% szerokości kontenera */
+    box-sizing: border-box;
+    width: 50%;
+    height: 65px;
+    background-color: var(--darkest-gray);
+    border-bottom: solid 1px var(--light-grey);
+    border-right: solid 1px var(--light-grey);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

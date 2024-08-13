@@ -18,3 +18,70 @@
 #home-content::-webkit-scrollbar-thumb:hover {
     background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
 }
+
+#home-content{
+    padding: 20px;
+    background-color: var(--darkest-gray);
+    z-index: 1;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.category-name{
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 2rem;
+    padding-bottom: 10px;
+}
+
+.song-scroll{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 257px;
+    display: flex;
+}
+
+.home-album-cover {
+    width: 200px;
+    height: 203px;
+    aspect-ratio: 1;
+    margin-right: 20px;
+    padding-bottom: 3px;
+}
+
+.home-song-name{
+    color: var(--white);
+    font-family: var(--main-font);
+    padding-bottom: 1px;
+}
+
+.home-artist-name{
+    color: var(--shadow-white);
+    font-family: var(--main-font);
+}
+
+/* Stylizacja całego suwaka */
+.song-scroll::-webkit-scrollbar {
+    height: 8px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+.song-scroll::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+.song-scroll::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+.song-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
