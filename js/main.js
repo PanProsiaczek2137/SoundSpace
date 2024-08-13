@@ -19,6 +19,8 @@ let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
 let playingList = [[1, 2, 3], [2,1,1,2,2,3]];
 
+//ToDo: Rozwiąsz problem z pierwszą playlistą :>
+//!  POWODZENIA!
 
                 audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
                 if ('mediaSession' in navigator) {
@@ -27,14 +29,14 @@ let playingList = [[1, 2, 3], [2,1,1,2,2,3]];
                         artist: 'SounsSpace',
                         album: 'Witamy!',
                         artwork: [
-                            { src: 'allResources/img/1.jpg', sizes: '512x512', type: 'image/svg' }
+                            { src: 'allResources/albumCover/1.jpg', sizes: '512x512', type: 'image/svg' }
                         ]
                     });
                 }
 
-                setTimeout(() => {
+                /*setTimeout(() => {
                     playSingleSong(0, false, false);
-                }, 1);
+                }, 1);*/
 
 const ImageStar = document.getElementById('star')
 const tabTitle = document.getElementById('open-tab');
@@ -307,13 +309,13 @@ function setSongTo(Song, withFullScreen, playOnStart){
     const songName = document.getElementById('song-name');
     const artistAndAlbumName = document.getElementById('artistAndAlbum');
 
-    albumImage.src = 'allResources/img/' + AllSongs[Song].icon;
+    albumImage.src = 'allResources/albumCover/' + AllSongs[Song].icon;
     songName.innerText = AllSongs[Song].name;
-    albumImageFull.src = 'allResources/img/'+AllSongs[Song].icon;
-    albumBlurFull.src = 'allResources/img/'+AllSongs[Song].icon;
+    albumImageFull.src = 'allResources/albumCover/'+AllSongs[Song].icon;
+    albumBlurFull.src = 'allResources/albumCover/'+AllSongs[Song].icon;
     artistAndAlbumName.innerText = AllSongs[Song].album == '-' ? AllSongs[Song].artist : AllSongs[Song].artist + " ∙ " + AllSongs[Song].album;
 
-    audio = new Audio('allResources/audio/'+ AllSongs[Song].audio)
+    audio = new Audio('allResources/music/'+ AllSongs[Song].audio)
 
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -321,7 +323,7 @@ function setSongTo(Song, withFullScreen, playOnStart){
             artist: AllSongs[Song].artist,
             album: AllSongs[Song].album,
             artwork: [
-                { src: 'allResources/img/' + AllSongs[Song].icon, sizes: '512x512', type: 'image/jpg' }
+                { src: 'allResources/albumCover/' + AllSongs[Song].icon, sizes: '512x512', type: 'image/jpg' }
             ]
         });
     }
@@ -511,7 +513,7 @@ async function newSelected(PlaylisySong) {
         for (let i = 0; i < playingList[WhichPlaylistSelected].length; i++) {
             const song = AllSongs[playingList[WhichPlaylistSelected][i]];
             const duration = await updateAudioDuration(song.audio);
-            setRightBarSong(i, 'allResources/img/' + song.icon, song.name, song.artist, duration);
+            setRightBarSong(i, 'allResources/albumCover/' + song.icon, song.name, song.artist, duration);
         }
     } else {
         deleteAllSongsFromRightBar();
@@ -524,7 +526,7 @@ async function newSelected(PlaylisySong) {
                 seconds = '0' + seconds;
             }
             let duration = (minutes + ":" + seconds);
-            setRightBarSong(0, 'allResources/img/' + song.icon, song.name, song.artist, duration);
+            setRightBarSong(0, 'allResources/albumCover/' + song.icon, song.name, song.artist, duration);
         }, 50);
     }
 }
@@ -556,7 +558,7 @@ albumCover.addEventListener('click', () => {
 //function that returns a promise with audio duration
 function getAudioDuration(fileName) {
     return new Promise((resolve, reject) => {
-        let temporaryAudio = new Audio('allResources/audio/' + fileName);
+        let temporaryAudio = new Audio('allResources/music/' + fileName);
         temporaryAudio.addEventListener('loadedmetadata', function() {
             let seconds = Math.floor(temporaryAudio.duration % 60);
             let minutes = Math.floor(temporaryAudio.duration / 60);
@@ -710,7 +712,7 @@ async function showSongsInLibraryWith(){
                 playingSongFromPlaylist = newDiv.id -1;
             };
             let duration = await updateAudioDuration(AllSongs[i].audio);
-            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/img/' + AllSongs[i].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[i].name}</p> <p class="rightBarArtistName">${AllSongs[i].artist}</p></div></div><p class="songTime">${duration}</p>`;
+            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[i].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[i].name}</p> <p class="rightBarArtistName">${AllSongs[i].artist}</p></div></div><p class="songTime">${duration}</p>`;
             LibrarySongsList.appendChild(newDiv);
             if(SplitFullScreenLibrary == 'Full'){
                 newDiv.style.width = '100%'
@@ -728,7 +730,7 @@ async function showSongsInLibraryWith(){
                 playingSongFromPlaylist = -1;
             };
             let duration = await updateAudioDuration(AllSongs[findArtistIndexes(selectedFilter)].audio);
-            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/img/' + AllSongs[findArtistIndexes(selectedFilter)].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findArtistIndexes(selectedFilter)].name}</p> <p class="rightBarArtistName">${AllSongs[findArtistIndexes(selectedFilter)].artist}</p></div></div><p class="songTime">${duration}</p>`;
+            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findArtistIndexes(selectedFilter)].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findArtistIndexes(selectedFilter)].name}</p> <p class="rightBarArtistName">${AllSongs[findArtistIndexes(selectedFilter)].artist}</p></div></div><p class="songTime">${duration}</p>`;
             LibrarySongsList.appendChild(newDiv);
             if(SplitFullScreenLibrary == 'Full'){
                 newDiv.style.width = '100%'
