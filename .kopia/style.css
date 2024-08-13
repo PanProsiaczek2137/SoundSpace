@@ -1,0 +1,863 @@
+* {
+    user-select: none;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+:root{
+    --darkest-gray: #161616;
+    --medium-gray: #202020;
+    --light-grey: #2c2c2c;
+    --lightest-gray: #444444;
+    --white: #e6e6e6;
+    --darker-white:#aaaaaa;
+    --shadow-white: #888;
+    --main-font: Arial, Helvetica, sans-serif;
+}
+
+body {
+    overflow: hidden;
+}
+
+#container {
+    display: flex;
+    width: 100%;
+    height: 100vh; /* Cała wysokość widoku */
+    background-color: #000000;
+}
+
+#left-bar {
+    z-index: 20;
+    display: flex;
+    width: 300px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    /*font-family: Arial, Helvetica, sans-serif;*/
+    flex-direction: column;
+    position: relative; /* Umożliwia poprawne działanie z `#content` */
+}
+
+#title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 75px;
+    font-size: 2.5rem;
+    font-family: "Itim", cursive;
+}
+
+.left-bar-button {
+    height: 55px;
+    width: 100%;
+    z-index: 30;
+    font-size: 1.25rem;
+    color: var(--white);
+    background-color: var(--light-grey);
+    border: 2px solid var(--lightest-gray);
+    border-right: 0;
+    border-left: 0;
+    text-align: center;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.left-bar-button:hover {
+    background-color: var(--lightest-gray);
+    border-color: var(--lightest-gray);
+    color: var(--white);
+}
+
+.left-bar-button:active {
+    background-color: var(--light-grey);
+    border-color: var(--lightest-gray);
+    color: var(--white);
+}
+
+#home-icon{
+    width: 40px;
+    height: 40px;
+}
+
+#library-icon{
+    width: 40px;
+    height: 40px;
+}
+
+#media-icon{
+    width: 40px;
+    height: 40px;
+}
+
+.without-lower-border {
+    border-bottom: 0;
+}
+
+#notifications-title{
+    padding-top: 10px;
+    display: flex;
+    justify-content: center;
+    font-family: var(--main-font);
+    font-size: 1.5rem;
+}
+
+#notifications-section{
+    height: 66.5%;
+}
+
+#notifications{
+    margin-left: 5px;
+    margin-top: 10px;
+    width: 295px;
+    height: 92.5%;
+    overflow: auto;
+}
+
+#notifications::-webkit-scrollbar{
+    background-color: var(--lightest-gray);
+    width: 5px;
+}
+
+#notifications::-webkit-scrollbar-thumb{
+    background-color: #000000;
+}
+
+#no-new-notifications{
+    padding-left: 35px;
+    font-size: 0.9rem;
+    font-family: var(--main-font);
+    position: absolute;
+}
+
+#top{
+    position: fixed; /* Ustawienie na fixed */
+    top: 0; /* Przypięcie do górnej krawędzi */
+    left: 300px; /* Dopasowanie do szerokości #left-bar */
+    width: calc(100% - 300px); /* Dopasowanie szerokości do reszty ekranu */
+    height: 77px;
+    background: #2c2c2c;
+    background: linear-gradient(90deg, var(--light-grey) 5%, var(--lightest-gray) 75%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 10; /* Ustawienie nad innymi elementami */
+    /*box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);*/
+    border-bottom: solid 2px var(--lightest-gray);
+}
+
+#nickname{
+    color: var(--white);
+    display: flex;
+    font-size: 1.5rem;
+    font-family: var(--main-font);
+    align-items: center;
+}
+
+#open-tab {
+    width: 165px;
+    padding-left: 16px;
+    display: flex;
+    align-items: center;
+    font-size: 3rem;
+    font-family: var(--main-font);
+    color: var(--white);
+}
+
+#search {
+    width: 25%;
+    height: 40px;
+    min-width: 150px;
+    padding: 0 10px;
+    border: 2px solid var(--lightest-gray);
+    border-radius: 5px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, background-color 0.3s;
+    font-family: var(--main-font);
+}
+
+#search::-webkit-search-cancel-button,
+#search::-webkit-search-clear-button,
+#search::-webkit-search-decoration,
+#search::-webkit-search-done-button,
+#search::-webkit-search-results-button,
+#search::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+}
+
+#search::placeholder {
+    color: var(--shadow-white);
+    opacity: 1;
+}
+
+#search:focus {
+    border-color: var(--lightest-gray);
+    background-color: var(--lightest-gray);
+}
+
+#search:hover {
+    border-color: var(--light-grey);
+    background-color: var(--lightest-gray);
+}
+
+#prof{
+    height: 50px;
+    width: 375px;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.prof-item{
+    margin-right: 15px;
+}
+
+#content {
+    display: flex;
+    flex-direction: column; /* Ustawia flexbox w kolumnach */
+    width: 300px;
+    height: calc(100% - 77px - 80px); /* 100% wysokości minus wysokość #top i #song-control */
+    margin-top: 77px;
+    flex: 1;
+    position: relative;
+}
+
+/* Stylizacja całego suwaka */
+#home-content::-webkit-scrollbar {
+    width: 12px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#home-content::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#home-content::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#home-content::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+#song-control {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    z-index: 99999;
+    bottom: 0;
+    width: 100%;
+    height: 80px;
+    background-color: var(--medium-gray);
+}
+
+#controls{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    height: 100%;
+    width: 300px;
+}
+
+#skipPrevious{
+    margin-top: 20px;
+    height: 40px;
+    width: 40px;
+}
+
+#play-stop{
+    margin-top: 5px;
+    height: 70px;
+    width: 70px;
+}
+
+#skipNext{
+    margin-top: 20px;
+    height: 40px;
+    width: 40px;
+}
+
+#time{
+    display: flex;
+    align-self: center;
+    font-family: var(--main-font);
+    color:var(--shadow-white);
+}
+
+#main-info{
+    display: flex;
+    align-items: center;
+}
+
+#artistAndAlbum{
+    font-size: 1rem;
+    color: var(--darker-white);
+    font-family: var(--main-font);
+}
+
+#song-name{
+    font-size: 1.25rem;
+    color: var(--white);
+    font-family: var(--main-font);
+}
+
+#star{
+    height: 35px;
+    width: 35px;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+#rating{
+    color:var(--darker-white);
+    font-family: var(--main-font);
+    font-size: 0.8rem;
+}
+
+#star-and-rating{
+    margin-left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#additional{
+    display: flex;
+    flex-direction: row-reverse;
+    height: 100%;
+    width: 240px;
+}
+
+.additional-icon{
+    margin-top: 20px;
+    margin-right: 20px;
+    height: 40px;
+    width: 40px;
+}
+
+/* Stylizacja suwaka */
+#volume-bar {
+    margin-top: 35px;
+    appearance: none; /* Usuwa domyślne stylizowanie przeglądarki */
+    width: 200px; /* Szerokość suwaka */
+    height: 10px; /* Wysokość suwaka */
+    background: var(--lightest-gray); /* Tło suwaka */
+    border-radius: 5px; /* Zaokrąglenie rogów */
+    outline: none; /* Usuwa kontur */
+}
+
+/* Stylizacja suwaka - części 'thumb' */
+#volume-bar::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Usuwa domyślne stylizowanie przeglądarki */
+    width: 20px; /* Szerokość 'thumb' */
+    height: 20px; /* Wysokość 'thumb' */
+    background: var(--shadow-white); /* Kolor 'thumb' */
+    border-radius: 50%; /* Zaokrąglenie 'thumb' */
+    cursor: pointer; /* Kursor zmienia się w palec */
+}
+
+#fullScreen{
+    visibility:visible;
+    display: flex;
+    background-color: var(--darkest-gray);
+    z-index: 2;
+    position: absolute; /* Potrzebne do położenia overlay nad tłem */
+    top: 0;
+    left: 0;
+    align-items: center;
+}
+
+#album-image-placeholder{
+    height: 100%;
+    width: 70%;
+    background-color: var(--darkest-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 70%;
+    max-height: 100%;
+    aspect-ratio: 1 / 1; /* Zachowuje proporcje kwadratu */
+}
+
+#next-songs-list{
+    z-index: 5;
+    opacity: 0.8;
+    width: 30%;
+    height: 100%;
+    background-color: var(--darkest-gray);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Stylizacja całego suwaka */
+#next-songs-list::-webkit-scrollbar {
+    width: 12px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#next-songs-list::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#next-songs-list::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#next-songs-list::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+#album-image-fullScreen{
+    padding: 50px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Dopasowuje obraz do rozmiaru elementu bez rozciągania */
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 5;
+}
+
+#fullScreen, #home-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+#home-content{
+    padding: 20px;
+    background-color: var(--darkest-gray);
+    z-index: 1;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#album-blure-fullScreen{
+    opacity: 0.5;
+    filter: blur(60px);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Dopasowuje obraz do rozmiaru elementu bez rozciągania */
+    max-width: 100%;
+    max-height: 100%;
+    z-index: 4;
+}
+
+.songToSelect{
+    width: 100%;
+    height: 65px;
+    background-color: var(--darkest-gray);
+    border-bottom: solid 1px var(--light-grey);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rightBarSongName{
+    font-family: var(--main-font);
+    font-size: 1.5rem;
+    color: var(--white);
+}
+
+.rightBarArtistName{
+    font-family: var(--main-font);
+    font-size: 1rem;
+    color: var(--darker-white);
+}
+
+.songTime{
+    padding-right: 15px;
+    font-size: 1.25rem;
+    color: var(--darker-white);
+    font-family: var(--main-font);
+}
+
+/* Ogólne style dla input[type="range"] */
+#time-line {
+    -webkit-appearance: none; /* Usuwa domyślny wygląd dla Webkit */
+    width: 100%; /* Szerokość suwaka */
+    height: 8px; /* Wysokość suwaka */
+    background: transparent; /* Przezroczyste tło */
+    padding: 10px 0; /* Margines dla suwaka */
+    cursor: pointer; /* Zmieniamy kursor na wskaźnik */
+    bottom: 70px;
+    position: absolute;
+}
+
+/* Stylizowanie toru (track) suwaka dla Webkit */
+#time-line::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: var(--shadow-white); /* Kolor toru */
+}
+
+/* Stylizowanie uchwytu (thumb) suwaka dla Webkit */
+#time-line::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Usuwa domyślny wygląd */
+    height: 10px;
+    width: 10px;
+    background: var(--white); /* Kolor uchwytu */
+    border-radius: 45%; /* Zaokrąglony uchwyt */
+    border: 1px solid var(--darker-white); /* Opcjonalna ramka wokół uchwytu */
+    margin-top: -3px; /* Pozycjonowanie uchwytu w pionie, aby było w środku toru */
+    cursor: pointer;
+}
+
+.category-name{
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 2rem;
+    padding-bottom: 10px;
+}
+
+.song-scroll{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 257px;
+    display: flex;
+}
+
+.home-album-cover {
+    width: 200px;
+    height: 203px;
+    aspect-ratio: 1;
+    margin-right: 20px;
+    padding-bottom: 3px;
+}
+
+.home-song-name{
+    color: var(--white);
+    font-family: var(--main-font);
+    padding-bottom: 1px;
+}
+
+.home-artist-name{
+    color: var(--shadow-white);
+    font-family: var(--main-font);
+}
+
+/* Stylizacja całego suwaka */
+.song-scroll::-webkit-scrollbar {
+    height: 8px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+.song-scroll::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+.song-scroll::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+.song-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+#play-pause-in-circle{
+    position: absolute;
+    z-index: 30;
+    visibility: hidden;
+    mix-blend-mode: difference; /* odwrócenie koloru obrazka */
+}
+
+#library-content{
+    position: absolute;
+    z-index: 2;
+    visibility: hidden;
+}
+
+#library-content{
+    width: 100%;
+    height: 100%;
+    background-color: var(--darkest-gray);
+}
+
+#Playlist-text{
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 1.75rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+#Playlist-category{
+    padding: 20px;
+    height: 265px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+}
+
+/* Stylizacja całego suwaka */
+#Playlist-category::-webkit-scrollbar {
+    height: 8px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#Playlist-category::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#Playlist-category::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#Playlist-category::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+
+/* Stylizacja przycisku menu */
+.librarybtn {
+    padding: 10px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px; /* Jeśli chcesz większe zaokrąglenie, dostosuj wartość */
+    margin-left: 10px;
+    top: 10px;
+    position: relative;
+    font-family: var(--main-font);
+    border: var(--lightest-gray) 1px solid;
+}
+
+.librarybtnMakeBigger{
+    padding: 12px;
+    top: 9px;
+    position: relative;
+}
+
+/* Kontener dla menu dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Zawartość dropdown - domyślnie ukryta */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: var(--light-grey);
+    min-width: 160px;
+    z-index: 1000; /* Ustaw z-index na wyższą wartość, aby zapewnić widoczność */
+    margin-top: 5px;
+    left: 10px;
+    border-radius: 5px; /* Użyj większej wartości jeśli chcesz większe zaokrąglenie */
+    overflow: hidden; /* Aby zaokrąglenie działało prawidłowo */
+    position: absolute;
+    top: 50px;
+}
+
+/* Linki w dropdown */
+.dropdown-content p {
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 1rem;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-bottom: solid 1px var(--darkest-gray); /* Zmniejsz grubość obramowania */
+}
+
+/* Stylizacja linków na hover */
+.dropdown-content p:hover {
+    background-color: var(--lightest-gray);
+}
+
+/* Usuwanie dolnego border-bottom w ostatnim linku */
+.dropdown-content p:last-child {
+    border-bottom: none;
+}
+
+
+#add-song-playlist{
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    display: flex;
+}
+
+#add-song-playlist p{
+    font-family: var(--main-font);
+    font-size: 1.2rem;
+    color: var(--darkest-gray);
+    background-color: var(--shadow-white);
+    border-radius: 5px;
+    padding: 10px;
+    margin-left: 15px;
+    border: var(--lightest-gray) 1px solid;
+}
+
+#songs{
+    height: calc(100% - 65px);
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-wrap: wrap; /* Pozwala na łamanie wierszy */
+    align-content: flex-start;
+}
+
+/* Stylizacja całego suwaka */
+#songs::-webkit-scrollbar {
+    width: 8px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#songs::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#songs::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#songs::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+.songToSelectInLibrary{
+    flex: 1 0 50%; /* Dzieci zajmują po 50% szerokości kontenera */
+    box-sizing: border-box;
+    width: 50%;
+    height: 65px;
+    background-color: var(--darkest-gray);
+    border-bottom: solid 1px var(--light-grey);
+    border-right: solid 1px var(--light-grey);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@keyframes shrink-to-zero {
+    0% {
+        transform: scale(1500%);
+        opacity: .5;
+        filter: blur(1px);
+    }
+    100% {
+        transform: scale(0%);
+        opacity: 1;
+        filter: blur(0px);
+    }
+}
+
+@keyframes fullscreenOn-RightBar {
+    0% {
+        transform: translateX(100%); /* Zaczyna się poza ekranem z prawej strony */
+    }
+    100% {
+        transform: translateX(0); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes fullscreenOff-RightBar {
+    0% {
+        transform: translateX(0); /* Zaczyna się poza ekranem z prawej strony */
+    }
+    100% {
+        transform: translateX(100%); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes fullscreenOn-AlbumCover {
+    0% {
+        transform: translateY(100%); /* Zaczyna się poza ekranem z prawej strony */
+    }
+    100% {
+        transform: translateY(0); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes fullscreenOff-AlbumCover {
+    0% {
+        transform: translateY(0); /* Zaczyna się poza ekranem z prawej strony */
+    }
+    100% {
+        transform: translateY(100%); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes show {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes hide {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+
+@keyframes makeNormal {
+    0% {
+        transform: scale(0.85); /* Kończy w normalnej pozycji */
+    }
+    100% {
+        transform: scale(1.2); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes makeSmaller {
+    0% {
+        transform: scale(1.2); /* Kończy w normalnej pozycji */
+    }
+    100% {
+        transform: scale(0.85); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes mauseOut {
+    0% {
+        transform: scale(1.2); /* Kończy w normalnej pozycji */
+    }
+    100% {
+        transform: scale(1); /* Kończy w normalnej pozycji */
+    }
+}
+
+@keyframes mauseOn {
+    0% {
+        transform: scale(1); /* Kończy w normalnej pozycji */
+    }
+    100% {
+        transform: scale(1.2); /* Kończy w normalnej pozycji */
+    }
+}

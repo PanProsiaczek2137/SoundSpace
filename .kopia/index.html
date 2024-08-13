@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoundSpace</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+    <link rel="icon" href="icon/SoundSpaceIconNew.svg">
+</head>
+<body>
+    <div id="container">
+        <div id="left-bar">
+            <h1 onclick="setTab('Home')" id="title"><p style="position: relative; left: 11px;">Soun</p><img src="icon/Soun(icon)Space.svg" style="position:relative; left: 1px;" draggable="false"><p style="position: relative; left: -11px;">Space</p></h1>
+            <button id="Home" onclick="setTab('Home')" class="left-bar-button without-lower-border"><p> </p><img src="icon/home.svg" id="home-icon" draggable="false">Home<p> </p><p> </p><p> </p></button>
+            <button id="Library" onclick="setTab('Library')" class="left-bar-button without-lower-border"><p> </p><img src="icon/library.svg" id="library-icon" draggable="false">Library<p> </p><p> </p><p> </p></button>
+            <button id="Media" onclick="setTab('Media')" class="left-bar-button" disabled><p> </p><p> </p><p> </p><p> </p><p> </p><img src="icon/media.svg" id="media-icon" draggable="false"><p> </p><p> </p><p> </p>Friends & Artists<p> </p><p> </p><p> </p></button>
+            <div id="notifications-section">
+                <div>
+                    <h3 id="notifications-title">notifications:</h3>
+                </div>
+                <div id="notifications">
+                    <h4 id="no-new-notifications">There are currently no new ones</h4>
+                </div>
+            </div>
+        </div>
+        <div id="top">
+            <h2 id="open-tab">Home:</h2>
+            <input spellcheck="false" id="search" type="search" placeholder="Search...">
+            <div id="prof">
+                <img src="icon/logout.svg" alt="" class="prof-item">
+                <img src="icon/changeAccount.svg" alt="" class="prof-item">
+                <img src="icon/account.svg" alt="" class="prof-item">
+                <p id="nickname" class="prof-item">Pan_prosiaczek</p>
+            </div>
+        </div>
+        <div id="content">
+            <div id="home-content">
+                <h2 class="category-name">Losowe Piosenki</h2>
+                <div id="losowe-piosenki" class="song-scroll">
+                    <div> <img src="img/DivisionBell.webp" class="home-album-cover" onclick="setSongTo(1, true); newSelected('Playlist')" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
+                    <div> <img src="img/Lonerism.jpg" class="home-album-cover" onclick="setSongTo(2, true); newSelected('Song')" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
+                    <div> <img src="img/unnamed.jpg" class="home-album-cover" onclick="setSongTo(3, true); newSelected('Song')" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
+                </div>
+            </div>
+
+            <div id="library-content">
+                <div id="filters">
+                    <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'All'; filterChanged()">All</button>
+                    <div class="dropdown">
+                        <button class="librarybtn" onclick="toggleDropdown('1')">☰ PlayLists</button>
+                        <div class="dropdown-content" id="dropdown-content1">
+                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[0]; filterChanged()">none</p>
+                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[1]; filterChanged()">none</p>
+                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[2]; filterChanged()">none</p>
+                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[3]; filterChanged()">none</p>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="librarybtn" onclick="toggleDropdown('2')">☰ Artists</button>
+                        <div class="dropdown-content" id="dropdown-content2">
+                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[0]; filterChanged()">none</p>
+                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[1]; filterChanged()">none</p>
+                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[2]; filterChanged()">none</p>
+                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[3]; filterChanged()">none</p>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="librarybtn" onclick="toggleDropdown('3')">☰ Genres</button>
+                        <div class="dropdown-content" id="dropdown-content3">
+                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[0]; filterChanged()">none</p>
+                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[1]; filterChanged()">none</p>
+                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[2]; filterChanged()">none</p>
+                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[3]; filterChanged()">none</p>
+                        </div>
+                    </div>
+                    <button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Offline'; filterChanged()">Offline</button>
+                    <button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Rate'; filterChanged()">To Rate</button>
+                    <button onclick="ChangeFullSplit()" class="librarybtn" style="position: absolute; height: 44px;"><img style="position: relative; bottom: 1px;" id="split-full-screen-Library" src="icon/FullScreenLibrary.svg" alt=""></button>
+                </div>
+                <div id="add-song-playlist">
+                    <p id="add-playlist">Create PlayList</p>
+                    <p id="add-song">Add New Song</p>
+                    <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>>
+                </div>
+                <div id="songs">
+                    <!--<div class="songToSelectInLibrary"><div style="display: flex;"><img src="img/DivisionBell.webp" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">DivisionBell</p> <p class="rightBarArtistName">PinkFloyd ∙ DivisionBell ∙ 1984</p></div></div><p class="songTime" style="font-size: 1.5rem;">6:51</p></div>-->
+                </div>
+            </div>
+            
+            <div id="fullScreen">
+                <div id="album-image-placeholder">
+                    <img src="icon/newUser2.svg" alt="" id="album-image-fullScreen" draggable="false">
+                    <img src="icon/newUser2.svg" alt="" id="album-blure-fullScreen" draggable="false">
+                    <img src="icon/pause_circle.svg" id="play-pause-in-circle" draggable="false">
+                </div>
+                <div id="next-songs-list">
+                    <!--<div class="songToSelect"><div style="display: flex;"><img src="img/DivisionBell.webp" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">DivisionBell</p> <p class="rightBarArtistName">PinkFloyd</p></div></div><p class="songTime">6:51</p></div>-->
+                </div>
+            </div>
+        </div>
+        <div id="song-control">
+            <input type="range" name="time" id="time-line" max="1000">
+            <div id="controls">
+                <img src="icon/skipPrevious.svg" id="skipPrevious" draggable="false">
+                <img src="icon/playArrow.svg" id="play-stop" draggable="false">
+                <img src="icon/skipNext.svg" id="skipNext" draggable="false">
+                <p id="time">0:00 / 0:00</p>
+            </div>
+            <div id="main-info">
+                <img src="icon/NewUser.svg" alt="album" style="height: 50px; max-width: 80px; min-width: 50px; margin-right: 10px;" id="album-image" draggable="false">
+                <div id="one-under-the-other">
+                    <h5 id="song-name" style="padding-bottom: 5px;">Welcome to SoundSpace!</h5>
+                    <h6 id="artistAndAlbum">SoundSpace</h6>
+                </div>
+                <div id="star-and-rating">
+                    <div id="star" hidden></div>
+                    <p id="rating" hidden>4.9 / 5</p>
+                </div>
+            </div>
+            <div id="additional">
+                <img src="icon/fullScreen.svg" alt="" class="additional-icon" draggable="false" id="fullScreen-button">
+                <img src="icon/moreOptions.svg" alt="" class="additional-icon" draggable="false">
+                <img src="icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false">
+                <img src="icon/volume2.svg" alt="" class="additional-icon" draggable="false" id="volume">
+                <input type="range" id="volume-bar" style="margin-right: 15px;" min="0" max="100" value="50" hidden>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

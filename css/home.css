@@ -1,0 +1,20 @@
+/* Stylizacja całego suwaka */
+#home-content::-webkit-scrollbar {
+    width: 12px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#home-content::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#home-content::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#home-content::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
