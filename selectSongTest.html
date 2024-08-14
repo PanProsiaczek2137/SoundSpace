@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scroll Animation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        
+        .scroll-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            overflow-x: scroll;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            white-space: nowrap;
+        }
+        
+        .scroll-content {
+            display: inline-flex;
+            align-items: center;
+            height: 300px;
+        }
+        
+        .item {
+            width: 200px;
+            height: 200px;
+            background-color: #3498db;
+            border-radius: 20px;
+            margin: 0 -10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            color: white;
+            transition: transform 0.5s ease, filter 0.5s ease, z-index 0s; /* Ustawienie płynniejszej animacji */
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-container">
+    <div class="scroll-content">
+        <div class="item">1</div>
+        <div class="item">2</div>
+        <div class="item">3</div>
+        <div class="item">4</div>
+        <div class="item">5</div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const items = $('.item');
+        let selectedItem = 1;  // Ta zmienna określa, który element jest wybrany
+
+        function updateItems() {
+            items.each(function(index) {
+                const itemIndex = index + 1;
+                const distance = Math.abs(itemIndex - selectedItem);
+
+                let scale;
+                let brightness;
+                let zindex;
+
+                if (distance === 0) {
+                    // Wybrany element
+                    scale = 1.5;
+                    brightness = 1.2;
+                    zindex = 3;
+                } else if (distance === 1) {
+                    // Elementy sąsiadujące
+                    scale = 1.25;
+                    brightness = 1.0;
+                    zindex = 2;
+                } else {
+                    // Pozostałe elementy
+                    scale = 1.0;
+                    brightness = 0.8;
+                    zindex = 1;
+                }
+                
+                $(this).css({
+                    transform: `scale(${scale})`,
+                    filter: `brightness(${brightness})`,
+                    'z-index': zindex
+                });
+            });
+        }
+
+        // Ustawienie wybranego elementu
+        function setSelectedItem(index) {
+            selectedItem = index;
+            updateItems();
+        }
+
+        setSelectedItem(1); // Początkowy wybór
+
+        // Interaktywny wybór elementu co 3 sekundy
+        setInterval(() => {
+            let index = parseInt(window.prompt('Który element wybrać? (1-5)'), 10);
+            if (index >= 1 && index <= 5) {
+                setSelectedItem(index);
+            } else {
+                alert('Proszę podać liczbę z przedziału 1-5.');
+            }
+        }, 3000); // Zmieniono czas na 3 sekundy dla lepszego doświadczenia
+    });
+</script>
+
+</body>
+</html>

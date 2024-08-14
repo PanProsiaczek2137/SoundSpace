@@ -2,12 +2,10 @@
     position: absolute;
     z-index: 2;
     visibility: hidden;
-}
-
-#library-content{
     width: 100%;
     height: 100%;
     background-color: var(--darkest-gray);
+    display: flex;
 }
 
 /* Stylizacja przycisku menu */
@@ -137,4 +135,88 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+#popup{
+    visibility: hidden;
+    background-color: #00000069;
+    z-index: 9999;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#create-playlist-menu{
+    position: absolute;
+    z-index: 99999;
+    height: 700px;
+    width: 1000px;
+    border: solid 5px var(--light-grey);
+    background-color: var(--medium-gray);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#create-playlist-menu h1{
+    margin-top: 10px;
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 2.5rem;
+}
+
+#create-playlist-options{
+    margin: 50px;
+    display: flex;
+}
+
+.input-create-playlist {
+    width: 350px;
+    height: 50px;
+    min-width: 150px;
+    padding: 0 10px;
+    border: 2px solid var(--lightest-gray);
+    border-radius: 5px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, background-color 0.3s;
+    font-family: var(--main-font);
+    margin-right: 35px;
+}
+
+.input-create-playlist::-webkit-text-cancel-button,
+.input-create-playlist::-webkit-text-clear-button,
+.input-create-playlist::-webkit-text-decoration,
+.input-create-playlist::-webkit-text-done-button,
+.input-create-playlist::-webkit-text-results-button,
+.input-create-playlist::-webkit-text-results-decoration {
+    -webkit-appearance: none;
+}
+
+.input-create-playlist::placeholder {
+    color: var(--shadow-white);
+    opacity: 1;
+}
+
+.input-create-playlist:focus {
+    border-color: var(--lightest-gray);
+    background-color: var(--lightest-gray);
+}
+
+.input-create-playlist:hover {
+    border-color: var(--light-grey);
+    background-color: var(--lightest-gray);
+}
+
+#dropdown-create-playlist{
+    width: 150px;
+    height: 50px;
+    border: 2px solid var(--lightest-gray);
+    background-color: var(--light-grey);
+    border-radius: 5px;
 }

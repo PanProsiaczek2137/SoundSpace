@@ -18,7 +18,7 @@ let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.
 
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
-let playingList = [[1, 2, 3], [2,1,1,2,2,3]];
+let playingList = [ [1, 2, 3], {name: 'PlayList1', icon: 'Lonerism.jpg', songs: [1,2,1,3,4]}, {name: 'PlayList2', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1]}];
 
 
                 audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
@@ -734,6 +734,24 @@ async function showSongsInLibraryWith(){
             }
         }
     }
+    if(filterType == 'PlayLists'){
+        for(i = 1; i < findPlaylistIndexes(selectedFilter).length+1; i++){
+            const newDiv = document.createElement('div');
+            newDiv.classList = 'songToSelectInLibrary';
+            newDiv.id = i;
+            newDiv.onclick = () => {
+                console.log(filterType + ': ' + selectedFilter);
+                setupPlaylistZero(filterType)
+                playPlaylist(0, true, newDiv.id-1, true)
+            };
+            let duration = await updateAudioDuration(AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].audio);
+            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].name}</p> <p class="rightBarArtistName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].artist}</p></div></div><p class="songTime">${duration}</p>`;
+            LibrarySongsList.appendChild(newDiv);
+            if(SplitFullScreenLibrary == 'Full'){
+                newDiv.style.width = '100%'
+            }
+        }
+    }
 }
 
 
@@ -742,6 +760,15 @@ function findArtistIndexes(artistName) {
     return AllSongs
         .map((song, index) => song.artist === artistName ? index : -1) // Mapowanie na indeksy
         .filter(index => index !== -1); // Usunięcie -1, które oznacza brak dopasowania
+}
+
+function findPlaylistIndexes(playlistName) {
+    for (let item of playingList) {
+        if (typeof item === 'object' && item.name === playlistName) {
+            return item.songs;
+        }
+    }
+    return 'Playlist not found';
 }
 
 
@@ -793,8 +820,19 @@ function setupPlaylistZero(filter){
     };
     if(filter == 'Artists'){
         playingList[0] = []
-        //for(i = 1; i < findArtistIndexes(selectedFilter).length+1; i++){
         playingList[0] = findArtistIndexes(selectedFilter);
-        //}
+    };
+    if(filter == 'PlayLists'){
+        playingList[0] = []
+        playingList[0] = findPlaylistIndexes(selectedFilter);
+    };
+    if(filter == 'Artists'){
+        playingList[0] = []
+        playingList[0] = findArtistIndexes(selectedFilter);
     };
 }
+
+//ToDo: Wyłączyć skróty kiedy piszesz w text box
+//ToDo: Dodać włączanie i wyłączanie create playlist menu
+//ToDO: Skończyć menu Create play list
+//ToDO: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki

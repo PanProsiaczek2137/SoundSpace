@@ -40,6 +40,16 @@
                 <p id="nickname" class="prof-item">Pan_prosiaczek</p>
             </div>
         </div>
+        <div id="popup">
+            <div id="create-playlist-menu">
+                <h1>Utwórz Playlistę:</h1>
+                <div id="create-playlist-options">
+                    <input type="text" class="input-create-playlist" placeholder="Name...">
+                    <input type="text" class="input-create-playlist" placeholder="description...">
+                    <div id="dropdown-create-playlist"></div>
+                </div>
+            </div>
+        </div>
         <div id="content">
             <div id="home-content">
                 <h2 class="category-name">Losowe Piosenki</h2>
@@ -49,7 +59,6 @@
                     <div> <img src="allResources/albumCover/unnamed.jpg" class="home-album-cover" onclick="playSingleSong(3, true, true)" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
                 </div>
             </div>
-
             <div id="library-content">
                 <div id="filters">
                     <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'All'; filterChanged()">All</button>
@@ -87,13 +96,12 @@
                 <div id="add-song-playlist">
                     <p id="add-playlist">Create PlayList</p>
                     <p id="add-song">Add New Song</p>
-                    <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>>
+                    <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>
                 </div>
                 <div id="songs">
                     <!--<div class="songToSelectInLibrary"><div style="display: flex;"><img src="albumCover/DivisionBell.webp" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">DivisionBell</p> <p class="rightBarArtistName">PinkFloyd ∙ DivisionBell ∙ 1984</p></div></div><p class="songTime" style="font-size: 1.5rem;">6:51</p></div>-->
                 </div>
             </div>
-            
             <div id="fullScreen">
                 <div id="album-image-placeholder">
                     <img src="allResources/albumCover/NewUser.svg" alt="" id="album-image-fullScreen" draggable="false">
