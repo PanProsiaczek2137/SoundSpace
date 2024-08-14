@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/home.css">
     <link rel="stylesheet" href="css/library.css">
     <script src="js/main.js" defer></script>
-    <script src="js/prof.js" defer type="module"></script>
+    <script src="js/prof.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
@@ -54,7 +54,7 @@
                 <div id="filters">
                     <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'All'; filterChanged()">All</button>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('1')">☰ PlayLists</button>
+                        <button class="librarybtn" onclick="toggleDropdown('1'); filterType = 'PlayLists'">☰ PlayLists</button>
                         <div class="dropdown-content" id="dropdown-content1">
                             <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[0]; filterChanged()">none</p>
                             <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[1]; filterChanged()">none</p>
@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('2')">☰ Artists</button>
+                        <button class="librarybtn" onclick="toggleDropdown('2'); filterType = 'Artists'">☰ Artists</button>
                         <div class="dropdown-content" id="dropdown-content2">
                             <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[0]; filterChanged()">none</p>
                             <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[1]; filterChanged()">none</p>
@@ -72,7 +72,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('3')">☰ Genres</button>
+                        <button class="librarybtn" onclick="toggleDropdown('3'); filterType = 'Genres'">☰ Genres</button>
                         <div class="dropdown-content" id="dropdown-content3">
                             <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[0]; filterChanged()">none</p>
                             <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[1]; filterChanged()">none</p>

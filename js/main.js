@@ -13,14 +13,13 @@ let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
 let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.wav', artist: 'SoundSpace', album: '-', icon: 'NewUser.svg'},
                 {name: 'Inside Out', audio: 'song.opus', artist: 'Pink Floyd', album: 'Devision Bell', icon: 'DivisionBell.webp'},
                 {name: 'The Serpentine', audio: 'TheSerpentine.opus', artist: 'Tame Impala', album: '-', icon: 'Lonerism.jpg'},
-                {name: 'COCOLINI', audio: 'COCOLINI - TEENZ.opus', artist: 'TEENZ', album: '-', icon: 'unnamed.jpg'}];
+                {name: 'COCOLINI', audio: 'COCOLINI - TEENZ.opus', artist: 'TEENZ', album: '-', icon: 'unnamed.jpg'},
+                {name: 'Mind Mischief', audio: 'Mind Mischief.opus', artist: 'Tame Impala', album: '-', icon: 'Lonerism.jpg'}];
 
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
 let playingList = [[1, 2, 3], [2,1,1,2,2,3]];
 
-//ToDo: Rozwiąsz problem z pierwszą playlistą :>
-//!  POWODZENIA!
 
                 audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
                 if ('mediaSession' in navigator) {
@@ -66,7 +65,6 @@ setInterval(() => {
     highlightTheSongOnRightBar();
     updateTimeLine();
 }, 10);
-
 
 function updateTimeBar(){
     let secondsCurrentTime = Math.floor(audio.currentTime) % 60
@@ -253,7 +251,7 @@ function setRightBarSong(id, icon, name, artist, time) {
     if (fullScreen && playingSongFromPlaylist != -1) {
         // Dodajemy nasłuchiwacz bezpośrednio do nowo stworzonego elementu
         newDiv.addEventListener('click', () => {
-            setSongTo(playingList[WhichPlaylistSelected][newDiv.id], true, WhichPlaylistSelected);
+            setSongTo(playingList[WhichPlaylistSelected][newDiv.id], true, true);
             playingSongFromPlaylist = newDiv.id
         });
     }
@@ -350,28 +348,28 @@ function setSongTo(Song, withFullScreen, playOnStart){
 navigator.mediaSession.setActionHandler('previoustrack', () => {
     if(playingSongFromPlaylist > 0){
         playingSongFromPlaylist--
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false);
+        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
     }
 });
 
 navigator.mediaSession.setActionHandler('nexttrack', () => {
     if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].length-1 && playingSongFromPlaylist != -1){
         playingSongFromPlaylist++
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false);
+        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
     }
 });
 
 skipNext.addEventListener('click', ()=>{
     if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].length-1 && playingSongFromPlaylist != -1){
         playingSongFromPlaylist++
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false);
+        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
     }
 });
 
 skipPrevious.addEventListener('click', ()=>{
     if(playingSongFromPlaylist > 0){
         playingSongFromPlaylist--
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false);
+        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
     }
 })
 
@@ -585,9 +583,9 @@ async function updateAudioDuration(fileName) {
 
 
 
-// -=-=-=-=- LIBRARY =-=-=-=-
+//! -=-=-=-=- LIBRARY =-=-=-=-
 
-
+let filterType = '';
 let selectedFilter = "All";
 const LibrarySongsList = document.getElementById('songs'); 
 let AllsongToSelectInLibrary = [];
@@ -707,9 +705,8 @@ async function showSongsInLibraryWith(){
             newDiv.classList = 'songToSelectInLibrary';
             newDiv.id = i;
             newDiv.onclick = () => {
-                setSongTo(newDiv.id, true);
-                newSelected('playList')
-                playingSongFromPlaylist = newDiv.id -1;
+                setupPlaylistZero('all', 'all')
+                playPlaylist(0, true, newDiv.id -1, true);
             };
             let duration = await updateAudioDuration(AllSongs[i].audio);
             newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[i].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[i].name}</p> <p class="rightBarArtistName">${AllSongs[i].artist}</p></div></div><p class="songTime">${duration}</p>`;
@@ -719,18 +716,18 @@ async function showSongsInLibraryWith(){
             }
         }
     }
-    if(AllSongs.some(song => song.artist === selectedFilter)){
+    if(filterType == 'Artists'){
         for(i = 1; i < findArtistIndexes(selectedFilter).length+1; i++){
             const newDiv = document.createElement('div');
             newDiv.classList = 'songToSelectInLibrary';
-            newDiv.id = findArtistIndexes(selectedFilter);
+            newDiv.id = i;
             newDiv.onclick = () => {
-                setSongTo(newDiv.id, true);
-                newSelected('song')
-                playingSongFromPlaylist = -1;
+                console.log(filterType + ': ' + selectedFilter);
+                setupPlaylistZero(filterType)
+                playPlaylist(0, true, newDiv.id-1, true)
             };
-            let duration = await updateAudioDuration(AllSongs[findArtistIndexes(selectedFilter)].audio);
-            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findArtistIndexes(selectedFilter)].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findArtistIndexes(selectedFilter)].name}</p> <p class="rightBarArtistName">${AllSongs[findArtistIndexes(selectedFilter)].artist}</p></div></div><p class="songTime">${duration}</p>`;
+            let duration = await updateAudioDuration(AllSongs[findArtistIndexes(selectedFilter)[i-1]].audio);
+            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findArtistIndexes(selectedFilter)[i-1]].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findArtistIndexes(selectedFilter)[i-1]].name}</p> <p class="rightBarArtistName">${AllSongs[findArtistIndexes(selectedFilter)[i-1]].artist}</p></div></div><p class="songTime">${duration}</p>`;
             LibrarySongsList.appendChild(newDiv);
             if(SplitFullScreenLibrary == 'Full'){
                 newDiv.style.width = '100%'
@@ -781,9 +778,23 @@ function ChangeFullSplit(){
     }
 }
 
-
 //The add song button, when clicked, opens the folder
 const addSongBtn = document.getElementById('add-song');
 addSongBtn.addEventListener('click',()=>{
     document.getElementById('fileInput').click();
 })
+
+function setupPlaylistZero(filter){
+    if(filter == 'all'){
+        playingList[0] = []
+        for(i = 1; i < AllSongs.length; i++){
+            playingList[0].push(i);
+        }
+    };
+    if(filter == 'Artists'){
+        playingList[0] = []
+        //for(i = 1; i < findArtistIndexes(selectedFilter).length+1; i++){
+        playingList[0] = findArtistIndexes(selectedFilter);
+        //}
+    };
+}
