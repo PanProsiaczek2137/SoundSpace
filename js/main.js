@@ -886,9 +886,22 @@ function showPopup(visible) {
 }
 
 
-
+//* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
 // Dodać włączanie i wyłączanie create playlist menu
 // Naprawić playlisty
 //? Skończyć menu Create play list
-//ToDo: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki
+//ToDO: Dodać możliwość tworzenia playlist
+//ToDO: Zrobić aby przycisk dodaj do playlisty działał
+//ToDo: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
+//ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek
+//ToDo: Zrobić aby home działało tak jak ma działać
+//ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece
+//ToDo: przekonwertoawć projekt na .exe i dodać api musicbrainz 
+//ToDo: Dodawanie piosenek i gui kiedy je dodajesz z opcjami
+//ToDo: Zaimplemętować Google drive apli i logowanie (parę dni)
+//ToDo: Zrobić aby serchbar na górze działał
+//ToDo: Małe Poprawki (parę dni)
+
+//* To Do For mobile:
+//Todo: Tą listę rzeczy do zrobienia  :>

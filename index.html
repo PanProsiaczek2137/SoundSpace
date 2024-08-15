@@ -46,8 +46,19 @@
                 <div id="create-playlist-options">
                     <input type="text" class="input-create-playlist text-input" placeholder="Name...">
                     <input type="text" class="input-create-playlist text-input" placeholder="description...">
-                    <div id="dropdown-create-playlist"></div>
+                    <div id="dropdown-create-playlist">
+                        <select name="public/private" id="public-private">
+                            <option value="Private">Private</option>
+                            <option value="Public listen">Public - only listen (Friends)</option>
+                            <option value="Public add">Public - can add (Friends)</option>
+                          </select>
+                    </div>
                 </div>
+                <h2 style="margin-bottom: 25px;">Polecane Do Playlisty:</h2>
+                <div id="sample-songs-to-add">
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><h3>The less I know the better</h3><h4>artist</h4></div>
+                </div>
+                <button>Create</button>
             </div>
         </div>
         <div id="content">

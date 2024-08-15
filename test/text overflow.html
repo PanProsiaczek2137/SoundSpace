@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animacja Tekstu</title>
+    <style>
+        .container {
+            width: 300px;
+            height: 50px;
+            border: 1px solid #000;
+            overflow: hidden; /* Ukrywa nadmiar tekstu */
+            position: relative;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+        }
+
+        .song-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            white-space: nowrap; /* Zapobiega łamaniu linii */
+            position: absolute;
+            transition: transform 2s linear; /* Przesunięcie tekstu z płynnością */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="song-title" id="text">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const text = document.getElementById('text');
+            const containerWidth = text.parentElement.offsetWidth;
+            const textWidth = text.offsetWidth;
+            console.log(containerWidth + "  " + textWidth);
+            function animateText() {
+                setTimeout(() => {
+                    text.style.transform = `translateX(-${textWidth-containerWidth}px)`;
+                }, 5000);
+                setTimeout(() => {
+                    text.style.transform = `translateX(${0}px)`;
+                }, 10000);
+            }
+            animateText();
+            setInterval(() => {
+                animateText();
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
