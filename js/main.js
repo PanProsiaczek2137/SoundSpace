@@ -19,7 +19,7 @@ let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.
 
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
-let playingList = [ [1, 2, 3], {name: 'PlayList1', icon: 'Lonerism.jpg', songs: [1,2,1,3,4]}, {name: 'PlayList2', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1]}];
+let playingList = [ {songs: [1, 2, 3]}, {name: 'PlayList1', icon: 'Lonerism.jpg', songs: [1,2,1,3,4]}, {name: 'PlayList2', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1]}];
 
 
                 /*audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
@@ -222,11 +222,11 @@ function PlayAnotherSongIfPosibleUpdate(){
             stopPlay.src = "allResources/icon/playArrow.svg";
             audio.currentTime = 0;
         }else{
-            if(playingSongFromPlaylist > playingList[WhichPlaylistSelected].length){
+            if(playingSongFromPlaylist > playingList[WhichPlaylistSelected].songs.length){
                 playingSongFromPlaylist = -1
             }else{
                 playingSongFromPlaylist++
-                setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
+                setSongTo(playingList[WhichPlaylistSelected].songs[playingSongFromPlaylist], false, true);
             }
         }
     }
@@ -253,7 +253,7 @@ function setRightBarSong(id, icon, name, artist, time) {
     if (fullScreen && playingSongFromPlaylist != -1) {
         // Dodajemy nasłuchiwacz bezpośrednio do nowo stworzonego elementu
         newDiv.addEventListener('click', () => {
-            setSongTo(playingList[WhichPlaylistSelected][newDiv.id], true, true);
+            setSongTo(playingList[WhichPlaylistSelected].songs[newDiv.id], true, true);
             playingSongFromPlaylist = newDiv.id
         });
     }
@@ -284,7 +284,7 @@ function highlightTheSongOnRightBar(){
 
 function playPlaylist(whichOne, withFullScreen, startForm, playOnStart){
     WhichPlaylistSelected = whichOne;
-    setSongTo(playingList[WhichPlaylistSelected][startForm], withFullScreen, playOnStart);
+    setSongTo(playingList[WhichPlaylistSelected].songs[startForm], withFullScreen, playOnStart);
     newSelected('playlist');
     playingSongFromPlaylist = startForm;
 }
@@ -350,34 +350,34 @@ function setSongTo(Song, withFullScreen, playOnStart){
 navigator.mediaSession.setActionHandler('previoustrack', () => {
     if(playingSongFromPlaylist > 0){
         playingSongFromPlaylist--
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
+        setSongTo(playingList[WhichPlaylistSelected].songs[playingSongFromPlaylist], false, true);
     }
 });
 
 navigator.mediaSession.setActionHandler('nexttrack', () => {
-    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].length-1 && playingSongFromPlaylist != -1){
+    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].songs.length-1 && playingSongFromPlaylist != -1){
         playingSongFromPlaylist++
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
+        setSongTo(playingList[WhichPlaylistSelected].songs[playingSongFromPlaylist], false, true);
     }
 });
 
 skipNext.addEventListener('click', ()=>{
-    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].length-1 && playingSongFromPlaylist != -1){
+    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].songs.length-1 && playingSongFromPlaylist != -1){
         playingSongFromPlaylist++
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
+        setSongTo(playingList[WhichPlaylistSelected].songs[playingSongFromPlaylist], false, true);
     }
 });
 
 skipPrevious.addEventListener('click', ()=>{
     if(playingSongFromPlaylist > 0){
         playingSongFromPlaylist--
-        setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
+        setSongTo(playingList[WhichPlaylistSelected].songs[playingSongFromPlaylist], false, true);
     }
 })
 
 //Animations
 skipNext.addEventListener('mouseenter', ()=>{
-    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].length-1 && playingSongFromPlaylist != -1){
+    if(playingSongFromPlaylist < playingList[WhichPlaylistSelected].songs.length-1 && playingSongFromPlaylist != -1){
         skipNext.style.animation = 'none';
         skipNext.style.animation = 'mauseOn 0.25s forwards';
     }
@@ -536,8 +536,8 @@ async function newSelected(PlaylisySong) {
     if (PlaylisySong == 'playlist') {
         deleteAllSongsFromRightBar();
         playingSongFromPlaylist = 0;
-        for (let i = 0; i < playingList[WhichPlaylistSelected].length; i++) {
-            const song = AllSongs[playingList[WhichPlaylistSelected][i]];
+        for (let i = 0; i < playingList[WhichPlaylistSelected].songs.length; i++) {
+            const song = AllSongs[playingList[WhichPlaylistSelected].songs[i]];
             const duration = await updateAudioDuration(song.audio);
             setRightBarSong(i, 'allResources/albumCover/' + song.icon, song.name, song.artist, duration);
         }
@@ -841,22 +841,18 @@ addSongBtn.addEventListener('click',()=>{
 
 function setupPlaylistZero(filter){
     if(filter == 'all'){
-        playingList[0] = []
+        playingList[0].songs = []
         for(i = 1; i < AllSongs.length; i++){
-            playingList[0].push(i);
+            playingList[0].songs.push(i);
         }
     };
-    if(filter == 'Artists'){
-        playingList[0] = []
-        playingList[0] = findArtistIndexes(selectedFilter);
-    };
     if(filter == 'PlayLists'){
-        playingList[0] = []
-        playingList[0] = findPlaylistIndexes(selectedFilter);
+        playingList[0].songs = []
+        playingList[0].songs = findPlaylistIndexes(selectedFilter);
     };
     if(filter == 'Artists'){
-        playingList[0] = []
-        playingList[0] = findArtistIndexes(selectedFilter);
+        playingList[0].songs = []
+        playingList[0].songs = findArtistIndexes(selectedFilter);
     };
 }
 
@@ -893,6 +889,6 @@ function showPopup(visible) {
 
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
 // Dodać włączanie i wyłączanie create playlist menu
-//? Naprawić playlisty
-//ToDO: Skończyć menu Create play list
-//ToDO: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki
+// Naprawić playlisty
+//? Skończyć menu Create play list
+//ToDo: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki
