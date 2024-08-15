@@ -32,7 +32,7 @@
         </div>
         <div id="top">
             <h2 id="open-tab">Home:</h2>
-            <input spellcheck="false" id="search" type="search" placeholder="Search...">
+            <input spellcheck="false" class="text-input" id="search" type="search" placeholder="Search...">
             <div id="prof">
                 <img src="allResources/icon/logout.svg" alt="" class="prof-item">
                 <img src="allResources/icon/changeAccount.svg" alt="" class="prof-item">
@@ -44,8 +44,8 @@
             <div id="create-playlist-menu">
                 <h1>Utwórz Playlistę:</h1>
                 <div id="create-playlist-options">
-                    <input type="text" class="input-create-playlist" placeholder="Name...">
-                    <input type="text" class="input-create-playlist" placeholder="description...">
+                    <input type="text" class="input-create-playlist text-input" placeholder="Name...">
+                    <input type="text" class="input-create-playlist text-input" placeholder="description...">
                     <div id="dropdown-create-playlist"></div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <h2 class="category-name">Losowe Piosenki</h2>
                 <div id="losowe-piosenki" class="song-scroll">
                     <div> <img src="allResources/albumCover/DivisionBell.webp" class="home-album-cover" onclick="playPlaylist(0, true, 0, true)" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
-                    <div> <img src="allResources/albumCover/Lonerism.jpg" class="home-album-cover" onclick="playPlaylist(1, true, 3, true)" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
+                    <div> <img src="allResources/albumCover/Lonerism.jpg" class="home-album-cover" onclick="playPlaylist(1, true, 0, true)" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
                     <div> <img src="allResources/albumCover/unnamed.jpg" class="home-album-cover" onclick="playSingleSong(3, true, true)" draggable="false"> <h3 class="home-song-name">Inside Out</h3> <h5 class="home-artist-name">Devision Bell</h5></div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                     <button onclick="ChangeFullSplit()" class="librarybtn" style="position: absolute; height: 44px;"><img style="position: relative; bottom: 1px;" id="split-full-screen-Library" src="allResources/icon/FullScreenLibrary.svg" alt=""></button>
                 </div>
                 <div id="add-song-playlist">
-                    <p id="add-playlist">Create PlayList</p>
+                    <p id="add-playlist" onclick="showPopup(true)">Create PlayList</p>
                     <p id="add-song">Add New Song</p>
                     <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>
                 </div>

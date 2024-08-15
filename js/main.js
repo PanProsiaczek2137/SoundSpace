@@ -7,6 +7,7 @@ let mute = false;
 let audio;
 let songPlayed = -1;
 let songToSelect;
+let keybinds = true;
 let AllPlayLists = ['PlayList1', 'PlayList2', 'PlayList3', 'PlayList4']
 let AllArtists = ['Tame Impala', 'Pink Floyd', 'Led Zeppelin', 'Daft Punk',]
 let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
@@ -21,7 +22,7 @@ let WhichPlaylistSelected = 0;
 let playingList = [ [1, 2, 3], {name: 'PlayList1', icon: 'Lonerism.jpg', songs: [1,2,1,3,4]}, {name: 'PlayList2', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1]}];
 
 
-                audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
+                /*audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
                 if ('mediaSession' in navigator) {
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: 'Witaj w soundSpace!',
@@ -31,11 +32,12 @@ let playingList = [ [1, 2, 3], {name: 'PlayList1', icon: 'Lonerism.jpg', songs: 
                             { src: 'allResources/albumCover/1.jpg', sizes: '512x512', type: 'image/svg' }
                         ]
                     });
-                }
+                }*/
 
-                /*setTimeout(() => {
+                setTimeout(() => {
                     playSingleSong(0, false, false);
-                }, 1);*/
+                    pauseResumeSong('pause');
+                }, 1);
 
 const ImageStar = document.getElementById('star')
 const tabTitle = document.getElementById('open-tab');
@@ -224,7 +226,7 @@ function PlayAnotherSongIfPosibleUpdate(){
                 playingSongFromPlaylist = -1
             }else{
                 playingSongFromPlaylist++
-                setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, WhichPlaylistSelected);
+                setSongTo(playingList[WhichPlaylistSelected][playingSongFromPlaylist], false, true);
             }
         }
     }
@@ -333,7 +335,7 @@ function setSongTo(Song, withFullScreen, playOnStart){
 
     if(playOnStart){
         audio.play();
-        isPlaying = true
+        isPlaying = true;
     }else{
         
     }
@@ -457,47 +459,73 @@ Array.from(homeAlbumCover).forEach(element => {
 });
 
 
+function checkTextInputFocus() {
+    const textInputs = document.querySelectorAll('.text-input');
+    keybinds = true;
+
+    textInputs.forEach(input => {
+        if (document.activeElement === input) {
+            keybinds = false;
+        }
+    });
+}
+// Dodajemy nasłuchiwanie na zdarzenia focus i blur dla wszystkich elementów z klasą 'text-input'
+document.querySelectorAll('.text-input').forEach(input => {
+    input.addEventListener('focus', () => {
+        checkTextInputFocus();
+    });
+
+    input.addEventListener('blur', () => {
+        checkTextInputFocus();
+    });
+});
+// Można także sprawdzić stan od razu przy załadowaniu strony
+checkTextInputFocus();
+
+
 //keybinds
 document.addEventListener('keydown', function(event){
-    if(event.key == "f" || event.key == "F"){
-        if(fullScreen){
-            fullScreenOnOff(false)
-        }else{
-            fullScreenOnOff(true)
+    if(keybinds == true){
+        if(event.key == "f" || event.key == "F"){
+            if(fullScreen){
+                fullScreenOnOff(false)
+            }else{
+                fullScreenOnOff(true)
+            }
         }
-    }
-    if(event.key == "s" || event.key == "S"){
-        if(isPlaying){
-            isPlaying = false
-            audio.pause();
-            stopPlay.src = "allResources/icon/playArrow.svg"
-        }else{
-            isPlaying = true
-            audio.play();
-            stopPlay.src = "allResources/icon/pause.svg"
+        if(event.key == "s" || event.key == "S"){
+            if(isPlaying){
+                isPlaying = false
+                audio.pause();
+                stopPlay.src = "allResources/icon/playArrow.svg"
+            }else{
+                isPlaying = true
+                audio.play();
+                stopPlay.src = "allResources/icon/pause.svg"
+            }
         }
-    }
-    if(event.key == " "){
-        if(isPlaying){
-            isPlaying = false
-            audio.pause();
-            stopPlay.src = "allResources/icon/playArrow.svg"
-        }else{
-            isPlaying = true
-            audio.play();
-            stopPlay.src = "allResources/icon/pause.svg"
+        if(event.key == " "){
+            if(isPlaying){
+                isPlaying = false
+                audio.pause();
+                stopPlay.src = "allResources/icon/playArrow.svg"
+            }else{
+                isPlaying = true
+                audio.play();
+                stopPlay.src = "allResources/icon/pause.svg"
+            }
         }
-    }
-    if(event.key == "m" || event.key == "M"){
-        if(mute){
-            volumeBar.value = volume * 100;
-            audio.volume = volume;
-            mute = false;
-        }else{
-            volumeBar.value = 0;
-            audio.volume = 0;
-            mute = true;
+        if(event.key == "m" || event.key == "M"){
+            if(mute){
+                volumeBar.value = volume * 100;
+                audio.volume = volume;
+                mute = false;
+            }else{
+                volumeBar.value = 0;
+                audio.volume = 0;
+                mute = true;
 
+            }
         }
     }
 })
@@ -832,7 +860,39 @@ function setupPlaylistZero(filter){
     };
 }
 
-//ToDo: Wyłączyć skróty kiedy piszesz w text box
-//ToDo: Dodać włączanie i wyłączanie create playlist menu
+
+//Show/hide popup
+showPopup(false);
+function showPopup(visible) {
+    const popup = document.getElementById('popup');
+    const window = document.getElementById('create-playlist-menu')
+    popup.style.animation = 'none'; // Wyłączamy animację na początku
+    window.style.animation = 'none'; // Wyłączamy animację na początku
+
+    if (visible) {
+        popup.style.animation = 'show .4s forwards'; // Włączamy animację
+        popup.style.visibility = 'visible';
+        window.style.animation = 'fullscreenOn-AlbumCover .4s forwards'; // Włączamy animację
+            popup.addEventListener('click', function(event) {
+                setTimeout(() => {
+                    if (event.target.id === 'popup') {
+                        showPopup(false)
+                    }
+                }, 50);
+            });
+    } else {
+        setTimeout(() => {
+            popup.style.visibility = 'hidden';
+        }, 400);
+        window.style.animation = 'fullscreenOff-AlbumCover .4s forwards'; // Włączamy animację
+        popup.style.animation = 'hide .4s forwards'; // Włączamy animację
+    }
+}
+
+
+
+//naprawić że jak piszesz w text box to nie działają skruty klawiszowe
+// Dodać włączanie i wyłączanie create playlist menu
+//? Naprawić playlisty
 //ToDO: Skończyć menu Create play list
 //ToDO: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki
