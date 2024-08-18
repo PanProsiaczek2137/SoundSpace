@@ -3,54 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animacja Tekstu</title>
+    <title>Menu rozwijane na kliknięcie</title>
     <style>
-        .container {
-            width: 300px;
-            height: 50px;
-            border: 1px solid #000;
-            overflow: hidden; /* Ukrywa nadmiar tekstu */
-            position: relative;
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            align-items: center;
+        /* Stylizowanie przycisku menu */
+        .dropbtn {
+            background-color: #4CAF50; /* Zielony kolor */
+            color: white; /* Kolor tekstu */
+            padding: 16px; /* Wewnętrzne marginesy */
+            font-size: 16px; /* Rozmiar czcionki */
+            border: none; /* Brak obramowania */
+            cursor: pointer; /* Wskaźnik kursora */
         }
 
-        .song-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0;
-            white-space: nowrap; /* Zapobiega łamaniu linii */
-            position: absolute;
-            transition: transform 2s linear; /* Przesunięcie tekstu z płynnością */
+        /* Stylizowanie kontenera menu rozwijanego */
+        .dropdown {
+            position: relative; /* Pozycjonowanie kontenera */
+            display: inline-block; /* Wyświetlanie w linii */
+        }
+
+        /* Stylizowanie treści menu rozwijanego */
+        .dropdown-content {
+            display: none; /* Ukrywanie treści menu */
+            position: absolute; /* Pozycjonowanie absolutne */
+            bottom: 100%; /* Pozycjonowanie do góry, ponad przyciskiem */
+            background-color: #f9f9f9; /* Kolor tła */
+            min-width: 160px; /* Minimalna szerokość */
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Cień */
+            z-index: 1; /* Indeks złożoności */
+        }
+
+        /* Stylizowanie linków w menu rozwijanym */
+        .dropdown-content a {
+            color: black; /* Kolor tekstu */
+            padding: 12px 16px; /* Wewnętrzne marginesy */
+            text-decoration: none; /* Brak podkreślenia */
+            display: block; /* Blokowe wyświetlanie */
+        }
+
+        /* Stylizowanie linków po najechaniu kursorem */
+        .dropdown-content a:hover {
+            background-color: #f1f1f1; /* Kolor tła po najechaniu */
+        }
+
+        /* Stylizowanie widoczności menu po kliknięciu */
+        .show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="song-title" id="text">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</div>
+    <div class="dropdown">
+        <button class="dropbtn" onclick="toggleDropdown()">Menu</button>
+        <div class="dropdown-content" id="myDropdown">
+            <a href="#">Link 1</a>
+            <a href="#">Link 2</a>
+            <a href="#">Link 3</a>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const text = document.getElementById('text');
-            const containerWidth = text.parentElement.offsetWidth;
-            const textWidth = text.offsetWidth;
-            console.log(containerWidth + "  " + textWidth);
-            function animateText() {
-                setTimeout(() => {
-                    text.style.transform = `translateX(-${textWidth-containerWidth}px)`;
-                }, 5000);
-                setTimeout(() => {
-                    text.style.transform = `translateX(${0}px)`;
-                }, 10000);
+        // Funkcja włączająca/wyłączająca widoczność menu rozwijanego
+        function toggleDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // Funkcja ukrywająca menu, gdy klikniesz gdziekolwiek indziej
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
             }
-            animateText();
-            setInterval(() => {
-                animateText();
-            }, 10000);
-        });
+        }
     </script>
 </body>
 </html>

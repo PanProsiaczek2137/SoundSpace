@@ -6,8 +6,10 @@ let volume = 0.5;
 let mute = false;
 let audio;
 let songPlayed = -1;
+let playedSongIndex;
 let songToSelect;
 let keybinds = true;
+let selectedPlaylist;
 let AllPlayLists = ['PlayList1', 'PlayList2', 'PlayList3', 'PlayList4']
 let AllArtists = ['Tame Impala', 'Pink Floyd', 'Led Zeppelin', 'Daft Punk',]
 let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
@@ -19,7 +21,9 @@ let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.
 
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
-let playingList = [ {songs: [1, 2, 3]}, {name: 'PlayList1', icon: 'Lonerism.jpg', songs: [1,2,1,3,4]}, {name: 'PlayList2', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1]}];
+let playingList = [ {songs: [1, 2, 3]}, 
+                    {name: 'PlayList1', description: '-', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'private'},
+                    {name: 'PlayList2', description: '-', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1], type: 'private'}];
 
 
                 /*audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
@@ -61,11 +65,13 @@ const skipPrevious = document.getElementById('skipPrevious');
 
 //Main Loop
 setInterval(() => {
+    TimeLine.max = Math.floor(audio.duration);
     updateTimeBar();
     volumeBarUpdate();
     PlayAnotherSongIfPosibleUpdate();
     highlightTheSongOnRightBar();
     updateTimeLine();
+    DisableButtonIfNeedTo();
 }, 10);
 
 function updateTimeBar(){
@@ -282,9 +288,10 @@ function highlightTheSongOnRightBar(){
 
 
 
-function playPlaylist(whichOne, withFullScreen, startForm, playOnStart){
+function playPlaylist(whichOne, withFullScreen, startForm, playOnStart, startAtTime){
     WhichPlaylistSelected = whichOne;
-    setSongTo(playingList[WhichPlaylistSelected].songs[startForm], withFullScreen, playOnStart);
+    console.log('wybrano playlistę:' + WhichPlaylistSelected);
+    setSongTo(playingList[WhichPlaylistSelected].songs[startForm], withFullScreen, playOnStart, startAtTime);
     newSelected('playlist');
     playingSongFromPlaylist = startForm;
 }
@@ -296,7 +303,7 @@ function playSingleSong(whichOne, withFullScreen, playOnStart){
 }
 
 
-function setSongTo(Song, withFullScreen, playOnStart){
+function setSongTo(Song, withFullScreen, playOnStart, startAtTime){
     if (audio) {
         audio.pause();
     }
@@ -328,20 +335,19 @@ function setSongTo(Song, withFullScreen, playOnStart){
         });
     }
 
-    setTimeout(() => {
-        TimeLine.max = Math.floor(audio.duration);
-    }, 10);
-    
-
     if(playOnStart){
         audio.play();
         isPlaying = true;
+        stopPlay.src = "allResources/icon/pause.svg"
     }else{
-        
+        stopPlay.src = "allResources/icon/playArrow.svg"
     }
-    stopPlay.src = "allResources/icon/pause.svg"
     if(withFullScreen){
         fullScreenOnOff(true)
+    }
+    playedSongIndex = Song;
+    if(startAtTime != undefined){
+        audio.currentTime = startAtTime
     }
 }
 
@@ -608,7 +614,87 @@ async function updateAudioDuration(fileName) {
     }
 }
 
+let canHideDropDownAddToPlaylist = false;
+document.addEventListener('DOMContentLoaded', function () {
+    const dropdown = document.getElementById('dropdown-content-playlist');
+    let isMouseOverDropdown = false;
 
+    // Nasłuchuj, czy kursor wszedł nad dropdown
+    dropdown.addEventListener('mouseover', function () {
+        isMouseOverDropdown = true;
+    });
+
+    // Nasłuchuj, czy kursor opuścił dropdown
+    dropdown.addEventListener('mouseout', function () {
+        isMouseOverDropdown = false;
+    });
+
+    // Nasłuchuj kliknięcia myszki na całym dokumencie
+    document.addEventListener('click', function (event) {
+        // Sprawdź, czy kursor nie jest nad dropdown i kliknięto myszką
+        if (!isMouseOverDropdown && canHideDropDownAddToPlaylist) {
+            canHideDropDownAddToPlaylist = false;
+            document.getElementById('dropdown-content-playlist').style.visibility = 'hidden'
+        }
+    });
+});
+
+
+
+// Pobierz wszystkie elementy z klasą 'playlistToAddTo'
+const elements = Array.from(document.getElementsByClassName('playlistToAddTo'));
+function handleClick(event) {
+    let playlistSongs = playingList[(getPlaylistIndexWithName(event.target.textContent))].songs
+    
+if(playedSongIndex != 0){
+    if(!playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.includes(playedSongIndex)){
+        playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.push(playedSongIndex);
+        console.log('dodano piosenkę do ' + event.target.textContent)
+        showSongsInLibraryWith()
+        return
+    }
+
+    if(playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.includes(playedSongIndex)){
+        console.log('usunięto piosenkę z playlisty ' + event.target.textContent);
+        if(WhichPlaylistSelected > 0 && playlistSongs.includes(playedSongIndex)){
+            let currentTimeWhenReload = audio.currentTime
+            let wasPlaying = isPlaying
+            console.log('odświerzono!');
+            setTimeout(() => {
+                if(WhichPlaylistSelected == getPlaylistIndexWithName(event.target.textContent)){
+                    playPlaylist(WhichPlaylistSelected, false, playingSongFromPlaylist, true);
+                }else{
+                    playPlaylist(WhichPlaylistSelected, false, playingSongFromPlaylist, wasPlaying, currentTimeWhenReload);
+                };
+            }, 1);
+        }
+        playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.splice(playlistSongs.indexOf(playedSongIndex), 1);
+        showSongsInLibraryWith()
+    }
+}}
+
+elements.forEach(element => {
+    element.addEventListener('click', handleClick); // Dodaj nasłuchiwacz zdarzeń 'click'
+    setInterval(() => {
+        if(playingList[getPlaylistIndexWithName(element.textContent)].songs.includes(playedSongIndex)){
+            element.style.backgroundColor = '#444444'
+        }else{
+            element.style.backgroundColor = '#2c2c2c'
+        }
+    }, 10);
+});
+
+
+function getPlaylistIndexWithName(playlistName) {
+    // Iteracja po wszystkich elementach w playingList
+    for (let i = 0; i < playingList.length; i++) {
+        // Sprawdzenie, czy obecny element ma nazwę równą playlistName
+        if (playingList[i].name === playlistName) {
+            return i; // Zwróć indeks, jeśli znajdziesz playlistę
+        }
+    }
+    return -1; // Zwróć -1, jeśli nie znaleziono playlisty o podanej nazwie
+}
 
 
 //! -=-=-=-=- LIBRARY =-=-=-=-
@@ -768,9 +854,11 @@ async function showSongsInLibraryWith(){
             newDiv.classList = 'songToSelectInLibrary';
             newDiv.id = i;
             newDiv.onclick = () => {
+                playPlaylist(getPlaylistIndexWithName(selectedFilter), true, newDiv.id-1, true)
                 console.log(filterType + ': ' + selectedFilter);
+                /*selectedPlaylist = getPlaylistIndexWithName(selectedFilter);
                 setupPlaylistZero(filterType)
-                playPlaylist(0, true, newDiv.id-1, true)
+                playPlaylist(0, true, newDiv.id-1, true)*/
             };
             let duration = await updateAudioDuration(AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].audio);
             newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].name}</p> <p class="rightBarArtistName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].artist}</p></div></div><p class="songTime">${duration}</p>`;
@@ -846,10 +934,10 @@ function setupPlaylistZero(filter){
             playingList[0].songs.push(i);
         }
     };
-    if(filter == 'PlayLists'){
+    /*if(filter == 'PlayLists'){
         playingList[0].songs = []
         playingList[0].songs = findPlaylistIndexes(selectedFilter);
-    };
+    };*/
     if(filter == 'Artists'){
         playingList[0].songs = []
         playingList[0].songs = findArtistIndexes(selectedFilter);
@@ -859,6 +947,7 @@ function setupPlaylistZero(filter){
 
 //Show/hide popup
 showPopup(false);
+let createPlayListMenuVisible;
 function showPopup(visible) {
     const popup = document.getElementById('popup');
     const window = document.getElementById('create-playlist-menu')
@@ -866,16 +955,11 @@ function showPopup(visible) {
     window.style.animation = 'none'; // Wyłączamy animację na początku
 
     if (visible) {
+        createPlayListMenuVisible = true;
+        animateText()
         popup.style.animation = 'show .4s forwards'; // Włączamy animację
         popup.style.visibility = 'visible';
         window.style.animation = 'fullscreenOn-AlbumCover .4s forwards'; // Włączamy animację
-            popup.addEventListener('click', function(event) {
-                setTimeout(() => {
-                    if (event.target.id === 'popup') {
-                        showPopup(false)
-                    }
-                }, 50);
-            });
     } else {
         setTimeout(() => {
             popup.style.visibility = 'hidden';
@@ -886,15 +970,64 @@ function showPopup(visible) {
 }
 
 
+
+function animateText(){
+    let text = document.getElementsByClassName('song-name-scroll');
+    Array.from(text).forEach(element =>{
+        const containerWidth = element.parentElement.offsetWidth;
+        const textWidth = element.offsetWidth;
+
+            animateText()
+            function animateText() {
+                setTimeout(() => {
+                    element.style.transform = `translateX(-${textWidth-containerWidth}px)`;
+                }, 5000);
+                setTimeout(() => {
+                    element.style.transform = `translateX(${0}px)`;
+                }, 10000);
+                if(createPlayListMenuVisible){
+                    setTimeout(() => {
+                        animateText();
+                    }, 15000);
+                }
+            }
+    })
+}
+
+
+let playlistnameinput = document.getElementById('play-list-name-input');
+function createPlaylist(){
+    let playlistdescriptioninput = document.getElementById('play-list-description-input');
+    let publicPrivateOption = document.getElementById('public-private');
+    if(playlistnameinput.value != ""){
+        showPopup(false);
+        createPlayListMenuVisible = false;
+        playingList.push({name: playlistnameinput.value, description: playlistdescriptioninput.value = "" ? "-" : playlistdescriptioninput.value, icon: '-', songs: [], type: publicPrivateOption.value})
+    }
+}
+function DisableButtonIfNeedTo(){
+    let createPlaylistButton = document.getElementById('create-playlist');
+    // Używamy trim(), aby usunąć białe znaki z początku i końca
+    let trimmedValue = playlistnameinput.value.trim();
+    
+    if(trimmedValue === "" || playingList.some(playlist => playlist.name === trimmedValue || trimmedValue === "-" || trimmedValue.length > 32)){
+        createPlaylistButton.disabled = true;
+    } else {
+        createPlaylistButton.disabled = false;
+    }
+}
+
+
 //* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
 // Dodać włączanie i wyłączanie create playlist menu
 // Naprawić playlisty
-//? Skończyć menu Create play list
-//ToDO: Dodać możliwość tworzenia playlist
-//ToDO: Zrobić aby przycisk dodaj do playlisty działał
-//ToDo: Naprawić aby drop down  filtrów pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
-//ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek
+// Skończyć menu Create play list
+// Dodać możliwość tworzenia playlist
+//? Zrobić aby przycisk dodaj do playlisty działał
+//ToDo: Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
+//ToDo: edytowanie playlisty jak przesuwanie usuwanie zmiana nazwy czy obrazka
+//ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek i naprawić też przesuwanie się piosenek w CreatePlaylist kiedy spamisz włączy i czyłącz to dziwnie się zachowują nazwy piosenek
 //ToDo: Zrobić aby home działało tak jak ma działać
 //ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece
 //ToDo: przekonwertoawć projekt na .exe i dodać api musicbrainz 
@@ -904,4 +1037,4 @@ function showPopup(visible) {
 //ToDo: Małe Poprawki (parę dni)
 
 //* To Do For mobile:
-//Todo: Tą listę rzeczy do zrobienia  :>
+//Todo: Tą listę rzeczy do zrobienia  :> (pewnie react native)

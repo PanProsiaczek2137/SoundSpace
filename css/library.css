@@ -228,7 +228,7 @@
 #sample-songs-to-add {
     display: flex;
     width: 925px;
-    height: 300px;
+    height: 292px;
     overflow-x: auto;
     overflow-y: hidden;
 }
@@ -328,7 +328,8 @@
 
 .recommended-song-for-playlist {
     align-items: center;
-    width: 500px; /* Ustaw szerokość, aby ograniczyć wielkość tekstu */
+    height: 300px; /* Ustaw szerokość, aby ograniczyć wielkość tekstu */
+    width: 225px;
     margin-right: 20px;
 }
 
@@ -338,24 +339,51 @@
     margin-right: 20px;
 }
 
-.scrolling-text h3,
-.scrolling-text h4 {
-    display: inline-block;
+.song-name-container h3{
     white-space: nowrap;
-    margin: 0;
-    padding-right: 20px; /* Przerwa między tytułem a artystą */
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 24px;
+    font-weight: bold;
+    white-space: nowrap; /* Zapobiega łamaniu linii */
+    transition: transform 3s linear;
 }
 
-@keyframes scrollText {
-    0% {
-        transform: translateX(100%);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
+.recommended-song-for-playlist h4 {
+    font-size: 1.2rem;
+    font-family: var(--main-font);
+    color: var(--darker-white);
 }
 
-.scrolling-text h3,
-.scrolling-text h4 {
-    animation: scrollText 10s linear infinite; /* 10s - Czas animacji, dostosuj wedle potrzeb */
+.song-name-container{
+    width: 225px;
+    overflow: hidden; /* Ukrywa nadmiar tekstu */
+    position: relative;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
 }
+
+#dropdown-content-playlist{
+    bottom: 95px;
+    right: 15px;
+    position: absolute;
+    max-height: 300px;
+    width: 200px;
+    background-color: var(--light-grey);
+}
+
+#dropdown-content-playlist p{
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 1.35rem;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 2px;
+    border-top: solid 1px var(--darkest-gray);
+    border-bottom: solid 1px var(--darkest-gray);
+}
+
+/*#dropdown-content-playlist p:hover{
+    background-color: var(--lightest-gray);
+}  najpierw zrobić check box czy coś takiego przy AddToPlaylist potem to włączyć   */

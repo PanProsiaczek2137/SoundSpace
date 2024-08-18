@@ -40,25 +40,30 @@
                 <p id="nickname" class="prof-item">Pan_prosiaczek</p>
             </div>
         </div>
-        <div id="popup">
-            <div id="create-playlist-menu">
+        <div id="popup" onmousedown="if(!isMouseOnWindow){showPopup(false); createPlayListMenuVisible = false;}">
+            <div id="create-playlist-menu" onmouseenter="isMouseOnWindow = true"; onmouseleave="isMouseOnWindow = false">
                 <h1>Utwórz Playlistę:</h1>
                 <div id="create-playlist-options">
-                    <input type="text" class="input-create-playlist text-input" placeholder="Name...">
-                    <input type="text" class="input-create-playlist text-input" placeholder="description...">
+                    <input type="text" class="input-create-playlist text-input" placeholder="Name..." id="play-list-name-input" autocomplete="off">
+                    <input type="text" class="input-create-playlist text-input" placeholder="description..." id="play-list-description-input" autocomplete="off">
                     <div id="dropdown-create-playlist">
                         <select name="public/private" id="public-private">
                             <option value="Private">Private</option>
-                            <option value="Public listen">Public - only listen (Friends)</option>
-                            <option value="Public add">Public - can add (Friends)</option>
+                            <option value="PublicListen">Public - only listen (Friends)</option>
+                            <option value="PublicAdd">Public - can add (Friends)</option>
                           </select>
                     </div>
                 </div>
                 <h2 style="margin-bottom: 25px;">Polecane Do Playlisty:</h2>
                 <div id="sample-songs-to-add">
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><h3>The less I know the better</h3><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
                 </div>
-                <button>Create</button>
+                <button onclick="createPlaylist()" id="create-playlist">Create</button>
             </div>
         </div>
         <div id="content">
@@ -146,7 +151,11 @@
             <div id="additional">
                 <img src="allResources/icon/fullScreen.svg" alt="" class="additional-icon" draggable="false" id="fullScreen-button">
                 <img src="allResources/icon/moreOptions.svg" alt="" class="additional-icon" draggable="false">
-                <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false">
+                    <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false" onclick="document.getElementById('dropdown-content-playlist').style.visibility = 'visible'; setTimeout(() => {canHideDropDownAddToPlaylist = true}, 1); if(canHideDropDownAddToPlaylist){setTimeout(() => {canHideDropDownAddToPlaylist = false}, 2)};" id="dropbtnPlaylist">
+                    <div id="dropdown-content-playlist" style="visibility: hidden;">
+                        <p class="playlistToAddTo">PlayList1</p>
+                        <p class="playlistToAddTo">PlayList2</p>
+                    </div>
                 <img src="allResources/icon/volume2.svg" alt="" class="additional-icon" draggable="false" id="volume">
                 <input type="range" id="volume-bar" style="margin-right: 15px;" min="0" max="100" value="50" hidden>
             </div>
