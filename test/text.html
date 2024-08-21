@@ -1,43 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Picker</title>
+    <title>Playlista</title>
     <style>
-        #fileInput {
-            display: none; /* Ukryj element input */
+        ul {
+            list-style-type: none;
+            padding: 0;
         }
-        img {
-            cursor: pointer;
-            width: 150px;
-            border: 2px solid #000;
-            border-radius: 4px;
-            transition: transform 0.2s;
+        li {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            cursor: move;
         }
-        img:hover {
-            transform: scale(1.05);
+        .dragging {
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
 
-<img src="your-image.jpg" alt="Click to choose an image" id="imageTrigger">
-
-<input type="file" id="fileInput" accept="image/*">
+<h1>Moja Playlista</h1>
+<ul id="playlist">
+    <li draggable="true">Piosenka 1</li>
+    <li draggable="true">Piosenka 2</li>
+    <li draggable="true">Piosenka 3</li>
+    <li draggable="true">Piosenka 4</li>
+</ul>
 
 <script>
-    document.getElementById('imageTrigger').addEventListener('click', function() {
-        document.getElementById('fileInput').click();
+    const playlist = document.getElementById('playlist');
+    let draggingItem;
+
+    playlist.addEventListener('dragstart', (e) => {
+        draggingItem = e.target;
+        e.target.classList.add('dragging');
     });
 
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            alert(`You selected: ${file.name}`);
-            // Tutaj możesz dodać dodatkową logikę, np. załadowanie wybranego obrazu na stronę
+    playlist.addEventListener('dragend', (e) => {
+        e.target.classList.remove('dragging');
+    });
+
+    playlist.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(playlist, e.clientY);
+        if (afterElement == null) {
+            playlist.appendChild(draggingItem);
+        } else {
+            playlist.insertBefore(draggingItem, afterElement);
         }
     });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
 </script>
 
 </body>

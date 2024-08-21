@@ -616,6 +616,36 @@
 #edit-playlist-image:hover {
     transform: scale(1.055);
 }
+
+
+/*.library-songs-list {
+    display: flex;
+    flex-direction: column;
+}*/
+
+.songToSelectInLibrary {
+    flex: 1 0 50%; 
+    box-sizing: border-box;
+    width: 50%;
+    height: 65px;
+    background-color: var(--darkest-gray);
+    border-bottom: solid 1px var(--light-grey);
+    border-right: solid 1px var(--light-grey);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.songToSelectInLibrary.dragging {
+    opacity: 1;
+}
+
+.songToSelectInLibrary.drag-over {
+    border: 2px dashed #333;
+}
+
+
+
 /*#dropdown-content-playlist p:hover{
     background-color: var(--lightest-gray);
 }  najpierw zrobić check box czy coś takiego przy AddToPlaylist potem to włączyć   */

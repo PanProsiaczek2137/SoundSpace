@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .draggable {
+      width: 100px;
+      height: 100px;
+      background-color: #3498db; /* Kolor normalny */
+      cursor: move;
+      position: relative;
+    }
+
+    .dragging-element {
+      position: absolute;
+      pointer-events: none;
+      width: 100px;
+      height: 100px;
+      background-color: #e74c3c; /* Kolor podczas przeciągania */
+      opacity: 0.8; /* Opcjonalnie: delikatna przezroczystość */
+      transform: translate(-50%, -50%); /* Opcjonalnie: centrowanie na kursorze */
+      z-index: 9999; /* Aby był na wierzchu */
+    }
+  </style>
+</head>
+<body>
+  <div id="dragElement" class="draggable" draggable="true"></div>
+
+  <script>
+    const dragElement = document.getElementById('dragElement');
+    let dragPreview = null;
+
+    dragElement.addEventListener('dragstart', (event) => {
+      // Tworzymy wirtualny element podczas przeciągania
+      dragPreview = document.createElement('div');
+      dragPreview.className = 'dragging-element';
+      document.body.appendChild(dragPreview);
+
+      // Ustawiamy pozycję wirtualnego elementu na kursorze
+      document.addEventListener('mousemove', updateDragPreviewPosition);
+    });
+
+    dragElement.addEventListener('dragend', (event) => {
+      // Usuwamy wirtualny element po zakończeniu przeciągania
+      if (dragPreview) {
+        document.body.removeChild(dragPreview);
+        dragPreview = null;
+      }
+
+      // Usuwamy nasłuchiwacz dla `mousemove`
+      document.removeEventListener('mousemove', updateDragPreviewPosition);
+    });
+
+    function updateDragPreviewPosition(event) {
+      if (dragPreview) {
+        dragPreview.style.left = `${event.clientX}px`;
+        dragPreview.style.top = `${event.clientY}px`;
+      }
+    }
+  </script>
+
+  <style>
+    /* Copyright 2018 Google LLC.
+SPDX-License-Identifier: Apache-2.0 */
+
+/* CSS files add styling rules to your content */
+
+body {
+  font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+  margin: 2em;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.dragElement {
+  border: 3px solid #666;
+  background-color: #ddd;
+  border-radius: .5em;
+  padding: 10px;
+  cursor: move;
+}
+
+.dragElement.over {
+  border: 3px dotted #666;
+}
+
+[draggable] {
+  user-select: none;
+}
+  </style>
+</body>
+</html>

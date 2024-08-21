@@ -10,7 +10,7 @@ let playedSongIndex;
 let songToSelect;
 let keybinds = true;
 let selectedPlaylist;
-let AllPlayLists = ['PlayList1', 'PlayList2', 'PlayList3', 'PlayList4']
+let AllPlayLists = ['aha', 'PlayList2']
 let AllArtists = ['Tame Impala', 'Pink Floyd', 'Led Zeppelin', 'Daft Punk',]
 let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
 let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.wav', artist: 'SoundSpace', album: '-', icon: 'NewUser.svg'},
@@ -22,7 +22,7 @@ let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
 let playingList = [ {songs: [1, 2, 3]}, 
-                    {name: 'PlayList1', description: 'Normale piosenki dla normalnych ludzi', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'Private'},
+                    {name: 'aha', description: 'Normale piosenki dla normalnych ludzi', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'Private'},
                     {name: 'PlayList2', description: 'wszystkie piosenki i te normalne i ta dziwna', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1], type: 'PublicAdd'}];
 
 
@@ -60,6 +60,9 @@ setInterval(() => {
     highlightTheSongOnRightBar();
     updateTimeLine();
     DisableButtonIfNeedTo();
+    if(selectedFilter == 'All'){
+        filterType = 'All'
+    }
 }, 10);
 
 function updateTimeBar(){
@@ -452,30 +455,6 @@ Array.from(homeAlbumCover).forEach(element => {
 
 });
 
-function checkTextInputFocus() {
-    const textInputs = document.querySelectorAll('.text-input');
-    keybinds = true;
-
-    textInputs.forEach(input => {
-        if (document.activeElement === input) {
-            keybinds = false;
-        }
-    });
-}
-// Dodajemy nasłuchiwanie na zdarzenia focus i blur dla wszystkich elementów z klasą 'text-input'
-document.querySelectorAll('.text-input').forEach(input => {
-    input.addEventListener('focus', () => {
-        checkTextInputFocus();
-    });
-
-    input.addEventListener('blur', () => {
-        checkTextInputFocus();
-    });
-});
-// Można także sprawdzić stan od razu przy załadowaniu strony
-checkTextInputFocus();
-
-
 //keybinds
 document.addEventListener('keydown', function(event){
     if(keybinds == true){
@@ -538,10 +517,6 @@ document.addEventListener('keydown', function(event){
             });
         });
     }
-
-    // Inicjalizacja funkcji po załadowaniu DOM
-    document.addEventListener('DOMContentLoaded', initializeDisableKeybinds);
-
 
 //Adds a playlist or a single song to the rightBar
 async function newSelected(PlaylisySong) {
@@ -722,7 +697,15 @@ function getPlaylistIndexWithName(playlistName) {
 }
 
 
+
+
+
 //! -=-=-=-=- LIBRARY =-=-=-=-
+
+
+
+
+
 
 let filterType = '';
 let selectedFilter = "All";
@@ -779,7 +762,7 @@ function reloadResults(){
         paragraphss = document.getElementsByClassName('PlayListParagraphs');
         const paragraph = document.createElement('p');
         paragraph.className = 'PlayListParagraphs';
-        paragraph.style.paddingTop = '2px'
+        //paragraph.style.paddingTop = '2px'
         paragraph.setAttribute('onclick', `selectedFilter = AllPlayLists[${i}]; filterChanged()`);
         paragraph.textContent = AllPlayLists[i];
         paragraph.addEventListener('mouseover', () => showImg(paragraph)); // Najechanie na element
@@ -790,9 +773,9 @@ function reloadResults(){
         img.alt = 'Edit icon'; // Dodajemy tekst alternatywny
         img.id = i+1;
         img.draggable = false;
-        img.style.position = 'relative';
-        img.style.right = '-40px';
-        img.style.bottom = '-6px';
+        img.style.position = 'absolute';
+        img.style.right = '10px';
+        //img.style.marginBottom = '10px';
         img.style.visibility = 'hidden';
         img.addEventListener('click', () => showPopupEditPlaylist(true, AllPlayLists[img.id-1])); // Najechanie na element
 
@@ -1025,6 +1008,91 @@ function SetNameTo(which, What){
 }
 
 
+
+setInterval(() => {
+    let songToSelectInLibrary = document.getElementsByClassName('songToSelectInLibrary');
+    Array.from(songToSelectInLibrary).forEach(element => {
+        if(SplitFullScreenLibrary == 'Full' && filterType == 'PlayLists'){
+            element.draggable = true;
+        }else{
+            element.draggable = false;
+        }
+    });
+}, 100);
+
+
+
+let draggedElement = null;
+const songContainer = document.getElementById('songs');
+let initialY = 0;
+
+// Funkcja do inicjalizacji funkcji drag-and-drop
+function setupDragAndDrop() {
+    songContainer.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('songToSelectInLibrary')) {
+            draggedElement = e.target;
+            draggedElement.classList.add('dragging');
+            draggedElement.style.zIndex = '1000'; // Ustaw z-index na wysoki, aby był nad innymi elementami
+            initialY = e.clientY;
+        }
+    });
+
+    songContainer.addEventListener('dragend', () => {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement.style.zIndex = ''; // Przywróć z-index do domyślnego
+            draggedElement = null;
+        }
+    });
+
+    songContainer.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Ważne, aby umożliwić upuszczanie
+        if (e.target.classList.contains('songToSelectInLibrary')) {
+            e.target.classList.add('drag-over');
+        }
+    });
+
+    songContainer.addEventListener('dragleave', (e) => {
+        e.target.classList.remove('drag-over');
+    });
+
+    songContainer.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.target.classList.contains('songToSelectInLibrary') && e.target !== draggedElement) {
+            e.target.classList.remove('drag-over');
+            const targetElement = e.target;
+            //const parent = targetElement.parentNode;
+            const rect = targetElement.getBoundingClientRect();
+            songContainer.insertBefore(draggedElement, targetElement)
+            if (e.clientY < initialY) {
+                songContainer.insertBefore(draggedElement, targetElement)
+            } else {
+                songContainer.insertBefore(targetElement, draggedElement)
+            }
+
+            updateSongOrder();
+
+        }
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupDragAndDrop();
+});
+
+
+function updateSongOrder() {
+    saveArray = playingList[getPlaylistIndexWithName(selectedFilter)].songs
+    playingList[getPlaylistIndexWithName(selectedFilter)].songs = []
+    const container = document.getElementById('songs');
+    for (let i = 0; i < saveArray.length; i++){
+        playingList[getPlaylistIndexWithName(selectedFilter)].songs.push(Number(container.children[i].id));
+    }
+    showSongsInLibraryWith()
+}
+
+
 //Shows Songs in the library that match the selected filter
 async function showSongsInLibraryWith(){
     deleteAllSongsFormLibrary()
@@ -1039,7 +1107,7 @@ async function showSongsInLibraryWith(){
                 playPlaylist(0, true, newDiv.id -1, true);
             };
             let duration = await updateAudioDuration(AllSongs[i].audio);
-            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[i].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[i].name}</p> <p class="rightBarArtistName">${AllSongs[i].artist}</p></div></div><p class="songTime">${duration}</p>`;
+            newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[i].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;" draggable="false"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName" draggable="false">${AllSongs[i].name}</p> <p class="rightBarArtistName" draggable="false">${AllSongs[i].artist}</p></div></div><p class="songTime" draggable="false">${duration}</p>`;
             LibrarySongsList.appendChild(newDiv);
             if(SplitFullScreenLibrary == 'Full'){
                 newDiv.style.width = '100%'
@@ -1067,14 +1135,11 @@ async function showSongsInLibraryWith(){
     if(filterType == 'PlayLists' && selectedFilter != 'All'){
         for(i = 1; i < findPlaylistIndexes(selectedFilter).length+1; i++){
             const newDiv = document.createElement('div');
-            newDiv.classList = 'songToSelectInLibrary';
-            newDiv.id = i;
+            newDiv.classList = 'songToSelectInLibrary ' + i;
+            newDiv.id = playingList[getPlaylistIndexWithName(selectedFilter)].songs[i-1];
             newDiv.onclick = () => {
-                playPlaylist(getPlaylistIndexWithName(selectedFilter), true, newDiv.id-1, true)
+                playPlaylist(getPlaylistIndexWithName(selectedFilter), true, newDiv.classList[1]-1, true)
                 console.log(filterType + ': ' + selectedFilter);
-                /*selectedPlaylist = getPlaylistIndexWithName(selectedFilter);
-                setupPlaylistZero(filterType)
-                playPlaylist(0, true, newDiv.id-1, true)*/
             };
             let duration = await updateAudioDuration(AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].audio);
             newDiv.innerHTML = `<div style="display: flex;"><img src="${'allResources/albumCover/' + AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].name}</p> <p class="rightBarArtistName">${AllSongs[findPlaylistIndexes(selectedFilter)[i-1]].artist}</p></div></div><p class="songTime">${duration}</p>`;
@@ -1135,6 +1200,7 @@ function ChangeFullSplit(){
         Container.style.display = 'flex'
     }
 }
+
 
 //The add song button, when clicked, opens the folder
 const addSongBtn = document.getElementById('add-song');
@@ -1306,7 +1372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         button.classList.add('active');
             playingList.splice(getPlaylistIndexWithName(editePlaylist), 1);
             showPopupEditPlaylist(false);
-            selectedFilter = AllPlayLists[0];
+            selectedFilter = 'All';
             reloadResults();
             filterChanged();
       }, holdTime);
@@ -1353,8 +1419,6 @@ setInterval(() => {
         saveButton.style.pointerEvents = 'auto';
         saveButton.style.opacity = '1';
     }
-
-    console.log(textinput.value.length);
 }, 10);
 
 
@@ -1375,7 +1439,6 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
     }
 });
 
-//ToDo! NA szybko: - edit buttom aby był w tym samym miejscu. - dodać każdemu input text klasę disable-keybinds
 
 //* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
@@ -1385,8 +1448,8 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 // Dodać możliwość tworzenia playlist
 // Zrobić aby przycisk dodaj do playlisty działał
 // Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
-//? edytowanie playlisty jak przesuwanie usuwanie zmiana nazwy czy obrazka
-//ToDo: Wyczyścić kod!
+//? edytowanie playlisty na żywo (to znaczy że już jak ją odtwarzasz)
+//? Wyczyścić kod!
 //Todo: dodać rightbar przy bibliotece z nazwą i obrazkiem wybranego filtra
 //ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek i naprawić też przesuwanie się piosenek w CreatePlaylist kiedy spamisz włączy i czyłącz to dziwnie się zachowują nazwy piosenek
 //ToDO: przekonwertoawć projekt na .exe i zrobić dodawanie piosenek do programu i gui kiedy je dodajesz z opcjami
