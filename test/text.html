@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Picker</title>
+    <style>
+        #fileInput {
+            display: none; /* Ukryj element input */
+        }
+        img {
+            cursor: pointer;
+            width: 150px;
+            border: 2px solid #000;
+            border-radius: 4px;
+            transition: transform 0.2s;
+        }
+        img:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+<img src="your-image.jpg" alt="Click to choose an image" id="imageTrigger">
+
+<input type="file" id="fileInput" accept="image/*">
+
+<script>
+    document.getElementById('imageTrigger').addEventListener('click', function() {
+        document.getElementById('fileInput').click();
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            alert(`You selected: ${file.name}`);
+            // Tutaj możesz dodać dodatkową logikę, np. załadowanie wybranego obrazu na stronę
+        }
+    });
+</script>
+
+</body>
+</html>

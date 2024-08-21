@@ -22,21 +22,9 @@ let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
 let playingList = [ {songs: [1, 2, 3]}, 
-                    {name: 'PlayList1', description: '-', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'private'},
-                    {name: 'PlayList2', description: '-', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1], type: 'private'}];
+                    {name: 'PlayList1', description: 'Normale piosenki dla normalnych ludzi', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'Private'},
+                    {name: 'PlayList2', description: 'wszystkie piosenki i te normalne i ta dziwna', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1], type: 'PublicAdd'}];
 
-
-                /*audio = new Audio('allResources/audio/WelcomeToSoundSpaceEcho.wav')
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: 'Witaj w soundSpace!',
-                        artist: 'SounsSpace',
-                        album: 'Witamy!',
-                        artwork: [
-                            { src: 'allResources/albumCover/1.jpg', sizes: '512x512', type: 'image/svg' }
-                        ]
-                    });
-                }*/
 
                 setTimeout(() => {
                     playSingleSong(0, false, false);
@@ -464,7 +452,6 @@ Array.from(homeAlbumCover).forEach(element => {
 
 });
 
-
 function checkTextInputFocus() {
     const textInputs = document.querySelectorAll('.text-input');
     keybinds = true;
@@ -535,6 +522,25 @@ document.addEventListener('keydown', function(event){
         }
     }
 })
+
+    //ToDo: dodać tą klasę do innych elementów zamiast tego co teraz jest.
+    // Funkcja, która dodaje event listener do każdego elementu z klasą 'disable-keybinds'
+    function initializeDisableKeybinds() {
+        const elements = document.querySelectorAll('.disable-keybinds');
+        
+        elements.forEach(element => {
+            element.addEventListener('focus', function() {
+                keybinds = false;
+            });
+            
+            element.addEventListener('blur', function() {
+                keybinds = true;
+            });
+        });
+    }
+
+    // Inicjalizacja funkcji po załadowaniu DOM
+    document.addEventListener('DOMContentLoaded', initializeDisableKeybinds);
 
 
 //Adds a playlist or a single song to the rightBar
@@ -640,12 +646,41 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
+function refreshDropDownAddToPlaylist() {
+    const container = document.getElementById('dropdown-content-playlist');
+    AllPlayLists = playingList.filter(playlist => playlist.name).map(playlist => playlist.name);
+    while(container.firstChild){
+        container.removeChild(container.firstChild);
+    }
 
-// Pobierz wszystkie elementy z klasą 'playlistToAddTo'
-const elements = Array.from(document.getElementsByClassName('playlistToAddTo'));
+    for (let i = 0; i < AllPlayLists.length; i++) {
+        const paragraph = document.createElement('p');
+        paragraph.className = 'playlistToAddTo';
+        paragraph.textContent = AllPlayLists[i];
+        //PlayListParagraphs[i].innerText = AllPlayLists[i];
+        container.appendChild(paragraph);
+    }
+    setTimeout(() => {
+        elements = Array.from(document.getElementsByClassName('playlistToAddTo'));
+        elements.forEach(element => {
+            element.addEventListener('click', handleClick); // Dodaj nasłuchiwacz zdarzeń 'click'
+            setInterval(() => {
+                if(playingList[getPlaylistIndexWithName(element.textContent)].songs.includes(playedSongIndex)){
+                    element.style.backgroundColor = '#444444'
+                }else{
+                    element.style.backgroundColor = '#2c2c2c'
+                }
+            }, 10);
+        });
+    }, 1);
+
+}
+
+
+//Add's and deletes songs form playlists
+let elements = Array.from(document.getElementsByClassName('playlistToAddTo'));
 function handleClick(event) {
     let playlistSongs = playingList[(getPlaylistIndexWithName(event.target.textContent))].songs
-    
 if(playedSongIndex != 0){
     if(!playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.includes(playedSongIndex)){
         playingList[(getPlaylistIndexWithName(event.target.textContent))].songs.push(playedSongIndex);
@@ -673,16 +708,6 @@ if(playedSongIndex != 0){
     }
 }}
 
-elements.forEach(element => {
-    element.addEventListener('click', handleClick); // Dodaj nasłuchiwacz zdarzeń 'click'
-    setInterval(() => {
-        if(playingList[getPlaylistIndexWithName(element.textContent)].songs.includes(playedSongIndex)){
-            element.style.backgroundColor = '#444444'
-        }else{
-            element.style.backgroundColor = '#2c2c2c'
-        }
-    }, 10);
-});
 
 
 function getPlaylistIndexWithName(playlistName) {
@@ -718,28 +743,220 @@ function toggleDropdown(which) {
 
 //hides the dropdown if clicked anywhere in the window
 let dropdownContentClass = document.getElementsByClassName('dropdown-content');
+ArtistSearchBar = false;
+PlaylistSearchBar = false;
 window.onclick = () => {
-    Array.from(dropdownContentClass).forEach(element => {
-        if (element.style.display === "block") {  // Użyj '===' do porównania
-            element.style.display = "none";
-        }
-    });
+    if(!ArtistSearchBar && !PlaylistSearchBar){
+        Array.from(dropdownContentClass).forEach(element => {
+            if (element.style.display === "block") {
+                element.style.display = "none";
+            }
+        });
+    }
 }
 
-
+reloadResults()
 //Sets the DropDown fields to the appropriate results
-const PlayListParagraphs = document.getElementsByClassName('PlayListParagraphs');
-const ArtistParagraphs = document.getElementsByClassName('ArtistParagraphs');
-const GenreParagraphs = document.getElementsByClassName('GenreParagraphs');
-for(i = 0; i<4; i++){
-    PlayListParagraphs[i].innerText = AllPlayLists[i];
+function reloadResults(){
+    AllPlayLists = playingList.filter(playlist => playlist.name).map(playlist => playlist.name);
+    AllArtists = [...new Set(AllSongs.map(song => song.artist))].slice(1);
+    const ArtistParagraphs = document.getElementsByClassName('ArtistParagraphs');
+    const GenreParagraphs = document.getElementsByClassName('GenreParagraphs');
+    const dropdownContent1 = document.getElementById('dropdown-content1');
+    const dropdownContent2 = document.getElementById('dropdown-content2');
+    const dropdownContent3 = document.getElementById('dropdown-content3');
+    while (dropdownContent1.firstChild) {
+        dropdownContent1.removeChild(dropdownContent1.firstChild);
+    }
+    while (dropdownContent2.firstChild) {
+        dropdownContent2.removeChild(dropdownContent2.firstChild);
+    }
+    /*while (dropdownContent3.firstChild) {
+        dropdownContent3.removeChild(dropdownContent3.firstChild);
+    }*/
+
+    for(i = 0; i<AllPlayLists.length; i++){
+        paragraphss = document.getElementsByClassName('PlayListParagraphs');
+        const paragraph = document.createElement('p');
+        paragraph.className = 'PlayListParagraphs';
+        paragraph.style.paddingTop = '2px'
+        paragraph.setAttribute('onclick', `selectedFilter = AllPlayLists[${i}]; filterChanged()`);
+        paragraph.textContent = AllPlayLists[i];
+        paragraph.addEventListener('mouseover', () => showImg(paragraph)); // Najechanie na element
+        paragraph.addEventListener('mouseout', () => hideImg(paragraph));  // Zjechanie z elementu
+        
+        const img = document.createElement('img');
+        img.src = 'allResources/icon/edit.svg';
+        img.alt = 'Edit icon'; // Dodajemy tekst alternatywny
+        img.id = i+1;
+        img.draggable = false;
+        img.style.position = 'relative';
+        img.style.right = '-40px';
+        img.style.bottom = '-6px';
+        img.style.visibility = 'hidden';
+        img.addEventListener('click', () => showPopupEditPlaylist(true, AllPlayLists[img.id-1])); // Najechanie na element
+
+        paragraph.appendChild(img);
+
+        dropdownContent1.appendChild(paragraph);
+
+        //PlayListParagraphs[i].innerText = AllPlayLists[i];
+    }
+
+    for(i = 0; i<AllArtists.length; i++){
+        const paragraph = document.createElement('p');
+        paragraph.className = 'ArtistParagraphs';
+        paragraph.setAttribute('onclick', `selectedFilter = AllArtists[${i}]; filterChanged()`);
+        paragraph.textContent = 'none';
+        dropdownContent2.appendChild(paragraph);
+        ArtistParagraphs[i].innerText = AllArtists[i];
+    }
+
+    for(i = 0; i<4; i++){
+        GenreParagraphs[i].innerText = AllGenres[i];
+        //ToDo: zrobć to samo po w pozostałych tylko dla zakładki Genres
+    }
+
+
+    if(AllPlayLists.length > 10){
+        const searchBar = document.createElement('input');
+        searchBar.className = 'PlaylistParagraphs filtersSerchbar';
+        searchBar.id = 'PlaylistSerchBar'
+        searchBar.type = 'serch';
+        searchBar.setAttribute('onkeyup', 'filterPlaylists()',);
+        searchBar.placeholder = 'Search playlists...';
+        searchBar.spellcheck = false;
+        searchBar.autocomplete = 'off'
+        searchBar.onmouseover = function() {
+            PlaylistSearchBar = true;
+        };
+        
+        searchBar.onmouseout = function() {
+            PlaylistSearchBar = false;
+        };
+        searchBar.addEventListener('focus', function() {
+            keybinds = false;
+          });
+        searchBar.addEventListener('blur', function() {
+            keybinds = true;
+          });
+
+        dropdownContent1.insertBefore(searchBar, dropdownContent1.firstChild);
+    }
+
+    if(AllArtists.length > 10){
+        const searchBar = document.createElement('input');
+        searchBar.className = 'ArtistParagraphs filtersSerchbar';
+        searchBar.id = 'ArtistSerchBar'
+        searchBar.type = 'serch';
+        searchBar.setAttribute('onkeyup', 'filterArtists()',);
+        searchBar.placeholder = 'Search artists...';
+        searchBar.spellcheck = false;
+        searchBar.autocomplete = 'off'
+        searchBar.onmouseover = function() {
+            ArtistSearchBar = true;
+        };
+        
+        searchBar.onmouseout = function() {
+            ArtistSearchBar = false;
+        };
+        searchBar.addEventListener('focus', function() {
+            keybinds = false;
+          });
+        searchBar.addEventListener('blur', function() {
+            keybinds = true;
+          });
+
+        dropdownContent2.insertBefore(searchBar, dropdownContent2.firstChild);
+    }
+
+    //ToDO: zrobć to samo po w pozostałych tylko dla zakładki Genres
+
 }
-for(i = 0; i<4; i++){
-    ArtistParagraphs[i].innerText = AllArtists[i];
+
+function editPlaylist(which){
+    console.log('wybrano: ' + which);
 }
-for(i = 0; i<4; i++){
-    GenreParagraphs[i].innerText = AllGenres[i];
+
+
+// Funkcja, która pokaże obrazek
+function showImg(paragraph) {
+    const img = paragraph.querySelector('img');
+    if (img) {
+        img.style.visibility = 'visible'; // Pokazujemy obrazek
+    }
 }
+
+// Funkcja, która schowa obrazek
+function hideImg(paragraph) {
+    const img = paragraph.querySelector('img');
+    if (img) {
+        img.style.visibility = 'hidden'; // Ukrywamy obrazek
+    }
+}
+
+
+let filteredPlaylists = [];
+
+// Funkcja filtrująca artystów
+function filterPlaylists() {
+    // Pobierz wartość z paska wyszukiwania
+    const input = document.getElementById('PlaylistSerchBar');
+    const filter = input.value.toLowerCase();
+
+    // Pobierz wszystkie elementy <p> z klasą "ArtistParagraphs" w dropdown-content
+    const dropdownContent = document.getElementById('dropdown-content1');
+    const paragraphs = dropdownContent.getElementsByClassName('PlayListParagraphs');
+
+    // Wyczyść tablicę przed rozpoczęciem filtrowania
+    filteredPlaylists = [];
+
+    // Przefiltruj artystów na podstawie wpisanego tekstu
+    for (let i = 0; i < paragraphs.length; i++) {
+        const txtValue = paragraphs[i].textContent || paragraphs[i].innerText;
+        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+            paragraphs[i].style.display = "";  // Pokaż element
+            filteredArtists.push(txtValue);    // Dodaj do przefiltrowanej listy
+        } else {
+            paragraphs[i].style.display = "none";  // Ukryj element
+        }
+    }
+
+    // Wyświetl przefiltrowaną tablicę w konsoli (lub użyj jej w inny sposób)
+}
+
+// Nowa tablica na przefiltrowane wyniki
+let filteredArtists = [];
+
+// Funkcja filtrująca artystów
+function filterArtists() {
+    // Pobierz wartość z paska wyszukiwania
+    const input = document.getElementById('ArtistSerchBar');
+    const filter = input.value.toLowerCase();
+
+    // Pobierz wszystkie elementy <p> z klasą "ArtistParagraphs" w dropdown-content
+    const dropdownContent = document.getElementById('dropdown-content2');
+    const paragraphs = dropdownContent.getElementsByClassName('ArtistParagraphs');
+
+    // Wyczyść tablicę przed rozpoczęciem filtrowania
+    filteredArtists = [];
+
+    // Przefiltruj artystów na podstawie wpisanego tekstu
+    for (let i = 1; i < paragraphs.length; i++) {
+        const txtValue = paragraphs[i].textContent || paragraphs[i].innerText;
+        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+            paragraphs[i].style.display = "";  // Pokaż element
+            filteredArtists.push(txtValue);    // Dodaj do przefiltrowanej listy
+        } else {
+            paragraphs[i].style.display = "none";  // Ukryj element
+        }
+    }
+
+    // Wyświetl przefiltrowaną tablicę w konsoli (lub użyj jej w inny sposób)
+}
+
+
+
 
 
 //Filters the displayed songs according to the selected filter
@@ -800,7 +1017,6 @@ function whichbtnfunction(which){
     whichbtn.style.backgroundColor = '#444444';
 }
 
-
 //Sets the selected filter button to the appropriate text
 function SetNameTo(which, What){
     whichbtn = librarybtn[which];
@@ -830,7 +1046,7 @@ async function showSongsInLibraryWith(){
             }
         }
     }
-    if(filterType == 'Artists'){
+    if(filterType == 'Artists' && selectedFilter != 'All'){
         for(i = 1; i < findArtistIndexes(selectedFilter).length+1; i++){
             const newDiv = document.createElement('div');
             newDiv.classList = 'songToSelectInLibrary';
@@ -848,7 +1064,7 @@ async function showSongsInLibraryWith(){
             }
         }
     }
-    if(filterType == 'PlayLists'){
+    if(filterType == 'PlayLists' && selectedFilter != 'All'){
         for(i = 1; i < findPlaylistIndexes(selectedFilter).length+1; i++){
             const newDiv = document.createElement('div');
             newDiv.classList = 'songToSelectInLibrary';
@@ -869,7 +1085,6 @@ async function showSongsInLibraryWith(){
         }
     }
 }
-
 
 function findArtistIndexes(artistName) {
     // Przefiltrować wszystkie elementy, gdzie artysta to `artistName`
@@ -944,17 +1159,18 @@ function setupPlaylistZero(filter){
     };
 }
 
-
+isMouseOnWindow = false;
 //Show/hide popup
-showPopup(false);
+showPopupCreatePlaylist(false);
 let createPlayListMenuVisible;
-function showPopup(visible) {
+function showPopupCreatePlaylist(visible) {
     const popup = document.getElementById('popup');
     const window = document.getElementById('create-playlist-menu')
     popup.style.animation = 'none'; // Wyłączamy animację na początku
     window.style.animation = 'none'; // Wyłączamy animację na początku
 
     if (visible) {
+        window.style.visibility = 'visible';
         createPlayListMenuVisible = true;
         animateText()
         popup.style.animation = 'show .4s forwards'; // Włączamy animację
@@ -963,6 +1179,42 @@ function showPopup(visible) {
     } else {
         setTimeout(() => {
             popup.style.visibility = 'hidden';
+            window.style.visibility = 'hidden';
+        }, 400);
+        window.style.animation = 'fullscreenOff-AlbumCover .4s forwards'; // Włączamy animację
+        popup.style.animation = 'hide .4s forwards'; // Włączamy animację
+    }
+}
+
+let editePlaylist;
+showPopupEditPlaylist(false);
+function showPopupEditPlaylist(visible, whichToEdit) {
+
+    const popup = document.getElementById('popup');
+    const window = document.getElementById('edit-playlist')
+    popup.style.animation = 'none'; // Wyłączamy animację na początku
+    window.style.animation = 'none'; // Wyłączamy animację na początku
+    editePlaylist = whichToEdit; 
+    if (visible) {
+        setTimeout(() => {
+            textChangedInEditPlaylist()
+        }, 1);
+        const playListNameInEditplaylist = document.getElementById('play-list-name-in-editplaylist');
+        const editPlaylistImage = document.getElementById('edit-playlist-image');
+        const playListDescriptionInEditplaylist = document.getElementById('play-list-description-in-editplaylist');
+        const publicPrivateOption = document.getElementById('publicPrivateOption');
+        playListNameInEditplaylist.value = whichToEdit;
+        editPlaylistImage.src = 'allResources/albumCover/' + playingList[getPlaylistIndexWithName(editePlaylist)].icon;
+        playListDescriptionInEditplaylist.value = playingList[getPlaylistIndexWithName(editePlaylist)].description;
+        publicPrivateOption.value = playingList[getPlaylistIndexWithName(editePlaylist)].type;
+        window.style.visibility = 'visible';
+        popup.style.animation = 'show .4s forwards'; // Włączamy animację
+        popup.style.visibility = 'visible';
+        window.style.animation = 'fullscreenOn-AlbumCover .4s forwards'; // Włączamy animację
+    } else {
+        setTimeout(() => {
+            popup.style.visibility = 'hidden';
+            window.style.visibility = 'hidden';
         }, 400);
         window.style.animation = 'fullscreenOff-AlbumCover .4s forwards'; // Włączamy animację
         popup.style.animation = 'hide .4s forwards'; // Włączamy animację
@@ -998,9 +1250,9 @@ function animateText(){
 let playlistnameinput = document.getElementById('play-list-name-input');
 function createPlaylist(){
     let playlistdescriptioninput = document.getElementById('play-list-description-input');
-    let publicPrivateOption = document.getElementById('public-private');
+    let publicPrivateOption = document.getElementById('public-private-create');
     if(playlistnameinput.value != ""){
-        showPopup(false);
+        showPopupCreatePlaylist(false);
         createPlayListMenuVisible = false;
         playingList.push({name: playlistnameinput.value, description: playlistdescriptioninput.value = "" ? "-" : playlistdescriptioninput.value, icon: '-', songs: [], type: publicPrivateOption.value})
     }
@@ -1017,6 +1269,113 @@ function DisableButtonIfNeedTo(){
     }
 }
 
+function textChangedInEditPlaylist() {
+    // Pobranie elementów
+    const textinput = document.getElementById('play-list-name-in-editplaylist');
+    const hiddenSpan = document.getElementById('hidden-span');
+
+    // Ustawienie tekstu w ukrytym elemencie span
+    hiddenSpan.textContent = textinput.value;
+
+    // Pobranie szerokości tekstu z ukrytego span
+    const textWidth = hiddenSpan.offsetWidth;
+
+    // Ustalamy maksymalną szerokość
+    const maxWidth = 700; // Maksymalna szerokość w px
+    const minWidth = 100; // Minimalna szerokość w px (opcjonalne, dla lepszego wyglądu)
+
+    // Ustawienie szerokości inputa na szerokość tekstu, ale nie przekraczając maxWidth
+    textinput.style.width = `${Math.min(textWidth , maxWidth)}px`;
+
+    // Opcjonalnie: Ustawienie minimalnej szerokości
+    textinput.style.minWidth = `${minWidth}px`;
+}
+
+
+// Delete button animation
+document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('deleteButton');
+    const progressBar = document.querySelector('.progress-bar');
+    let timer;
+    const holdTime = 2000; // Czas trzymania w ms (2 sekundy)
+  
+    button.addEventListener('mousedown', () => {
+      button.classList.remove('reset'); // Upewnij się, że nie jest w stanie resetowania
+      progressBar.style.transition = 'transform 2s ease-out'; // Przywróć animację
+      timer = setTimeout(() => {
+        button.classList.add('active');
+            playingList.splice(getPlaylistIndexWithName(editePlaylist), 1);
+            showPopupEditPlaylist(false);
+            selectedFilter = AllPlayLists[0];
+            reloadResults();
+            filterChanged();
+      }, holdTime);
+      progressBar.style.transform = 'scaleX(1)';
+    });
+  
+    button.addEventListener('mouseup', () => {
+      clearTimeout(timer);
+      button.classList.add('reset'); // Dodaj klasę resetowania
+      progressBar.style.transform = 'scaleX(0)';
+    });
+  
+    button.addEventListener('mouseleave', () => {
+      clearTimeout(timer);
+      button.classList.add('reset'); // Dodaj klasę resetowania
+      progressBar.style.transform = 'scaleX(0)';
+    });
+  });
+  
+
+function saveChangesForEditPlaylist(){
+    let textinput = document.getElementById('play-list-name-in-editplaylist');
+    let descriptioninput = document.getElementById('play-list-description-in-editplaylist');
+    let publicPrivateOption = document.getElementById('publicPrivateOption');
+    playingList[getPlaylistIndexWithName(editePlaylist)].description = descriptioninput.value
+    playingList[getPlaylistIndexWithName(editePlaylist)].type = publicPrivateOption.value
+    playingList[getPlaylistIndexWithName(editePlaylist)].name = textinput.value
+    showPopupEditPlaylist(false);
+    selectedFilter = textinput.value;
+    reloadResults();
+    filterChanged();
+}
+
+//TODo: usunąć intervala
+setInterval(() => {
+    const textinput = document.getElementById('play-list-name-in-editplaylist');
+    const saveButton = document.getElementById('save-button');
+    
+    // Użyj trim(), aby usunąć spacje z początku i końca ciągu znaków
+    if (textinput.value.trim().length === 0) {
+        saveButton.style.pointerEvents = 'none';
+        saveButton.style.opacity = '0.5';
+    } else {
+        saveButton.style.pointerEvents = 'auto';
+        saveButton.style.opacity = '1';
+    }
+
+    console.log(textinput.value.length);
+}, 10);
+
+
+
+
+document.getElementById('edit-playlist-image').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('edit-playlist-image').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+//ToDo! NA szybko: - edit buttom aby był w tym samym miejscu. - dodać każdemu input text klasę disable-keybinds
 
 //* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
@@ -1024,14 +1383,15 @@ function DisableButtonIfNeedTo(){
 // Naprawić playlisty
 // Skończyć menu Create play list
 // Dodać możliwość tworzenia playlist
-//? Zrobić aby przycisk dodaj do playlisty działał
-//ToDo: Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
-//ToDo: edytowanie playlisty jak przesuwanie usuwanie zmiana nazwy czy obrazka
+// Zrobić aby przycisk dodaj do playlisty działał
+// Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
+//? edytowanie playlisty jak przesuwanie usuwanie zmiana nazwy czy obrazka
+//ToDo: Wyczyścić kod!
+//Todo: dodać rightbar przy bibliotece z nazwą i obrazkiem wybranego filtra
 //ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek i naprawić też przesuwanie się piosenek w CreatePlaylist kiedy spamisz włączy i czyłącz to dziwnie się zachowują nazwy piosenek
+//ToDO: przekonwertoawć projekt na .exe i zrobić dodawanie piosenek do programu i gui kiedy je dodajesz z opcjami
 //ToDo: Zrobić aby home działało tak jak ma działać
-//ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece
-//ToDo: przekonwertoawć projekt na .exe i dodać api musicbrainz 
-//ToDo: Dodawanie piosenek i gui kiedy je dodajesz z opcjami
+//ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece (api musicbrainz) 
 //ToDo: Zaimplemętować Google drive apli i logowanie (parę dni)
 //ToDo: Zrobić aby serchbar na górze działał
 //ToDo: Małe Poprawki (parę dni)

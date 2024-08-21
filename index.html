@@ -40,31 +40,73 @@
                 <p id="nickname" class="prof-item">Pan_prosiaczek</p>
             </div>
         </div>
-        <div id="popup" onmousedown="if(!isMouseOnWindow){showPopup(false); createPlayListMenuVisible = false;}">
+        <div id="popup" onmousedown="if(!isMouseOnWindow){showPopupCreatePlaylist(false);showPopupEditPlaylist(false); createPlayListMenuVisible = false;}">
             <div id="create-playlist-menu" onmouseenter="isMouseOnWindow = true"; onmouseleave="isMouseOnWindow = false">
                 <h1>Utwórz Playlistę:</h1>
                 <div id="create-playlist-options">
-                    <input type="text" class="input-create-playlist text-input" placeholder="Name..." id="play-list-name-input" autocomplete="off">
-                    <input type="text" class="input-create-playlist text-input" placeholder="description..." id="play-list-description-input" autocomplete="off">
+                    <input type="text" class="input-create-playlist text-input" placeholder="Name..." id="play-list-name-input" autocomplete="off" maxlength="32">
+                    <input type="text" class="input-create-playlist text-input" placeholder="description..." id="play-list-description-input" autocomplete="off" maxlength="500">
                     <div id="dropdown-create-playlist">
-                        <select name="public/private" id="public-private">
+                        <select name="public/private" class="public-private" id="public-private-create">
                             <option value="Private">Private</option>
                             <option value="PublicListen">Public - only listen (Friends)</option>
                             <option value="PublicAdd">Public - can add (Friends)</option>
                           </select>
                     </div>
                 </div>
-                <h2 style="margin-bottom: 25px;">Polecane Do Playlisty:</h2>
-                <div id="sample-songs-to-add">
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
-                    <div class="recommended-song-for-playlist"><img src="allResources/albumCover/DivisionBell.webp" alt=""><div class="song-name-container"><h3 class="song-name-scroll">Nazwa Piosenki która jest bardzo długa i nie mieści się w jednej linii</h3></div><h4>artist</h4></div>
+                <h2 style="margin-bottom: 10px;">Select Playlist image:</h2>
+                <div id="graphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
+                    <img src="allResources/albumCover/DivisionBell.webp" alt="" class="recommendedGraphicsToSet">
                 </div>
                 <button onclick="createPlaylist()" id="create-playlist">Create</button>
             </div>
+
+
+            <div id="edit-playlist" style="display: flex; justify-content: center" onmouseenter="isMouseOnWindow = true" onmouseleave="isMouseOnWindow = false">
+                <div style="display: flex; margin-top: 20px;" id="title-edit-playlist">
+                    <h1>Editing</h1>
+                    <input 
+                        type="text" 
+                        autocomplete="off" 
+                        spellcheck="false" 
+                        id="play-list-name-in-editplaylist" 
+                        oninput="textChangedInEditPlaylist()"
+                        maxlength="32"
+                        class="disable-keybinds"
+                    >
+                </div>
+                <img src="allResources/albumCover/DivisionBell.webp" alt="" id="edit-playlist-image">
+                <input type="file" id="fileInput" accept="image/*">
+                <select name="public/private" class="public-private" id="publicPrivateOption">
+                    <option value="Private">Private</option>
+                    <option value="PublicListen">Public - only listen (Friends)</option>
+                    <option value="PublicAdd">Public - can add (Friends)</option>
+                </select>
+                <textarea name="description" placeholder="description..." spellcheck="false" maxlength="500" id="play-list-description-in-editplaylist" class="disable-keybinds"></textarea>
+                <div id="delete-save">
+                    <a href="#" id="deleteButton" draggable="false">
+                        <span class="button-text">Delete</span>
+                        <div class="progress-bar"></div>
+                    </a>
+                    <p id="save-button" onclick="saveChangesForEditPlaylist();">save</p>
+                </div>
+            </div>
+            
+            <!-- Ukryty span do pomiaru szerokości tekstu -->
+            <span id="hidden-span" style="position: absolute; visibility: hidden; white-space: pre; padding: 5px; font-family: var(--main-font); font-size: 4rem;"></span>
+            
+
         </div>
         <div id="content">
             <div id="home-content">
@@ -79,25 +121,27 @@
                 <div id="filters">
                     <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'All'; filterChanged()">All</button>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('1'); filterType = 'PlayLists'">☰ PlayLists</button>
+                        <button class="librarybtn" onclick="toggleDropdown('1'); filterType = 'PlayLists'; reloadResults()">☰ PlayLists</button>
                         <div class="dropdown-content" id="dropdown-content1">
-                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[0]; filterChanged()">none</p>
+                            <!--<p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[0]; filterChanged()">none</p>
                             <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[1]; filterChanged()">none</p>
                             <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[2]; filterChanged()">none</p>
-                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[3]; filterChanged()">none</p>
+                            <p class="PlayListParagraphs" onclick="selectedFilter = AllPlayLists[3]; filterChanged()">none</p>-->
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('2'); filterType = 'Artists'">☰ Artists</button>
+                        <button class="librarybtn" onclick="toggleDropdown('2'); filterType = 'Artists'; reloadResults()">☰ Artists</button>
                         <div class="dropdown-content" id="dropdown-content2">
-                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[0]; filterChanged()">none</p>
+                            <input type="search" id="artistSearchBar" placeholder="Search artists..." onkeyup="filterArtists()">
+                            <!--tutaj serch bar--> 
+                            <!--<p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[0]; filterChanged()">none</p>
                             <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[1]; filterChanged()">none</p>
                             <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[2]; filterChanged()">none</p>
-                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[3]; filterChanged()">none</p>
+                            <p class="ArtistParagraphs" onclick="selectedFilter = AllArtists[3]; filterChanged()">none</p>-->
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('3'); filterType = 'Genres'">☰ Genres</button>
+                        <button class="librarybtn" onclick="toggleDropdown('3'); filterType = 'Genres'; reloadResults()">☰ Genres</button>
                         <div class="dropdown-content" id="dropdown-content3">
                             <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[0]; filterChanged()">none</p>
                             <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[1]; filterChanged()">none</p>
@@ -110,7 +154,7 @@
                     <button onclick="ChangeFullSplit()" class="librarybtn" style="position: absolute; height: 44px;"><img style="position: relative; bottom: 1px;" id="split-full-screen-Library" src="allResources/icon/FullScreenLibrary.svg" alt=""></button>
                 </div>
                 <div id="add-song-playlist">
-                    <p id="add-playlist" onclick="showPopup(true)">Create PlayList</p>
+                    <p id="add-playlist" onclick="showPopupCreatePlaylist('true')">Create PlayList</p>
                     <p id="add-song">Add New Song</p>
                     <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>
                 </div>
@@ -151,7 +195,7 @@
             <div id="additional">
                 <img src="allResources/icon/fullScreen.svg" alt="" class="additional-icon" draggable="false" id="fullScreen-button">
                 <img src="allResources/icon/moreOptions.svg" alt="" class="additional-icon" draggable="false">
-                    <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false" onclick="document.getElementById('dropdown-content-playlist').style.visibility = 'visible'; setTimeout(() => {canHideDropDownAddToPlaylist = true}, 1); if(canHideDropDownAddToPlaylist){setTimeout(() => {canHideDropDownAddToPlaylist = false}, 2)};" id="dropbtnPlaylist">
+                    <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false" onclick="refreshDropDownAddToPlaylist(); document.getElementById('dropdown-content-playlist').style.visibility = 'visible'; setTimeout(() => {canHideDropDownAddToPlaylist = true}, 1); if(canHideDropDownAddToPlaylist){setTimeout(() => {canHideDropDownAddToPlaylist = false}, 2)};" id="dropbtnPlaylist">
                     <div id="dropdown-content-playlist" style="visibility: hidden;">
                         <p class="playlistToAddTo">PlayList1</p>
                         <p class="playlistToAddTo">PlayList2</p>

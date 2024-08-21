@@ -170,7 +170,7 @@
 
 #create-playlist-options{
     margin-top: 45px;
-    margin-bottom: 35px;
+    margin-bottom: 15px;
 
     display: flex;
 }
@@ -225,48 +225,47 @@
 
 /*jak zrobić że jest scroll bar na x a jak bym chciał żeby można było scrollować na x bez trzymania shifta*/
 
-#sample-songs-to-add {
+#graphicsToSet {
+    flex-wrap: wrap;
     display: flex;
-    width: 925px;
-    height: 292px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    width: 960px;
+    height: 300px;
 }
 
-#sample-songs-to-add img{
-    margin-right: 20px;
+#graphicsToSet img{
+    margin-right: 10px;
 }
 
 /* Stylizacja całego suwaka */
-#sample-songs-to-add::-webkit-scrollbar {
+#graphicsToSet::-webkit-scrollbar {
     height: 8px; /* Szerokość suwaka */
 }
 
 /* Stylizacja tła suwaka */
-#sample-songs-to-add::-webkit-scrollbar-track {
+#graphicsToSet::-webkit-scrollbar-track {
     background: var(--light-grey); /* Kolor tła suwaka */
 }
 
 /* Stylizacja uchwytu suwaka */
-#sample-songs-to-add::-webkit-scrollbar-thumb {
+#graphicsToSet::-webkit-scrollbar-thumb {
     background: var(--lightest-gray); /* Kolor uchwytu */
     transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
 }
 
 /* Stylizacja uchwytu suwaka przy najechaniu */
-#sample-songs-to-add::-webkit-scrollbar-thumb:hover {
+#graphicsToSet::-webkit-scrollbar-thumb:hover {
     background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
 }
 
 #create-playlist-menu h2{
-    margin-top: 5px;
+    margin-top: 25px;
     color: var(--white);
     font-family: var(--main-font);
-    font-size: 2rem;
+    font-size: 1.75rem;
 }
 
 
-#public-private {
+.public-private {
     background-color: var(--light-grey);
     color: var(--white);
     border: 1px solid var(--dark-gray);
@@ -276,17 +275,17 @@
     height: 100%;
 }
 
-#public-private:hover {
+.public-private:hover {
     background-color: var(--lightest-gray);
 }
 
-#public-private:focus {
+.public-private:focus {
     border-color: var(--medium-gray);
     outline: none;
 }
 
 /* Stylizacja strzałki rozwijanego menu */
-#public-private::after {
+.public-private::after {
     content: '\25BC'; /* Strzałka w dół */
     position: absolute;
     right: 10px;
@@ -296,7 +295,7 @@
 }
 
 #create-playlist-menu button {
-    margin-top: 30px;
+    margin-top: 55px;
     width: 225px;
     height: 75px;
     font-size: 2rem;
@@ -326,17 +325,12 @@
     cursor: not-allowed;
 }
 
-.recommended-song-for-playlist {
+.recommendedGraphicsToSet {
     align-items: center;
-    height: 300px; /* Ustaw szerokość, aby ograniczyć wielkość tekstu */
-    width: 225px;
-    margin-right: 20px;
-}
-
-.recommended-song-for-playlist img {
-    width: 225px;
-    height: auto;
-    margin-right: 20px;
+    width: 150px;
+    height: 150px;
+    margin-right: 10px;
+    margin-top: 10px;
 }
 
 .song-name-container h3{
@@ -349,12 +343,6 @@
     transition: transform 3s linear;
 }
 
-.recommended-song-for-playlist h4 {
-    font-size: 1.2rem;
-    font-family: var(--main-font);
-    color: var(--darker-white);
-}
-
 .song-name-container{
     width: 225px;
     overflow: hidden; /* Ukrywa nadmiar tekstu */
@@ -365,12 +353,34 @@
 }
 
 #dropdown-content-playlist{
+    overflow-y: auto;
     bottom: 95px;
     right: 15px;
     position: absolute;
-    max-height: 300px;
+    max-height: 336px;
     width: 200px;
     background-color: var(--light-grey);
+}
+
+/* Stylizacja całego suwaka */
+#dropdown-content-playlist::-webkit-scrollbar {
+    width: 4px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#dropdown-content-playlist::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#dropdown-content-playlist::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#dropdown-content-playlist::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
 }
 
 #dropdown-content-playlist p{
@@ -384,6 +394,228 @@
     border-bottom: solid 1px var(--darkest-gray);
 }
 
+.dropdown-content{
+    max-height: 215px;
+    overflow-y: auto;
+}
+
+/* Stylizacja całego suwaka */
+.dropdown-content::-webkit-scrollbar {
+    display: none;
+}
+
+.filtersSerchbar {
+    padding: 10px;
+    background-color: var(--light-grey);
+    color: var(--white);
+    border: none;
+    font-size: 16px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    width: 100%; /* Dopasowanie szerokości do rodzica z uwzględnieniem paddingu */
+    border: var(--lightest-gray) 1px solid;
+    box-sizing: border-box; /* Aby padding był uwzględniony w szerokości */
+}
+
+/* Stylizacja na hover */
+.filtersSerchbar:hover {
+    background-color: var(--medium-gray);
+}
+
+/* Stylizacja na focus */
+.filtersSerchbar:focus {
+    outline: none; /* Usunięcie domyślnego obrysu */
+    background-color: var(--medium-gray); /* Opcjonalne - Można dodać efekt aktywacji */
+}
+
+#edit-playlist{
+    background-color: var(--medium-gray);
+    width: 1000px;
+    height: 700px;
+    visibility: hidden;
+}
+
+#title-edit-playlist h1{
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 4rem;
+    height: 40px;
+}
+
+#title-edit-playlist input{
+    margin-left: 15px;
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 4rem;
+    background-color: var(--darkest-gray);
+    width: 500px;
+    box-shadow: none;
+    outline: none;
+    border-radius: 0;
+    border: 5px solid var(--darkest-gray);
+    height: 80px;
+}
+
+#title-edit-playlist{
+    top: 15px;
+}
+
+#edit-playlist{
+    border: solid 5px var(--light-grey);
+}
+
+#edit-playlist img{
+    position: absolute;
+    width: 365px;
+    left: 50px;
+    top: 125px;
+    padding: 10px;
+}
+
+#edit-playlist select{
+    position: absolute; 
+    width: 365px;
+    height: 50px;
+    left: 50px;
+    top: calc(125px + 365px);
+    font-size: 1.35rem;
+}
+
+#edit-playlist textarea{
+    position: absolute; 
+    width: 500px;
+    height: 416px;
+    right: 50px;
+    top: 125px;
+    font-size: 1.35rem;
+    background-color: var(--darkest-gray);
+    resize: none;
+    border: var(--darkest-gray) 10px solid;
+    color: var(--white);
+}
+
+#edit-playlist textarea:focus{
+    outline: none;
+    border: var(--darkest-gray) 10px solid;
+}
+
+#delete-save{
+    width: 100%;
+    position: absolute;
+    display: flex;
+    bottom: 50px;
+    justify-content: space-evenly;
+}
+
+/*#delete-save p{
+    font-size: 3rem;
+    border: solid 20px var(--darkest-gray);
+    font-family: var(--main-font);
+}
+
+#delete-save p:first-child{
+    background-color:var(--darkest-gray);
+    color: rgb(190, 32, 32);
+}*/
+
+#deleteButton {
+    border-radius: 4px;
+    border: 2px solid #c05551;
+    position: relative;
+    display: inline-block;
+    padding: 12px 24px;
+    color: #be5a56;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--darkest-gray);
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.2s;
+    overflow: hidden;
+  }
+  
+#deleteButton:hover {
+    background: #c9302c;
+    color: #fff;
+}
+  
+#deleteButton:active {
+    background: var(--light-grey);
+    color: #ffffff;
+    transform: scale(0.95);
+}
+  
+.button-text {
+    position: relative;
+    z-index: 1;
+}
+  
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: #c9302c;
+    border-radius: 4px;
+    overflow: hidden;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 2s ease-out;
+    z-index: 0;
+}
+  
+#deleteButton.active .progress-bar {
+    transform: scaleX(1);
+}
+
+
+#save-button{
+    border-radius: 4px;
+    border: 2px solid #263197;
+    position: relative;
+    display: inline-block;
+    padding: 12px 24px;
+    color: #4f5dd9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: var(--darkest-gray);
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.2s;
+    overflow: hidden;
+}
+
+#save-button:hover {
+    background: #4f5dd9;
+    color: #fff;
+}
+  
+#save-button:active {
+    background: #3743ad;
+    color: #ffffff;
+    transform: scale(0.95);
+}
+
+#fileInput {
+    display: none; /* Ukryj element input */
+}
+
+#edit-playlist-image {
+    cursor: pointer;
+    width: 150px;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    transition: transform 0.2s;
+}
+
+#edit-playlist-image:hover {
+    transform: scale(1.055);
+}
 /*#dropdown-content-playlist p:hover{
     background-color: var(--lightest-gray);
 }  najpierw zrobić check box czy coś takiego przy AddToPlaylist potem to włączyć   */

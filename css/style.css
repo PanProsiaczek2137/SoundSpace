@@ -491,6 +491,8 @@ body {
     mix-blend-mode: difference; /* odwrócenie koloru obrazka */
 }
 
+
+
 @keyframes shrink-to-zero {
     0% {
         transform: scale(1500%);
