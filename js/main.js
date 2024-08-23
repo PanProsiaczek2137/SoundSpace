@@ -30,6 +30,7 @@ let playingList = [ {songs: [1, 2, 3]},
                     pauseResumeSong('pause');
                 }, 1);
 
+
 const ImageStar = document.getElementById('star')
 const tabTitle = document.getElementById('open-tab');
 const buttonHome = document.getElementById('Home');
@@ -53,18 +54,17 @@ const skipPrevious = document.getElementById('skipPrevious');
 //Main Loop
 setInterval(() => {
     TimeLine.max = Math.floor(audio.duration);
-    updateTimeBar();
     volumeBarUpdate();
     PlayAnotherSongIfPosibleUpdate();
     highlightTheSongOnRightBar();
-    updateTimeLine();
     DisableButtonIfNeedTo();
     makeSongsDragable();
     saveButtonAnimation();
+    //initializeDisableKeybinds()
     if(selectedFilter == 'All'){
         filterType = 'All'
     }
-}, 10);
+}, 10);//ToDO: ZNALEŚĆ CO TAK OBCIĄRZA KOD!
 
 function updateTimeBar(){
     let secondsCurrentTime = Math.floor(audio.currentTime) % 60
@@ -84,6 +84,7 @@ function setTab(to){
         homeContent.style.visibility = 'visible'
         fullScreenOnOff(false);
         deleteAllSongsFormLibrary()
+        showlibraryRightBar(false)
     }else{
         buttonHome.style.backgroundColor = ''
         iconHome.src = "allResources/icon/home.svg"
@@ -96,6 +97,9 @@ function setTab(to){
         libraryContent.style.visibility = 'visible'
         fullScreenOnOff(false);
         showSongsInLibraryWith()
+        if(filterType == 'PlayLists'){
+            showlibraryRightBar(true);   
+        }
     }else{
         buttonLibrary.style.backgroundColor = ''
         iconLibrary.src = "allResources/icon/library.svg"
@@ -344,6 +348,10 @@ function setSongTo(Song, withFullScreen, playOnStart, startAtTime){
     if(startAtTime != undefined){
         audio.currentTime = startAtTime
     }
+    audio.addEventListener("timeupdate", (event) => {
+        updateTimeBar();
+        updateTimeLine();  
+    });
 }
 
 
@@ -649,7 +657,7 @@ function refreshDropDownAddToPlaylist() {
                 }else{
                     element.style.backgroundColor = '#2c2c2c'
                 }
-            }, 10);
+            }, 40);
         });
     }, 1);
 
@@ -785,7 +793,7 @@ function reloadResults(){
         paragraph.appendChild(img);
 
         dropdownContent1.appendChild(paragraph);
-
+        
         //PlayListParagraphs[i].innerText = AllPlayLists[i];
     }
 
@@ -934,6 +942,7 @@ function filterChanged(){
     Array.from(librarybtn).forEach(element=>{
         element.style.backgroundColor = '#2c2c2c'
         if(selectedFilter == 'All'){
+            showlibraryRightBar(false)
             whichbtnfunction(0);
         }
 
@@ -941,6 +950,7 @@ function filterChanged(){
             whichbtnfunction(1);
         }
         if(AllPlayLists.includes(selectedFilter)){
+            showlibraryRightBar(true)
             whichbtnfunction(1);
             SetNameTo(1, selectedFilter)
         }
@@ -949,6 +959,7 @@ function filterChanged(){
             whichbtnfunction(2);
         }
         if(AllArtists.includes(selectedFilter)){
+            showlibraryRightBar(false) //TODO: Dodać potem aby pokazywało i jako obrazek zdjęcie artysty bądź ikona kapeli a jako opis początek wiki na ich temet bądź ich konta opis
             whichbtnfunction(2);
             SetNameTo(2, selectedFilter)
         }
@@ -957,19 +968,23 @@ function filterChanged(){
             whichbtnfunction(3);
         }
         if(AllGenres.includes(selectedFilter)){
+            showlibraryRightBar(false) //TODO: Dodać potem bazę danych z gatunkami i obrazek z bazy danych tak samo opis (ale z wiki)
             whichbtnfunction(3);
             SetNameTo(3, selectedFilter)
         }
 
         if(selectedFilter == 'Offline'){
+            showlibraryRightBar(false)
             whichbtnfunction(4);
         }
 
         if(selectedFilter == 'Rate'){
+            showlibraryRightBar(false) //ToDO: tu też można potem pokazać np czy chcesz dodać tą piosenkę czy nie. Albo za ile wybrana piosenka się usunie
             whichbtnfunction(5);
         }
     })
-    showSongsInLibraryWith()
+    showSongsInLibraryWith();
+    changelibraryRightBar();
 }
 
 
@@ -1418,6 +1433,57 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 
 
 
+function changelibraryRightBar(){
+    if(filterType == 'PlayLists'){
+        let img = document.getElementById('playlists-info-img');
+        let imgBg = document.getElementById('playlists-info-img-blur');
+        let title  = document.getElementById('rigth-bar-library-title');
+        let description = document.getElementById('rigth-bar-library-description');
+        img.src = `allResources/albumCover/${ playingList[getPlaylistIndexWithName(selectedFilter)].icon}`;
+        imgBg.src = `allResources/albumCover/${ playingList[getPlaylistIndexWithName(selectedFilter)].icon}`;
+        title.innerText = playingList[getPlaylistIndexWithName(selectedFilter)].name;
+        description.innerText = playingList[getPlaylistIndexWithName(selectedFilter)].description;
+    }
+};
+
+showlibraryRightBar(false)
+function showlibraryRightBar(show){
+    let playlistsInfo = document.getElementById('playlists-info');
+    let songContainer = document.getElementById('songs'); 
+    if(show){
+
+        if(playlistsInfo.style.visibility != 'visible'){
+            playlistsInfo.style.visibility = 'visible';
+            playlistsInfo.style.animation += 'fullscreenOn-RightBar 0.25s forwards';
+            songContainer.style.animation = 'notFull 0.25s forwards';
+
+            setTimeout(() => {
+                playlistsInfo.style.animation = '';
+                songContainer.style.width = 'calc(100% - 336px)';
+                songContainer.style.animation = '';
+            }, 250);
+        }
+
+    }else{
+
+        if(playlistsInfo.style.visibility != 'hidden'){
+            playlistsInfo.style.animation += 'fullscreenOff-RightBar 0.25s forwards';
+            songContainer.style.animation += 'full 0.25s forwards';
+
+            setTimeout(() => {
+                playlistsInfo.style.visibility = 'hidden';
+                playlistsInfo.style.animation = '';
+                songContainer.style.width = '100%';
+                songContainer.style.animation = '';
+            }, 250);
+        }
+
+    }
+}
+
+
+
+
 //* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
 // Dodać włączanie i wyłączanie create playlist menu
@@ -1426,9 +1492,10 @@ document.getElementById('fileInput').addEventListener('change', function(event) 
 // Dodać możliwość tworzenia playlist
 // Zrobić aby przycisk dodaj do playlisty działał
 // Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
+// dodać rightbar przy bibliotece z nazwą i obrazkiem wybranego filtra
 //? edytowanie playlisty na żywo (to znaczy że już jak ją odtwarzasz)
-//Todo: dodać rightbar przy bibliotece z nazwą i obrazkiem wybranego filtra
 //ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek i naprawić też przesuwanie się piosenek w CreatePlaylist kiedy spamisz włączy i czyłącz to dziwnie się zachowują nazwy piosenek
+//ToDO: Naprawić preformace isiu który powstaje po czasie kożystania (problem tkwi w main setinterval)
 //ToDO: przekonwertoawć projekt na .exe i zrobić dodawanie piosenek do programu i gui kiedy je dodajesz z opcjami
 //ToDo: Zrobić aby home działało tak jak ma działać
 //ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece (api musicbrainz) 
