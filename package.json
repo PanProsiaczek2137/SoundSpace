@@ -1,0 +1,17 @@
+{
+  "name": "soundspace",
+  "version": "0.0.1",
+  "description": "Simple music player application",
+  "main": "js/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Mr.Piggy",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^32.0.1"
+  }
+}

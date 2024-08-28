@@ -250,8 +250,9 @@ fullScreenButton.addEventListener('click', ()=>{
 
 function setRightBarSong(id, icon, name, artist, time) {
     const newDiv = document.createElement('div');
-    newDiv.classList = 'songToSelect';
+    newDiv.classList = 'songToSelect ' + playingList[WhichPlaylistSelected].songs[id];
     newDiv.id = id;
+    newDiv.draggable = true;
     newDiv.innerHTML = `<div style="display: flex;"><img src="${icon}" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">${name}</p> <p class="rightBarArtistName">${artist}</p></div></div><p class="songTime">${time}</p>`;
     RightBar.appendChild(newDiv);
     songToSelect = document.getElementsByClassName('songToSelect');
@@ -271,7 +272,6 @@ function deleteAllSongsFromRightBar(){
     });
 }
 
-
 function highlightTheSongOnRightBar(){
     if(fullScreen && playingSongFromPlaylist != -1){
         Array.from(songToSelect).forEach(element =>{
@@ -284,6 +284,87 @@ function highlightTheSongOnRightBar(){
         })
     }
 };
+
+function setupDragAndDropRightBar() {
+    let dragedElementPlacement
+    let draggedElement = null;
+    let initialY = 0;
+    let initialIndex = 0;
+    const songContainer = document.getElementById('next-songs-list');
+
+    songContainer.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('songToSelect')) {
+            draggedElement = e.target;
+            draggedElement.classList.add('dragging');
+            draggedElement.style.zIndex = '1000';
+            initialY = e.clientY;
+
+            // Ustal początkowy indeks elementu
+            initialIndex = Array.from(songContainer.children).indexOf(draggedElement);
+        }
+    });
+
+    songContainer.addEventListener('dragend', () => {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement.style.zIndex = '';
+            draggedElement = null;
+        }
+    });
+
+    songContainer.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.target.classList.contains('songToSelect')) {
+            e.target.classList.add('drag-over');
+        }
+    });
+
+    songContainer.addEventListener('dragleave', (e) => {
+        dragedElementPlacement = e.target;
+        e.target.classList.remove('drag-over');
+    });
+
+    songContainer.addEventListener('drop', (e) => {
+        let dragedElement = e.target;
+        e.preventDefault();
+        if (e.target.classList.contains('songToSelect') && e.target !== draggedElement) {
+            e.target.classList.remove('drag-over');
+            const targetElement = e.target;
+            const rect = targetElement.getBoundingClientRect();
+            if (e.clientY < initialY) {
+                songContainer.insertBefore(draggedElement, targetElement);
+            } else {
+                songContainer.insertBefore(draggedElement, targetElement.nextSibling);
+            }
+            const finalIndex = Array.from(songContainer.children).indexOf(draggedElement);
+            const moveDifference = finalIndex - initialIndex;
+
+
+            //ToDo: Przyko mi przyszły ja lecz będziesz musiał to coś naprawić. Dokładniej to spraw aby nie było tej przerwy kiedy zmieniasz piosenkę z granej. Powodzenia, wierzę w ciebie 😁
+            container = document.getElementById('next-songs-list');
+            let after;
+            let before = Array.from(container.querySelectorAll('div'))[playingSongFromPlaylist*3].id
+            setupPlaylistZero('localSongsOrderChanged');
+            playPlaylist(0, false, playingSongFromPlaylist, false, audio.currentTime);
+            setTimeout(() => {
+                after = Array.from(container.querySelectorAll('div'))[playingSongFromPlaylist*3].id;
+                if(after != before){
+                    playingSongFromPlaylist = Number(playingSongFromPlaylist)
+                    console.log(playingSongFromPlaylist)
+                    console.log(moveDifference)
+                    console.log(playingSongFromPlaylist + moveDifference)
+                    playingSongFromPlaylist = playingSongFromPlaylist + moveDifference
+                    setSongTo(playingList[0].songs[playingSongFromPlaylist], false, true, audio.currentTime);
+                }
+            }, 200);
+
+
+        }
+    });
+}
+
+setupDragAndDropRightBar()
+
 
 
 
@@ -1015,11 +1096,12 @@ function makeSongsDragable(){
 
 
 
-let draggedElement = null;
-const songContainer = document.getElementById('songs');
-let initialY = 0;
+
 // Funkcja do inicjalizacji funkcji drag-and-drop
-function setupDragAndDrop() {
+function setupDragAndDropInPlaylistFilter() {
+    let draggedElement = null;
+    const songContainer = document.getElementById('songs');
+    let initialY = 0;
     songContainer.addEventListener('dragstart', (e) => {
         if (e.target.classList.contains('songToSelectInLibrary')) {
             draggedElement = e.target;
@@ -1067,7 +1149,7 @@ function setupDragAndDrop() {
         }
     });
 }
-setupDragAndDrop()
+setupDragAndDropInPlaylistFilter()
 
 
 function updateSongOrder() {
@@ -1214,6 +1296,13 @@ function setupPlaylistZero(filter){
         playingList[0].songs = []
         playingList[0].songs = findArtistIndexes(selectedFilter);
     };
+    if(filter == 'localSongsOrderChanged'){
+        playingList[0].songs = []
+        const songToSelect = document.getElementsByClassName('songToSelect');
+        Array.from(songToSelect).forEach(element=>{
+            playingList[0].songs.push(element.classList[1]);
+        })
+    }
 }
 
 isMouseOnWindow = false;
@@ -1482,7 +1571,7 @@ function showlibraryRightBar(show){
 }
 
 
-
+//!Bug: jak wybierzesz playlistę i potem klikniesz aby znów wybierało playlistę i klikniesz posenkę to występuje bład!
 
 //* To Do:
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
@@ -1493,15 +1582,14 @@ function showlibraryRightBar(show){
 // Zrobić aby przycisk dodaj do playlisty działał
 // Naprawić aby drop down filtrów aby pokazywał twoje rzeczywiste wyniki i dodać do niektórych serchbar
 // dodać rightbar przy bibliotece z nazwą i obrazkiem wybranego filtra
-//? edytowanie playlisty na żywo (to znaczy że już jak ją odtwarzasz)
+//ToDo: naprawić błąd z możliowącią kożystania z sktótów kiedy piszesz w input text
 //ToDo: naprawić nazwy piosenek na hone aby jak jest za długa to nie przepychała innych piosenek i naprawić też przesuwanie się piosenek w CreatePlaylist kiedy spamisz włączy i czyłącz to dziwnie się zachowują nazwy piosenek
-//ToDO: Naprawić preformace isiu który powstaje po czasie kożystania (problem tkwi w main setinterval)
 //ToDO: przekonwertoawć projekt na .exe i zrobić dodawanie piosenek do programu i gui kiedy je dodajesz z opcjami
 //ToDo: Zrobić aby home działało tak jak ma działać
 //ToDO: Dodać gatunki dla piosenek i żeby filtrowały się wedłud nich w bibliotece (api musicbrainz) 
 //ToDo: Zaimplemętować Google drive apli i logowanie (parę dni)
 //ToDo: Zrobić aby serchbar na górze działał
-//ToDo: Małe Poprawki (parę dni)
+//ToDo: Małe Poprawki (parę dni) min. naprawić lokalne dragAndDrop (funkcja o nazwie setupDragAndDropRightBar() dokładniej to koniec tej funkcji)
 
 //* To Do For mobile:
 //Todo: Tą listę rzeczy do zrobienia  :> (pewnie react native)
