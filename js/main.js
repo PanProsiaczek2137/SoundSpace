@@ -1571,9 +1571,12 @@ function showlibraryRightBar(show){
 }
 
 
-//!Bug: jak wybierzesz playlistę i potem klikniesz aby znów wybierało playlistę i klikniesz posenkę to występuje bład!
+
+//! I recommend ignoring this part of the file ;>  
+//! and if you are so curious, use a translator
 
 //* To Do:
+//wrzucić wszyskie ważne pliki do filder src i rodzielić js i css na więcej plików
 //naprawić że jak piszesz w text box to nie działają skruty klawiszowe
 // Dodać włączanie i wyłączanie create playlist menu
 // Naprawić playlisty
@@ -1590,6 +1593,8 @@ function showlibraryRightBar(show){
 //ToDo: Zaimplemętować Google drive apli i logowanie (parę dni)
 //ToDo: Zrobić aby serchbar na górze działał
 //ToDo: Małe Poprawki (parę dni) min. naprawić lokalne dragAndDrop (funkcja o nazwie setupDragAndDropRightBar() dokładniej to koniec tej funkcji)
+
+//!Bug: jak wybierzesz playlistę i potem klikniesz aby znów wybierało playlistę i klikniesz posenkę to występuje bład!
 
 //* To Do For mobile:
 //Todo: Tą listę rzeczy do zrobienia  :> (pewnie react native)
