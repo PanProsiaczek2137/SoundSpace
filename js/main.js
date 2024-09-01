@@ -13,16 +13,16 @@ let AllPlayLists = ['aha', 'PlayList2']
 let AllArtists = ['Tame Impala', 'Pink Floyd', 'Led Zeppelin', 'Daft Punk',]
 let AllGenres = ['Rock (Psychedelic)', 'Rock (Clasic)', 'Rock (Hard)', 'Indie']
 let AllSongs = [{name: 'Welcome to SoundSpace', audio: 'WelcomeToSoundSpaceEcho.wav', artist: 'SoundSpace', album: '-', icon: 'NewUser.svg'},
-                {name: 'Inside Out', audio: 'song.opus', artist: 'Pink Floyd', album: 'Devision Bell', icon: 'DivisionBell.webp'},
-                {name: 'The Serpentine', audio: 'TheSerpentine.opus', artist: 'Tame Impala', album: '-', icon: 'Lonerism.jpg'},
-                {name: 'COCOLINI', audio: 'COCOLINI - TEENZ.opus', artist: 'TEENZ', album: '-', icon: 'unnamed.jpg'},
-                {name: 'Mind Mischief', audio: 'Mind Mischief.opus', artist: 'Tame Impala', album: '-', icon: 'Lonerism.jpg'}];
+                {name: 'Moonlight Sonata', audio: 'Beethoven - Moonlight Sonata.mp3', artist: 'Beethoven', album: '-', icon: 'beethoven.jpg'},
+                {name: 'Nocturne', audio: 'Chopin - Nocturne.mp3', artist: 'Chopin', album: '-', icon: 'chopin.jpg'},
+                {name: 'Eine Kleine Nachtmusik', audio: 'Mozart - Eine Kleine Nachtmusik.mp3', artist: 'Mozart', album: '-', icon: 'mozart.jpg'},
+                {name: 'Lacrimosa', audio: 'Mozart - Lacrimosa.mp3', artist: 'Mozart', album: '-', icon: 'mozart.jpg'}];
 
 let playingSongFromPlaylist = -1;
 let WhichPlaylistSelected = 0;
 let playingList = [ {songs: [1, 2, 3]}, 
-                    {name: 'aha', description: 'Normale piosenki dla normalnych ludzi', icon: 'Lonerism.jpg', songs: [1,2,4], type: 'Private'},
-                    {name: 'PlayList2', description: 'wszystkie piosenki i te normalne i ta dziwna', icon: 'DivisionBell.webp', songs: [3,1,2,3,3,4,1], type: 'PublicAdd'}];
+                    {name: 'aha', description: 'Normale piosenki dla normalnych ludzi', icon: 'beethoven.jpg', songs: [1,2,4], type: 'Private'},
+                    {name: 'PlayList2', description: 'wszystkie piosenki i te normalne i ta dziwna', icon: 'chopin.jpg', songs: [3,1,2,3,3,4,1], type: 'PublicAdd'}];
 
 
                 setTimeout(() => {
