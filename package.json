@@ -2,7 +2,7 @@
   "name": "soundspace",
   "version": "0.0.1",
   "description": "Simple music player application",
-  "main": "js/index.js",
+  "main": "src/js/index.js",
   "directories": {
     "test": "test"
   },
