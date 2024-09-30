@@ -1,25 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoundSpace</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/home.css">
-    <link rel="stylesheet" href="css/library.css">
-    <script src="js/main.js" defer></script>
-    <script src="js/prof.js" defer></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
-    <link rel="icon" href="allResources/icon/SoundSpaceIconNew.svg">
-</head>
+<html lang="pl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!--<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';">-->
+        
+        <title>SoundSpace</title>
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Itim&display=swap">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/home.css">
+        <link rel="stylesheet" href="css/library.css">
+
+        <script src="js/render/test.js" type="module"></script>
+        <script src="js/modules/soundSystem.js" type="module"></script>
+        <script src="js/render/fullScreen.js" type="module"></script>
+        <script src="js/render/songControler.js" type="module"></script>
+        <script src="js/render/library_tab/filters.js" type="module"></script>
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>-->
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet">
+        <link rel="icon" href="allResources/icon/SoundSpaceIconNew.svg">
+    </head>
 <body>
     <div id="container">
         <div id="left-bar">
             <h1 onclick="location.reload()" id="title"><p style="position: relative; left: 11px;">Soun</p><img src="allResources/icon/Soun(icon)Space.svg" style="position:relative; left: 1px;" draggable="false"><p style="position: relative; left: -11px;">Space</p></h1>
-            <button id="Home" onclick="setTab('Home')" class="left-bar-button without-lower-border" style=" background-color: #161616;"><p> </p><img src="allResources/icon/home.svg" id="home-icon" draggable="false">Home<p> </p><p> </p><p> </p></button>
-            <button id="Library" onclick="setTab('Library')" class="left-bar-button without-lower-border"><p> </p><img src="allResources/icon/library.svg" id="library-icon" draggable="false">Library<p> </p><p> </p><p> </p></button>
+            <button id="Home" class="left-bar-button without-lower-border" style=" background-color: #161616;"><p> </p><img src="allResources/icon/home.svg" id="home-icon" draggable="false">Home<p> </p><p> </p><p> </p></button>
+            <button id="Library" class="left-bar-button without-lower-border"><p> </p><img src="allResources/icon/library.svg" id="library-icon" draggable="false">Library<p> </p><p> </p><p> </p></button>
             <button id="Media" onclick="setTab('Media')" class="left-bar-button" disabled><p> </p><p> </p><p> </p><p> </p><p> </p><img src="allResources/icon/media.svg" id="media-icon" draggable="false"><p> </p><p> </p><p> </p>Friends & Artists<p> </p><p> </p><p> </p></button>
             <div id="notifications-section">
                 <div>
@@ -34,8 +44,6 @@
             <h2 id="open-tab">Home:</h2>
             <input spellcheck="false" id="search" type="search" class='disable-keybinds' placeholder="Search...">
             <div id="prof">
-                <img src="allResources/icon/logout.svg" alt="" class="prof-item">
-                <img src="allResources/icon/changeAccount.svg" alt="" class="prof-item">
                 <img src="allResources/icon/account.svg" alt="" class="prof-item">
                 <p id="nickname" class="prof-item">Pan_prosiaczek</p>
             </div>
@@ -120,9 +128,9 @@
             </div>
             <div id="library-content">
                 <div id="filters">
-                    <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'All'; filterType = 'All'; filterChanged()">All</button>
+                    <button style="background-color: #444444;" class="librarybtn librarybtnMakeBigger" id="all-filter">All</button>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('1'); filterType = 'PlayLists'; reloadResults()">☰ PlayLists</button>
+                        <button class="librarybtn" id="playlist-filter">☰ PlayLists</button>
                         <div class="dropdown-content" id="dropdown-content1">
 
                         </div>
@@ -185,7 +193,7 @@
                 <p id="time">0:00 / 0:00</p>
             </div>
             <div id="main-info">
-                <img src="allResources/albumCover/NewUser.svg" alt="album" style="height: 50px; max-width: 80px; min-width: 50px; margin-right: 10px;" id="album-image" draggable="false">
+                <img src="allResources/albumCover/NewUser.svg" alt="album" id="album-image" draggable="false">
                 <div id="one-under-the-other">
                     <h5 id="song-name" style="padding-bottom: 5px;">Welcome to SoundSpace!</h5>
                     <h6 id="artistAndAlbum">SoundSpace</h6>

@@ -1,0 +1,19 @@
+- teleturnieje, gry gdzie można by rewalizować worół piosenek. Przerobić na wersje piosenkowe takie teleturnieje jak na przykład jeden z dziesięciu, szansa na sukces ipt.
+- Ulubiona piosenka pod swoim profilem
+- grupy związane z danym typem muzycznym czy artystą.
+- słuchanie muzyki razem.
+- informacja co słuchasz i możliwość odsłuchania tego.
+- asystent polecający piosenki na podstawie twojich gustów.
+- mini program tworzący muzykę na podstawie dostarczonych danych.
+- stworzenie ai które będzie pokazywało najlepsze wyniki i piosenki dla użytkownika
+- StonksID połącz swoje konta z aplikacji stonks
+- Podcasty muzyczne w 100% darmowe live gdzie można posłuchać na temat muzyki i artystów
+- Koncerty wirtualne gdzie słuchacze mogi by wykupić bilet za pieniądzę bądź za darmowe wejście
+- ligi muzyczne, rywalizujesz sam bądź w grupie o najlepszego słuchacza danego Garunku muzycznego. Były by leaderbordy i rangi
+- cyfrowe autografy zdobywa się z koncertów i wydarzeń
+- system wirualnych przedmiotów jak: kosmetyczne, praktyczne, autografy itp
+- Śledzenie trendów muzycznych
+- Współtworzenie playlist. Funkcja, która pozwala użytkownikom współtworzyć playlisty z innymi osobami, dodając i głosując na utwory, co może być świetnym sposobem na odkrywanie nowej muzyki.
+- Kursy muzyczne online Integracja z kursami muzycznymi online, gdzie użytkownicy mogą rozwijać swoje umiejętności muzyczne, uczyć się historii muzyki czy komponować własne utwory.
+- Analiza statystyk słuchania Szczegółowe statystyki dotyczące słuchania, takie jak czas spędzony na danym gatunku, ilość odsłuchanych utworów czy najczęściej odwiedzane playlisty.
+- aktca która się wykonuje przy włączeniu jakiejś aplikacji. Typy przy włączeniu cs2 spundsapce przyciszał by się bądź stopował.

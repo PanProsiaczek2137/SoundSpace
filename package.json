@@ -2,10 +2,7 @@
   "name": "soundspace",
   "version": "0.0.1",
   "description": "Simple music player application",
-  "main": "src/js/index.js",
-  "directories": {
-    "test": "test"
-  },
+  "main": "src/js/main.js",
   "scripts": {
     "start": "electron ."
   },
@@ -13,5 +10,14 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^32.0.1"
+  },
+  "dependencies": {
+    "audio-metadata": "^0.3.0",
+    "ffmpeg-static": "^5.2.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "get-audio-duration": "^4.0.1",
+    "jsmediatags": "^3.9.7",
+    "music-metadata": "^10.5.0",
+    "node-id3": "^0.2.6"
   }
 }
