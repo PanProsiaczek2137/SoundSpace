@@ -145,7 +145,6 @@ async function setUpPlaylist(songs, path) {
         SongsDisplayed = songs;
         console.log(songs);
         for (let i = 0; i < SongsDisplayed.length; i++) {
-            console.log('#')
             if (window.stop) {
                 console.log("Przerwano ładowanie");
                 return;
