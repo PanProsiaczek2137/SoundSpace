@@ -38,8 +38,7 @@ async function displayAllSongs() {
     try {
         const files = await window.api.getAllAudioFilePaths();
         SongsDisplayed = files;
-        console.log(SongsDisplayed);
-
+        
         for (let i = 0; i < SongsDisplayed.length; i++) {
             if (window.stop) {
                 console.log("Przerwano ładowanie");
