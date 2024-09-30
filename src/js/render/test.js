@@ -14,7 +14,6 @@ setTimeout(() => {
     console.log(songDuration, songCurrentTime);
 }, 4000);*/
 
-console.time()
 /*window.api.getAllAudioFileNames().then((files) => {
     for(let i = 0; i < files.length; i++){
         window.api.getSpecificAudioFile(files[i]).then((file) => {

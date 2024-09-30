@@ -128,7 +128,6 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
                 }
             }
             //console.log(window.playingPlaylist);
-            console.timeEnd()
         }).catch(err => console.error('Błąd:', err));
     } 
 
@@ -155,7 +154,6 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
                         }
                     }
                     //console.log(window.playingPlaylist);
-                    console.timeEnd()
                 }).catch(err => console.error('Błąd:', err)); 
             } catch (err) {
                 console.error('Błąd:', err);
@@ -169,7 +167,6 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
         console.log('custom playlist');
         (async () => {
             try {
-                console.time('Playlist Load Time'); // Rozpocznij mierzenie czasu
                 for (let i = 0; i < content.length; i++) {
                     await setRightBarSong(content[i]);
                     playingPlaylist.push(content[i]);
@@ -182,7 +179,6 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
                         playedPlaylistTrack = Number(startFrom)
                     }
                 }
-                console.timeEnd('Playlist Load Time'); // Zakończ mierzenie czasu
                 console.log(playingPlaylist)
             } catch (err) {
                 console.error('Błąd:', err);
