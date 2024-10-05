@@ -1,4 +1,4 @@
-import { setPlaylist, pauseSong } from '../../modules/soundSystem.js';
+import { setPlaylist, pauseSong, convertBackslashes } from '../../modules/soundSystem.js';
 //import { pauseResumeSong } from '../songControler.js';
 import { fullScreenOnOff } from '../fullScreen.js';
 
@@ -30,62 +30,65 @@ LibraryBtn.addEventListener('click', () => {
 
 
 
+
 async function displayAllSongs() {
     selectedFilter = 'all';
     songContainer.innerHTML = '';
     window.stop = false;  // Resetowanie flagi do zatrzymania
-    
-    try {
-        const files = await window.api.getAllAudioFilePaths();
-        SongsDisplayed = files;
+
+
+
+    window.api.getAllAudioFilePaths().then((files) => {
+        for (let i = 0; i < files.length; i++) {
+            window.api.getSongData(files[i]).then((file) => {
+                
+                    if (window.stop) {
+                        console.log("Przerwano ładowanie");
+                        return;  // Zakończ wykonywanie, jeśli stop jest ustawione na true
+                    }
+                        
+                    const newDiv = document.createElement('div');
+                    newDiv.classList = 'songToSelectInLibrary';
+                    newDiv.id = i;
+                    newDiv.style.display = "flex";
+                    newDiv.onclick = () => {
+                        setTimeout(() => {
+                            setPlaylist('all', null, newDiv.id, true);
+                            fullScreenOnOff(true);
+                        }, 100);
         
-        for (let i = 0; i < SongsDisplayed.length; i++) {
-            if (window.stop) {
-                console.log("Przerwano ładowanie");
-                return;  // Zakończ wykonywanie, jeśli stop jest ustawione na true
-            }
+                    };
+        
+                    let secondsDuration = Math.floor(file.duration) % 60;
+                    let minutesDuration = file.duration.toFixed(2) / 60;
+                    let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
+                    
 
-            const file = await window.api.getSpecificAudioFile(files[i]);
+                    newDiv.innerHTML = `
+                        <div style="display: flex">
+                            <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                            <div style="display: flex; flex-direction: column;">
+                                <p class="rightBarSongName" draggable="false">${file.title}</p>
+                                <p class="rightBarArtistName" draggable="false">${file.artist}</p>
+                            </div>
+                        </div>
+                        <div class="artist-genre-library-text" style="right: 425px">
+                            <p>${file.album}</p>
+                        </div>
+                        <div class="artist-genre-library-text" style="right: 175px">
+                            <p>${file.genre}</p>
+                        </div>
+                        <div style="display: flex; align-items: center">
+                            <p class="songTime" draggable="false">${correctTime}</p>
+                        </div>`;
+                        
+            
+                    songContainer.appendChild(newDiv);
 
-            const newDiv = document.createElement('div');
-            newDiv.classList = 'songToSelectInLibrary';
-            newDiv.id = i;
-            newDiv.style.display = "flex";
-            newDiv.onclick = () => {
-                setTimeout(() => {
-                    setPlaylist('all', null, newDiv.id, true);
-                    fullScreenOnOff(true);
-                }, 100);
-
-            };
-
-            let secondsDuration = Math.floor(file.duration) % 60;
-            let minutesDuration = file.duration.toFixed(2) / 60;
-            let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
-
-            newDiv.innerHTML = `
-                <div style="display: flex">
-                    <img src="${'data:image/png;base64,' + file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
-                    <div style="display: flex; flex-direction: column;">
-                        <p class="rightBarSongName" draggable="false">${file.title}</p>
-                        <p class="rightBarArtistName" draggable="false">${file.artist}</p>
-                    </div>
-                </div>
-                <div class="artist-genre-library-text" style="right: 425px">
-                    <p>${file.album}</p>
-                </div>
-                <div class="artist-genre-library-text" style="right: 175px">
-                    <p>${file.genre}</p>
-                </div>
-                <div style="display: flex; align-items: center">
-                    <p class="songTime" draggable="false">${correctTime}</p>
-                </div>`;
-    
-            songContainer.appendChild(newDiv);
+        
+            }).catch(err => console.error('Błąd:', err));
         }
-    } catch (err) {
-        console.error('Błąd:', err);
-    }
+    }).catch(err => console.error('Błąd:', err));
 }
 
 
@@ -93,14 +96,22 @@ async function displayAllSongs() {
 
 
 
-document.addEventListener('click', (event) => {
+document.addEventListener('click', () => {
     // Sprawdza, czy kliknięty element nie jest wewnątrz dropdowna lub przycisku otwierającego
-    if (selectedFilter === 'playlist' && !dropdownContent1.contains(event.target) && event.target !== playlistFilter) {
-        
+
         dropdownContent1.innerHTML = ''
         dropdownContent1.style.display = 'none'; // Ukrycie dropdowna
+
+        dropdownContent2.innerHTML = ''
+        dropdownContent2.style.display = 'none'; // Ukrycie dropdowna
+        
+        dropdownContent3.innerHTML = ''
+        dropdownContent3.style.display = 'none'; // Ukrycie dropdowna
+        
+        dropdownContent4.innerHTML = ''
+        dropdownContent4.style.display = 'none'; // Ukrycie dropdowna
+
         selectedFilter = ''; // Resetowanie stanu
-    }
 });
 
 
@@ -108,6 +119,7 @@ const dropdownContent1 = document.getElementById('dropdown-content1');
 const playlistFilter = document.getElementById('playlist-filter');
 
 playlistFilter.addEventListener('click', () => {
+setTimeout(() => {
     if (selectedFilter !== 'playlist') {
         const dropdownContent1 = document.getElementById('dropdown-content1');
         console.log(dropdownContent1.style.display);
@@ -137,7 +149,13 @@ playlistFilter.addEventListener('click', () => {
             console.error('Błąd:', err);
         }
     }
+}, 1);
 });
+
+
+
+
+
 
 async function setUpPlaylist(songs, path) {
     try {
@@ -149,7 +167,7 @@ async function setUpPlaylist(songs, path) {
                 return;
             }
 
-            const file = await window.api.getSpecificAudioFile(songs[i]);
+            window.api.getSongData(SongsDisplayed[i]).then((file) => {
 
                 const newDiv = document.createElement('div');
                 newDiv.classList = 'songToSelectInLibrary';
@@ -169,7 +187,7 @@ async function setUpPlaylist(songs, path) {
 
                 newDiv.innerHTML = `
                     <div style="display: flex">
-                        <img src="${'data:image/png;base64,' + file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                        <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
                         <div style="display: flex; flex-direction: column;">
                             <p class="rightBarSongName" draggable="false">${file.title}</p>
                             <p class="rightBarArtistName" draggable="false">${file.artist}</p>
@@ -186,7 +204,383 @@ async function setUpPlaylist(songs, path) {
                     </div>`;
                 
                 songContainer.appendChild(newDiv);
+            }).catch(err => console.error('Błąd:', err));
         }
+    } catch (err) {
+        console.error('Błąd:', err);
+    }
+}
+
+
+
+
+
+
+
+let artists = [];
+let albums = [];
+let genres = [];
+realoadAllArtistsAlbumsGenres()
+async function realoadAllArtistsAlbumsGenres(){
+    try {
+        artists = []; albums = []; genres = [];
+        window.api.getAllAudioFilePaths().then(async (files) => {
+
+            for (let i = 0; i < files.length; i++) {  // Poprawione warunki pętli
+
+                window.api.getSongData(files[i]).then((file) => {
+                    const artist = file.artist || null;  // Sprawdzanie istnienia artysty w metadanych
+                    if (!artists.includes(artist) && albums !=null) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                        artists.push(artist);
+                    };
+                    const album = file.album || null;  // Sprawdzanie istnienia artysty w metadanych
+                    if (!albums.includes(album) && album !=null) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                        albums.push(album);
+                    };
+                    const genre = file.genre || null;  // Sprawdzanie istnienia artysty w metadanych
+                    if (!genres.includes(genre) && genre !=null) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                        genres.push(genre);
+                    };
+                }).catch(err => console.error('Błąd:', err));
+                
+            }
+            console.log(artists, albums, genres)
+        });
+    } catch (err) {
+        console.error('Błąd:', err);
+    }
+}
+
+
+
+const dropdownContent2 = document.getElementById('dropdown-content2');
+const ArtistFilter = document.getElementById('artist-filter');
+
+ArtistFilter.addEventListener('click', () => {
+setTimeout(() => {
+    if (selectedFilter !== 'artist') {
+        console.log(dropdownContent2.style.display);
+        dropdownContent2.style.display = 'block';
+        selectedFilter = 'artist';
+
+        try {
+            
+                //console.log('Artyści:', artists);  
+
+                for (let i = 0; i < artists.length; i++) {
+                    console.log(i)
+                    const paragraph = document.createElement('p');
+                    paragraph.className = 'PlayListParagraphs';
+
+                    paragraph.textContent = artists[i];
+                    paragraph.addEventListener('click', () => {
+                        selectedFilter = artists;
+                        songContainer.innerHTML = ""
+                        dropdownContent2.innerHTML = ''
+                        loadedPlaylistTo = []
+
+                        window.api.getAllAudioFilePaths().then(async (files) => {
+                            let count = 0
+                            for (let i = 0; i < files.length; i++) {  // Poprawione warunki pętli
+                                window.api.getSongData(files[i]).then((file) => {
+
+                                    if (file.artist == paragraph.innerText) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                                        setUpArtist(file.title, file.filePath, count);
+                                        console.log(file.title, file.filePath, count)
+                                        count = count+1
+                                        console.log(count)
+                                    }
+
+                                }).catch(err => console.error('Błąd:', err));
+                            }
+                        });
+                    });
+
+                    dropdownContent2.appendChild(paragraph);
+                }
+
+        } catch (err) {
+            console.error('Błąd:', err);
+        }
+    }
+}, 1);
+});
+
+
+window.loadedPlaylistTo = []
+async function setUpArtist(songs, path, count) {
+    try {
+        SongsDisplayed = songs;
+
+            const file = await window.api.getSongData(path);
+
+            console.log(file)
+
+                const newDiv = document.createElement('div');
+                newDiv.classList = 'songToSelectInLibrary';
+                newDiv.id = count;
+                newDiv.style.display = "flex";
+                loadedPlaylistTo.push(path)
+                newDiv.onclick = () => {
+                    setTimeout(() => {
+                        console.log(loadedPlaylistTo)
+                        setPlaylist('custom', loadedPlaylistTo, newDiv.id, true);
+                        fullScreenOnOff(true);
+                    }, 100);
+                };
+
+                let secondsDuration = Math.floor(file.duration) % 60;
+                let minutesDuration = file.duration.toFixed(2) / 60;
+                let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
+
+                newDiv.innerHTML = `
+                    <div style="display: flex">
+                        <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                        <div style="display: flex; flex-direction: column;">
+                            <p class="rightBarSongName" draggable="false">${file.title}</p>
+                            <p class="rightBarArtistName" draggable="false">${file.artist}</p>
+                        </div>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 425px">
+                        <p>${file.album}</p>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 175px">
+                        <p>${file.genre}</p>
+                    </div>
+                    <div style="display: flex; align-items: center">
+                        <p class="songTime" draggable="false">${correctTime}</p>
+                    </div>`;
+                
+                songContainer.appendChild(newDiv);
+
+    } catch (err) {
+        console.error('Błąd:', err);
+    }
+}
+
+
+
+
+
+
+
+
+const dropdownContent3 = document.getElementById('dropdown-content3');
+const albumFilter = document.getElementById('album-filter');
+
+albumFilter.addEventListener('click', () => {
+setTimeout(() => {
+    if (selectedFilter !== 'album') {
+        console.log(dropdownContent3.style.display);
+        dropdownContent3.style.display = 'block';
+        selectedFilter = 'album';
+
+        try {
+            
+                //console.log('Album:', artists);  
+
+                for (let i = 0; i < albums.length; i++) {
+                    console.log(i)
+                    const paragraph = document.createElement('p');
+                    paragraph.className = 'PlayListParagraphs';
+
+                    paragraph.textContent = albums[i];
+                    paragraph.addEventListener('click', () => {
+                        selectedFilter = albums;
+                        songContainer.innerHTML = ""
+                        dropdownContent3.innerHTML = ''
+                        loadedPlaylistTo = []
+
+                        window.api.getAllAudioFilePaths().then(async (files) => {
+                            let count = 0
+                            for (let i = 0; i < files.length; i++) {  // Poprawione warunki pętli
+                                window.api.getSongData(files[i]).then((file) => {
+
+                                    if (file.album == paragraph.innerText) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                                        setUpAlbums(file.title, file.filePath, count);
+                                        console.log(file.title, file.filePath, count)
+                                        count = count+1
+                                        console.log(count)
+                                    }
+
+                                }).catch(err => console.error('Błąd:', err));
+                            }
+                        });
+                    });
+
+                    dropdownContent3.appendChild(paragraph);
+                }
+
+        } catch (err) {
+            console.error('Błąd:', err);
+        }
+    }
+}, 1);
+});
+
+//TODO: dodać że ma typisać piosenki po MetaData: Nr
+//TODO: dodać jeszcze że jak wybierzesz filtr to się podświetli i jak jest z dropdownem to ustawi nazwę na wybrany item
+//TODO: pokazywanie i chowanie się prawego baru
+//TODO: podświetli graną piosenkę na aktóalnej playliście
+//TODO: możlwość zmiany kolejności playlisty na stałe
+//TODO: dodać wyszukiwanie w dropdown'ach jeśli jaką więcej niż 10 wyników
+async function setUpAlbums(songs, path, count) {
+    try {
+        SongsDisplayed = songs;
+
+            const file = await window.api.getSongData(path);
+
+            console.log(file)
+
+                const newDiv = document.createElement('div');
+                newDiv.classList = 'songToSelectInLibrary';
+                newDiv.id = count;
+                newDiv.style.display = "flex";
+                loadedPlaylistTo.push(path)
+                newDiv.onclick = () => {
+                    setTimeout(() => {
+                        console.log(loadedPlaylistTo)
+                        setPlaylist('custom', loadedPlaylistTo, newDiv.id, true);
+                        fullScreenOnOff(true);
+                    }, 100);
+                };
+
+                let secondsDuration = Math.floor(file.duration) % 60;
+                let minutesDuration = file.duration.toFixed(2) / 60;
+                let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
+
+                newDiv.innerHTML = `
+                    <div style="display: flex">
+                        <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                        <div style="display: flex; flex-direction: column;">
+                            <p class="rightBarSongName" draggable="false">${file.title}</p>
+                            <p class="rightBarArtistName" draggable="false">${file.artist}</p>
+                        </div>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 425px">
+                        <p>${file.album}</p>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 175px">
+                        <p>${file.genre}</p>
+                    </div>
+                    <div style="display: flex; align-items: center">
+                        <p class="songTime" draggable="false">${correctTime}</p>
+                    </div>`;
+                
+                songContainer.appendChild(newDiv);
+
+    } catch (err) {
+        console.error('Błąd:', err);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+const dropdownContent4 = document.getElementById('dropdown-content4');
+const genreFilter = document.getElementById('genre-filter');
+
+genreFilter.addEventListener('click', () => {
+setTimeout(() => {
+    if (selectedFilter !== 'genre') {
+        console.log(dropdownContent4.style.display);
+        dropdownContent4.style.display = 'block';
+        selectedFilter = 'genre';
+
+        try {
+            
+                //console.log('Album:', artists);  
+
+                for (let i = 0; i < genres.length; i++) {
+                    console.log(i)
+                    const paragraph = document.createElement('p');
+                    paragraph.className = 'PlayListParagraphs';
+
+                    paragraph.textContent = genres[i];
+                    paragraph.addEventListener('click', () => {
+                        selectedFilter = genres;
+                        songContainer.innerHTML = ""
+                        dropdownContent4.innerHTML = ''
+                        loadedPlaylistTo = []
+
+                        window.api.getAllAudioFilePaths().then(async (files) => {
+                            let count = 0
+                            for (let i = 0; i < files.length; i++) {  // Poprawione warunki pętli
+                                window.api.getSongData(files[i]).then((file) => {
+
+                                    if (file.genre == paragraph.innerText) {  // Dodawanie artysty, jeśli nie ma go już na liście
+                                        setUpGenres(file.title, file.filePath, count);
+                                        console.log(file.title, file.filePath, count)
+                                        count = count+1
+                                        console.log(count)
+                                    }
+
+                                }).catch(err => console.error('Błąd:', err));
+                            }
+                        });
+                    });
+
+                    dropdownContent4.appendChild(paragraph);
+                }
+
+        } catch (err) {
+            console.error('Błąd:', err);
+        }
+    }
+}, 1);
+});
+
+async function setUpGenres(songs, path, count) {
+    try {
+        SongsDisplayed = songs;
+
+            const file = await window.api.getSongData(path);
+
+            console.log(file)
+
+                const newDiv = document.createElement('div');
+                newDiv.classList = 'songToSelectInLibrary';
+                newDiv.id = count;
+                newDiv.style.display = "flex";
+                loadedPlaylistTo.push(path)
+                newDiv.onclick = () => {
+                    setTimeout(() => {
+                        console.log(loadedPlaylistTo)
+                        setPlaylist('custom', loadedPlaylistTo, newDiv.id, true);
+                        fullScreenOnOff(true);
+                    }, 100);
+                };
+
+                let secondsDuration = Math.floor(file.duration) % 60;
+                let minutesDuration = file.duration.toFixed(2) / 60;
+                let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
+
+                newDiv.innerHTML = `
+                    <div style="display: flex">
+                        <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                        <div style="display: flex; flex-direction: column;">
+                            <p class="rightBarSongName" draggable="false">${file.title}</p>
+                            <p class="rightBarArtistName" draggable="false">${file.artist}</p>
+                        </div>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 425px">
+                        <p>${file.album}</p>
+                    </div>
+                    <div class="artist-genre-library-text" style="right: 175px">
+                        <p>${file.genre}</p>
+                    </div>
+                    <div style="display: flex; align-items: center">
+                        <p class="songTime" draggable="false">${correctTime}</p>
+                    </div>`;
+                
+                songContainer.appendChild(newDiv);
+
     } catch (err) {
         console.error('Błąd:', err);
     }
@@ -223,122 +617,19 @@ async function setUpPlaylist(songs, path) {
 
 
 
-reloadResults()
-
-function reloadResults(){
-    let SongsDisplayed = [];
-    /*AllPlayLists = playingList.filter(playlist => playlist.name).map(playlist => playlist.name);
-    AllArtists = [...new Set(AllSongs.map(song => song.artist))].slice(1);
-    const ArtistParagraphs = document.getElementsByClassName('ArtistParagraphs');
-    const GenreParagraphs = document.getElementsByClassName('GenreParagraphs');
-    const dropdownContent1 = document.getElementById('dropdown-content1');
-    const dropdownContent2 = document.getElementById('dropdown-content2');
-    const dropdownContent3 = document.getElementById('dropdown-content3');
-    while (dropdownContent1.firstChild) {
-        dropdownContent1.removeChild(dropdownContent1.firstChild);
-    }
-    while (dropdownContent2.firstChild) {
-        dropdownContent2.removeChild(dropdownContent2.firstChild);
-    }
-    /*while (dropdownContent3.firstChild) {
-        dropdownContent3.removeChild(dropdownContent3.firstChild);
-    }
-
-    for(i = 0; i<AllPlayLists.length; i++){
-        paragraphss = document.getElementsByClassName('PlayListParagraphs');
-        const paragraph = document.createElement('p');
-        paragraph.className = 'PlayListParagraphs';
-        //paragraph.style.paddingTop = '2px'
-        paragraph.setAttribute('onclick', `selectedFilter = AllPlayLists[${i}]; filterChanged()`);
-        paragraph.textContent = AllPlayLists[i];
-        paragraph.addEventListener('mouseover', () => showImg(paragraph)); // Najechanie na element
-        paragraph.addEventListener('mouseout', () => hideImg(paragraph));  // Zjechanie z elementu
-        
-        const img = document.createElement('img');
-        img.src = 'allResources/icon/edit.svg';
-        img.alt = 'Edit icon'; // Dodajemy tekst alternatywny
-        img.id = i+1;
-        img.draggable = false;
-        img.style.position = 'absolute';
-        img.style.right = '10px';
-        //img.style.marginBottom = '10px';
-        img.style.visibility = 'hidden';
-        img.addEventListener('click', () => showPopupEditPlaylist(true, AllPlayLists[img.id-1])); // Najechanie na element
-
-        paragraph.appendChild(img);
-
-        dropdownContent1.appendChild(paragraph);
-        
-        //PlayListParagraphs[i].innerText = AllPlayLists[i];
-    }
-
-    for(i = 0; i<AllArtists.length; i++){
-        const paragraph = document.createElement('p');
-        paragraph.className = 'ArtistParagraphs';
-        paragraph.setAttribute('onclick', `selectedFilter = AllArtists[${i}]; filterChanged()`);
-        paragraph.textContent = 'none';
-        dropdownContent2.appendChild(paragraph);
-        ArtistParagraphs[i].innerText = AllArtists[i];
-    }
-
-    for(i = 0; i<4; i++){
-        GenreParagraphs[i].innerText = AllGenres[i];
-        //ToDo: zrobć to samo po w pozostałych tylko dla zakładki Genres
-    }
 
 
-    if(AllPlayLists.length > 10){
-        const searchBar = document.createElement('input');
-        searchBar.className = 'PlaylistParagraphs filtersSerchbar';
-        searchBar.id = 'PlaylistSerchBar'
-        searchBar.type = 'serch';
-        searchBar.setAttribute('onkeyup', 'filterPlaylists()',);
-        searchBar.placeholder = 'Search playlists...';
-        searchBar.spellcheck = false;
-        searchBar.autocomplete = 'off'
-        searchBar.onmouseover = function() {
-            PlaylistSearchBar = true;
-        };
-        
-        searchBar.onmouseout = function() {
-            PlaylistSearchBar = false;
-        };
-        searchBar.addEventListener('focus', function() {
-            keybinds = false;
-          });
-        searchBar.addEventListener('blur', function() {
-            keybinds = true;
-          });
 
-        dropdownContent1.insertBefore(searchBar, dropdownContent1.firstChild);
-    }
+/*
+//*Przykład użycia (o wiele szybszy!)
+window.api.getAllAudioFilePaths().then((files) => {
 
-    if(AllArtists.length > 10){
-        const searchBar = document.createElement('input');
-        searchBar.className = 'ArtistParagraphs filtersSerchbar';
-        searchBar.id = 'ArtistSerchBar'
-        searchBar.type = 'serch';
-        searchBar.setAttribute('onkeyup', 'filterArtists()',);
-        searchBar.placeholder = 'Search artists...';
-        searchBar.spellcheck = false;
-        searchBar.autocomplete = 'off'
-        searchBar.onmouseover = function() {
-            ArtistSearchBar = true;
-        };
-        
-        searchBar.onmouseout = function() {
-            ArtistSearchBar = false;
-        };
-        searchBar.addEventListener('focus', function() {
-            keybinds = false;
-          });
-        searchBar.addEventListener('blur', function() {
-            keybinds = true;
-          });
+    window.api.getSongData().then((files) => {
 
-        dropdownContent2.insertBefore(searchBar, dropdownContent2.firstChild);
-    }*/
+        console.log(files);
 
-    //ToDO: zrobć to samo po w pozostałych tylko dla zakładki Genres
+    }).catch(err => console.error('Błąd:', err));
 
-}
+}).catch(err => console.error('Błąd:', err));
+*/
+

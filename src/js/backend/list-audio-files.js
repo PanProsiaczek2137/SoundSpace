@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { loadMusicMetadata } = require('music-metadata');  // Importowanie modułu do odczytu metadanych audio
+global.whichAlbumsToAnalyze = [];
+
 
 // Funkcja do uzyskania ścieżki do folderu Muzyka
 function getMusicFolderPath() {
@@ -124,4 +126,249 @@ function getSpecificJsonFile(filePath) {
         });
 }
 
-module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile };
+
+
+
+
+const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace');
+const songListFilePath = path.join(appDataPath, 'songList.json');
+
+
+function getSongData(songPath = null) {
+    // Sprawdzenie, czy plik songList.json istnieje
+    if (!fs.existsSync(songListFilePath)) {
+        throw new Error(`Plik ${songListFilePath} nie istnieje`);
+    }
+
+    // Odczytanie zawartości pliku songList.json
+    const songListContent = fs.readFileSync(songListFilePath, 'utf-8');
+    const songList = JSON.parse(songListContent);
+
+    // Jeśli przekazano parametr songPath, zwracamy tylko informacje o tym pliku
+    if (songPath) {
+        if (songList[songPath]) {
+            return songList[songPath];
+        } else {
+            return null
+        }
+    }
+
+    // Zwracamy całą zawartość songList.json, jeśli nie podano parametrów
+    return songList;
+}
+
+
+
+
+// Funkcja sprawdzająca, czy plik istnieje
+function checkOrCreateSongList() {
+    // Sprawdź, czy katalog soundspace istnieje, jeśli nie to go stwórz
+    if (!fs.existsSync(appDataPath)) {
+        fs.mkdirSync(appDataPath, { recursive: true });
+        console.log('Utworzono folder soundspace.');
+    }
+
+    // Sprawdź, czy plik songList.json istnieje
+    if (!fs.existsSync(songListFilePath)) {
+        // Jeśli plik nie istnieje, utwórz go z podstawową strukturą
+        const initialData = {
+            
+        };
+        fs.writeFileSync(songListFilePath, JSON.stringify(initialData, null, 2));
+        console.log('Utworzono plik songList.json.');
+        checkOrAddSongsInformations()
+    } else {
+        console.log('Plik songList.json już istnieje.');
+        checkOrAddSongsInformations()
+    }
+    //SPRAWDŻ TUTAJ CZY MA JAKIŚ USUNĄĆ
+    console.log('---------------------------------------------------------------------------------------------------------')
+    for(let i = 0; i<whichAlbumsToAnalyze.length; i++){
+        console.log(`albumow z obrazkiem: ${whichAlbumsToAnalyze[i]} jest po usunięciu ${countSongsWithAlbumCover(whichAlbumsToAnalyze[i])}`)
+        if(countSongsWithAlbumCover(whichAlbumsToAnalyze[i]) == 0){
+            console.log(`usuwam album z ścierzki ${whichAlbumsToAnalyze[i]}`)
+            const filePath = whichAlbumsToAnalyze[i]
+
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error(`Błąd podczas usuwania pliku: ${err.message}`);
+                    return;
+                }
+                console.log(`Plik został pomyślnie usunięty.`);
+            });
+        }
+    }
+}
+function createFolder() {
+    const dirPath = path.join(appDataPath, 'Album Covers'); 
+    fs.mkdir(dirPath, { recursive: true }, (err) => {
+        if (err) {
+            console.error(`Błąd podczas tworzenia folderu: ${err}`);
+        } else {
+            console.log(`Folder "${'Album Covers'}" został utworzony.`);
+        }
+    });
+}
+
+// Wywołanie funkcji
+checkOrCreateSongList();
+createFolder()
+
+async function checkOrAddSongsInformations(){
+    const localSongList = getAllAudioFilePaths()
+    for(let i=0; i<localSongList.length; i++){
+        if(getSongData(localSongList[i]) == null){
+
+            console.log('plik nie istnieje, proces tworzenia')
+
+            await addToJsonFile(songListFilePath, localSongList[i])
+
+
+        }else{
+            console.log('plik o sciezce '+localSongList[i]+" istnieje")
+        }
+    }
+    console.log('zaczeto proces sprawdzania usunietych piosenek');
+    const lengthOfList = Object.keys(getSongData()).length
+    const allFile = getSongData()
+    console.log(lengthOfList)
+    for(let i=0; i<lengthOfList; i++){
+        if(!fs.existsSync(Object.keys(allFile)[i])){
+
+            console.log(`nie istnieje plik o sciezce ${Object.keys(allFile)[i]}, proces usuniecia w .json`)
+
+            await removeSongFromJson(songListFilePath, Object.keys(allFile)[i]);
+
+        }else{
+            console.log(`istnieje plik o sciezce ${Object.keys(allFile)[i].replace(/\\/g, '\\\\')}`)
+        }
+    }
+    fs.writeFileSync(songListFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
+    console.log('Plik JSON został zaktualizowany.');
+}
+
+async function checkOrAddAlbumCovers(dataURL, fileName) {
+    const dirPath = path.join(appDataPath, 'Album Covers');
+    
+    // Sprawdzenie, czy folder istnieje
+    fs.access(dirPath, fs.constants.F_OK, (err) => {
+        if (err) {
+            console.err(err)
+        } else {
+            // Folder istnieje, dodaj obrazek
+            addImageFromDataURL(dirPath, dataURL, fileName);
+        }
+    });
+    return path.join(dirPath, fileName+".png");
+}
+function addImageFromDataURL(folderPath, dataURL, fileName) {
+    const imageName = fileName+'.png'; // Nazwa pliku, możesz dostosować
+    const destinationPath = path.join(folderPath, imageName);
+    
+    // Przekształcanie Data URL na bufor i zapisanie jako plik
+    const buffer = dataURLtoBuffer(dataURL);
+    fs.writeFile(destinationPath, buffer, (err) => {
+        if (err) {
+            console.error(`Błąd podczas zapisywania obrazka: ${err}`);
+        } else {
+            console.log(`Obrazek "${imageName}" został dodany do folderu "${folderPath}".`);
+        }
+    });
+}
+function dataURLtoBuffer(dataURL) {
+    const matches = dataURL.match(/^data:(.+);base64,(.+)$/);
+    if (!matches) {
+        throw new Error('Invalid Data URL');
+    }
+    return Buffer.from(matches[2], 'base64');
+}
+
+
+async function addToJsonFile(filePath, newObject) {
+    let jsonData = {};
+
+    // Sprawdzamy, czy plik istnieje
+    if (fs.existsSync(filePath)) {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        jsonData = JSON.parse(fileContent);
+    }
+
+    // Dodajemy nowy obiekt do danych
+    try{
+        let data = await getAudioFileMetadata(newObject);
+        let path;
+        if(data.picture != getmissingAlbumCover){
+            path = await checkOrAddAlbumCovers("data:image/png;base64,"+data.picture, data.album)
+        }
+        console.log(path)
+        data.picture = path 
+
+        jsonData[data.filePath] = data
+
+        // Zapisujemy dane z powrotem do pliku
+        fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2));
+    
+        console.log('Obiekt został dodany.');
+    }catch{
+        console.error('error')
+    }
+}
+
+async function removeSongFromJson(songListFilePath, songPathToRemove) {
+    const keyPath = String(songPathToRemove); 
+
+    
+    try {
+        // Odczytaj plik JSON
+        const data = fs.readFileSync(songListFilePath, 'utf8');
+        let jsonData = JSON.parse(data);
+
+        // Sprawdź, czy klucz istnieje
+        if (jsonData.hasOwnProperty(keyPath)) {
+            console.log('znaleziono')
+            //*const allFile = getSongData()
+            const thisFile = await getSongData(keyPath)
+            whichAlbumsToAnalyze.push(thisFile.picture)
+            //let ileusuwa = 0       //?
+            /*if(countSongsWithAlbumCover(thisFile.picture) < 1){
+
+            }*/
+            
+            // Usuń obiekt
+            delete jsonData[keyPath];
+            console.log(`Usunięto obiekt: ${keyPath}`);
+
+        } else {
+            console.log('nie znaleziono')
+
+            console.log(`Obiekt o kluczu ${keyPath} nie istnieje.`);
+            return;
+        }
+
+        // Zapisz zmodyfikowany obiekt z powrotem do pliku JSON
+        fs.writeFileSync(songListFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
+        console.log('Plik JSON został zaktualizowany.');
+
+
+    } catch (error) {
+        console.error('Wystąpił błąd:', error);
+    }
+}
+
+function countSongsWithAlbumCover(albumCoverPath) {
+    let count = 0;
+    const data = getSongData()
+    // Iterujemy przez każdy klucz (ścieżkę do pliku audio) w obiekcie danych
+    for (const songPath in data) {
+        if (data[songPath].picture === albumCoverPath) {
+            count++; // Zwiększamy licznik, jeśli picture pasuje do albumCoverPath
+        }
+    }
+
+    return count; // Zwracamy licznik
+}
+
+
+
+
+module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData };

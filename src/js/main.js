@@ -1,11 +1,11 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require('electron');
 const path = require('path');
-const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile } = require('./backend/list-audio-files'); // Import funkcji
+const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData } = require('./backend/list-audio-files'); // Import funkcji
 
 function createWindow() {
     let mainWindow = new BrowserWindow({
-        width: 920,
-        height: 540,
+        width: 1080,
+        height: 800,
         minWidth: 920,
         minHeight: 540,
         icon: path.join(__dirname, '..', 'allResources', 'icon', 'SoundSpaceIconNew.png'),
@@ -72,6 +72,16 @@ function createWindow() {
             throw err; // Rzuć błąd, aby obsłużyć go w rendererze
         }
     });
+
+    ipcMain.handle('get-song-data', async (event, fileName) => {
+        try {
+            return getSongData(fileName); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
 }
 
 app.whenReady().then(createWindow);
@@ -111,3 +121,22 @@ app.on('will-quit', () => {
     // Upewnij się, że odwołujesz rejestracje skrótów przy zamknięciu aplikacji
     globalShortcut.unregisterAll();
 });
+
+//! TODO:
+
+//TODO: biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
+//TODO: biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty
+//TODO: biblioteka edutowanie playlisty i piosenek
+//TODO: przysotoswać dizajn do mniejszego rozmieru okna
+//TODO: skróty klawiszowe
+//TODO: pasek wyszukiwania
+//TODO: nadanie działania trzem kropkę na pasku narzędzi
+//TODO: logowanie gmail
+//TODO: dodawanie piosenek hostowanych na google drive
+//TODO: działanie piosenek chostowanych na google drive tak samo jak tych co na dysku
+//TODO: dodanie powiadomienia o powitaku użytkownika
+//TODO: dodanie opcje po kliknięciu jego profilu takie jak wyloguj się zmeiń konto zobacz profil czy zmnień status
+
+//* GOTOWE NA KOMPUTERY
+
+//TODO: wersja mobilna

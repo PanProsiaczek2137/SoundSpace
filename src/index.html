@@ -136,24 +136,27 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('2'); filterType = 'Artists'; reloadResults()">☰ Artists</button>
+                        <button class="librarybtn" id="artist-filter">☰ Artists</button>
                         <div class="dropdown-content" id="dropdown-content2">
-                            <input type="search" id="artistSearchBar" placeholder="Search artists..." onkeyup="filterArtists()">
+                            <input type="search" id="artistSearchBar" placeholder="Search artists...">
 
                         </div>
                     </div>
                     <div class="dropdown">
-                        <button class="librarybtn" onclick="toggleDropdown('3'); filterType = 'Genres'; reloadResults()">☰ Genres</button>
+                        <button class="librarybtn" id="album-filter">☰ Album</button>
                         <div class="dropdown-content" id="dropdown-content3">
-                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[0]; filterChanged()">none</p>
-                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[1]; filterChanged()">none</p>
-                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[2]; filterChanged()">none</p>
-                            <p class="GenreParagraphs" onclick="selectedFilter = AllGenres[3]; filterChanged()">none</p>
+                            <input type="search" id="albumSearchBar" placeholder="Search album...">
+
                         </div>
                     </div>
-                    <button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Offline'; filterChanged()">Offline</button>
-                    <button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Rate'; filterChanged()">To Rate</button>
-                    <button onclick="ChangeFullSplit()" class="librarybtn" style="position: absolute; height: 44px;"><img style="position: relative; bottom: 1px;" id="split-full-screen-Library" src="allResources/icon/FullScreenLibrary.svg" alt=""></button>
+                    <div class="dropdown">
+                        <button class="librarybtn" id="genre-filter">☰ Genres</button>
+                        <div class="dropdown-content" id="dropdown-content4">
+
+                        </div>
+                    </div>
+                    <!--<button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Offline'; filterChanged()">Offline</button>  DO DODANIA  -->
+                    <!--<button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Rate'; filterChanged()">To Rate</button>  DO DODANIA  -->
                 </div>
                 <div id="add-song-playlist">
                     <p id="add-playlist" onclick="showPopupCreatePlaylist('true')">Create PlayList</p>

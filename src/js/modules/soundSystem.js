@@ -103,8 +103,15 @@ export function setVolume(to){
     volume = to;
 }
 
+export function convertBackslashes(path) {
+    console.log(path);
+    //console.log(path.replace(/\\/g, '\\\\'));
+    return path.replace(/\\/g, '\\\\');
+}
+
+
     //setPlaylist('all')
-    setPlaylist('file', "C:\\Users\\Mateusz\\Music\\.PlayList1.json")
+    //setPlaylist('file', "C:\\Users\\Mateusz\\Music\\.PlayList1.json")
     //setPlaylist('custom', ['C:\\Users\\Mateusz\\Music\\Another Brick In The Wall (Part 3).mp3','C:\\Users\\Mateusz\\Music\\Apocalypse Dreams.mp3','C:\\Users\\Mateusz\\Music\\Arabella.mp3'])
 
 
@@ -175,7 +182,7 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
                     }else if(i == 0 && startFrom != undefined || null){
                         setSong(content[startFrom], playOnStart);
                     }
-                    if(i == files.length-1 && startFrom != undefined || null){
+                    if(i == content.length-1 && startFrom != undefined || null){
                         playedPlaylistTrack = Number(startFrom)
                     }
                 }
