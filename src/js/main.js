@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require('electron');
 const path = require('path');
-const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData } = require('./backend/list-audio-files'); // Import funkcji
+const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic } = require('./backend/list-audio-files'); // Import funkcji
 
 function createWindow() {
     let mainWindow = new BrowserWindow({
@@ -82,6 +82,14 @@ function createWindow() {
         }
     });
 
+    ipcMain.handle('is-loaded-music', async () => {
+        try {
+            return isLoadedMusic(); // Zwróć wszystkie nazwy plików audio
+        } catch (err) {
+            console.error('Błąd podczas pobierania ścieżek do plików json:', err);
+            return []; // W przypadku błędu, zwróć pustą tablicę
+        }
+    });
 }
 
 app.whenReady().then(createWindow);
@@ -122,20 +130,24 @@ app.on('will-quit', () => {
     globalShortcut.unregisterAll();
 });
 
+
 //! TODO:
 
 //TODO: biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
 //TODO: biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty
 //TODO: biblioteka edutowanie playlisty i piosenek
-//TODO: przysotoswać dizajn do mniejszego rozmieru okna
+//TODO: przysotoswać design do mniejszego rozmieru okna
 //TODO: skróty klawiszowe
 //TODO: pasek wyszukiwania
+//TODO: dodanie funkcjonalności zakładce home
 //TODO: nadanie działania trzem kropkę na pasku narzędzi
 //TODO: logowanie gmail
 //TODO: dodawanie piosenek hostowanych na google drive
-//TODO: działanie piosenek chostowanych na google drive tak samo jak tych co na dysku
+//TODO: działanie piosenek hostowanych na google drive tak samo jak tych co na dysku
 //TODO: dodanie powiadomienia o powitaku użytkownika
 //TODO: dodanie opcje po kliknięciu jego profilu takie jak wyloguj się zmeiń konto zobacz profil czy zmnień status
+
+//? Technologie do użycia: YouTube API, Google Drive API, MusicBrainz API, jakieś ai które nada gatunek piosenkom 
 
 //* GOTOWE NA KOMPUTERY
 

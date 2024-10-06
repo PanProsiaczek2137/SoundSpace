@@ -3,6 +3,7 @@ const path = require('path');
 const os = require('os');
 const { loadMusicMetadata } = require('music-metadata');  // Importowanie modułu do odczytu metadanych audio
 global.whichAlbumsToAnalyze = [];
+let loaded = false
 
 
 // Funkcja do uzyskania ścieżki do folderu Muzyka
@@ -37,7 +38,10 @@ async function getAudioFileMetadata(filePath) {
             album: metadata.common.album || null,
             duration: metadata.format.duration,
             filePath: filePath,
-            fileName: path.basename(filePath)
+            fileName: path.basename(filePath),
+            trackNumber: metadata.common.track ? metadata.common.track.no : null,
+            //artistPicture: metadata
+            //Buffer.from(Object.entries(metadata.native)[0][1][16].value.data).toString('base64') 
         };
     } catch (err) {
         console.error('Błąd podczas odczytu metadanych:', err);
@@ -50,7 +54,8 @@ async function getAudioFileMetadata(filePath) {
             album: null,
             duration: null,
             filePath: filePath,
-            fileName: path.basename(filePath)
+            fileName: path.basename(filePath),
+            trackNumber: null
         };
     }
 }
@@ -243,6 +248,10 @@ async function checkOrAddSongsInformations(){
             console.log(`istnieje plik o sciezce ${Object.keys(allFile)[i].replace(/\\/g, '\\\\')}`)
         }
     }
+    loaded = true
+    console.log('zakonczono proces !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    ipcRenderer.send('send-data-to-front', "test");
+
     fs.writeFileSync(songListFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
     console.log('Plik JSON został zaktualizowany.');
 }
@@ -368,7 +377,11 @@ function countSongsWithAlbumCover(albumCoverPath) {
     return count; // Zwracamy licznik
 }
 
+function isLoadedMusic(){
+    return loaded
+}
 
 
 
-module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData };
+
+module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic };

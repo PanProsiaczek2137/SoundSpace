@@ -17,6 +17,7 @@
         <script src="js/render/fullScreen.js" type="module"></script>
         <script src="js/render/songControler.js" type="module"></script>
         <script src="js/render/library_tab/filters.js" type="module"></script>
+        <script src="js/render/library_tab/rightBar.js" type="module"></script>
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>-->
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +26,7 @@
         <link rel="icon" href="allResources/icon/SoundSpaceIconNew.svg">
     </head>
 <body>
+    <img src="" alt="" id="testowe" style="position: absolute; top: 100px; left: 100px; z-index: 9999999999999999999999;">
     <div id="container">
         <div id="left-bar">
             <h1 onclick="location.reload()" id="title"><p style="position: relative; left: 11px;">Soun</p><img src="allResources/icon/Soun(icon)Space.svg" style="position:relative; left: 1px;" draggable="false"><p style="position: relative; left: -11px;">Space</p></h1>
@@ -168,9 +170,10 @@
                     <!--<div class="songToSelectInLibrary"><div style="display: flex;"><img src="albumCover/DivisionBell.webp" style="height: 55px; padding-left: 10px; padding-right: 10px;"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName">DivisionBell</p> <p class="rightBarArtistName">PinkFloyd ∙ DivisionBell ∙ 1984</p></div></div><p class="songTime" style="font-size: 1.5rem;">6:51</p></div>-->
                 </div>
                 <div id="playlists-info">
-                    <img src="allResources/albumCover/beethoven.jpg" id="playlists-info-img-blur">
+                    <img src="allResources/albumCover/beethoven.jpg" id="playlists-info-img-blur" draggable="false">
                     <h1 id="rigth-bar-library-title"></h1>
-                    <img src="allResources/albumCover/chopin.jpg" id="playlists-info-img">
+                    <img src="allResources/albumCover/chopin.jpg" id="playlists-info-img" draggable="false">
+                    <p id="rigth-bar-library-info" style="font-size: 1.2rem;">Prywatna ∙ 40 Piosenek ∙ Czas trwania 2h </p>
                     <div>
                         <p id="rigth-bar-library-description"></p> 
                     </div>

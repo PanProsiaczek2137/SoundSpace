@@ -102,7 +102,7 @@ function setTab(to){
 
 
 
-/*
+
 //? Pełne ścieżki wszystkich plików w folderze muzyka
 window.api.getAllAudioFilePaths().then((files) => {
     console.log(files);
@@ -110,7 +110,10 @@ window.api.getAllAudioFilePaths().then((files) => {
 
 //? Meta dane wybranego pliku (po nazwie)
 
-window.api.getSpecificAudioFile('C:\\Users\\Mateusz\\Music\\Sheep.mp3').then((file) => {
-    console.log(file);
+window.api.getSpecificAudioFile("C:\\Users\\Mateusz\\Music\\She Just Won't Believe Me.mp3").then((file) => {
+    console.log(file)
+    const img = document.getElementById('testowe');
+    img.src = `data:image/png;base64,${file.artistPicture}`
 }).catch(err => console.error('Błąd:', err));
-*/
+
+

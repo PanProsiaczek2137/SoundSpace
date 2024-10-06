@@ -17,8 +17,6 @@ export let playingPlaylist = [];
 
 
 export function setSong(song, playOnStart) {
-    
-
     pauseSong()
     songURL == null
 
@@ -81,8 +79,13 @@ export function setSong(song, playOnStart) {
             pauseResumeSong('resume')
         }
 
+        RightBar.children[playedPlaylistTrack].style.backgroundColor = '#161616'
+        RightBar.children[playedPlaylistTrack].children[1].style.backgroundColor = '#161616'
+        setTimeout(() => {
+            RightBar.children[playedPlaylistTrack].style.backgroundColor = '#2c2c2c'
+            RightBar.children[playedPlaylistTrack].children[1].style.backgroundColor = '#2c2c2c'
+        }, 10);
     }).catch(err => console.error('Błąd:', err));
-
 }
 
 export function playSong() {
@@ -201,7 +204,7 @@ let mouseYpos;
 async function setRightBarSong(file) {
     try {
         let scrollPosition = 0;
-        const audioFile = await window.api.getSpecificAudioFile(file);
+        const audioFile = await window.api.getSongData(file);
 
         let secondsDuration = Math.floor(audioFile.duration) % 60;
         let minutesDuration = Math.floor(audioFile.duration / 60);
@@ -212,7 +215,7 @@ async function setRightBarSong(file) {
         newDiv.setAttribute('data-song-file', file);
         newDiv.innerHTML = `
             <div style="display: flex;">
-                <img src="${'data:image/png;base64,' + audioFile.picture}" class="right-bar-song-img" draggable="false">
+                <img src="${audioFile.picture}" class="right-bar-song-img" draggable="false">
                 <div style="display: flex; flex-direction: column;">
                     <p class="rightBarSongName">${audioFile.title}</p> 
                     <p class="rightBarArtistName">${audioFile.artist}</p>
