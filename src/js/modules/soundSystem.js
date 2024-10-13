@@ -199,7 +199,6 @@ export function setPlaylist(to, content, startFrom, playOnStart) {
 }
 
 
-//ToDo: naprawić przestawianie pisenek aby ze scrollem działało i nie wczytywało wszystkich plików od nowa
 let mouseYpos;
 async function setRightBarSong(file) {
     try {
@@ -355,5 +354,3 @@ function getClosestDiv(containerId, referenceElement) {
     return closestDiv;
 }
 
-
-//TODO: zminiejszyć ilość window.api.getAudioFiles

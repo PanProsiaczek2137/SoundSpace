@@ -52,7 +52,7 @@
 }
 
 /* Linki w dropdown */
-.dropdown-content p {
+.PlayListParagraphs {
     color: var(--white);
     font-family: var(--main-font);
     font-size: 1rem;
@@ -659,6 +659,9 @@
 #playlists-info-img{
     width: 250px;
     margin-bottom: 25px;
+    z-index: 6;
+    aspect-ratio: 1;
+    object-fit: cover;
 }
 
 #playlists-info-img-blur{
@@ -667,6 +670,8 @@
     margin-bottom: 25px;
     z-index: 5;
     opacity: 0.1;
+    aspect-ratio: 1;
+    object-fit: cover;
 }
 
 #playlists-info h1{
@@ -683,6 +688,7 @@
     justify-content: center;
     padding-left: 25px;
     padding-right: 25px;
+    overflow-y: hidden;
 }
 
 #playlists-info p{
@@ -703,6 +709,31 @@
     font-size: 1.2rem;
     font-family: var(--main-font);
     position: absolute;
+}
+
+.serchBarForLibiraryFliters {
+    width: 100%;
+    height: 35px;
+    background-color: var(--dark-gray);
+    color: white;  /* Tekst na biało */
+    border: 1px solid var(--light-gray);  /* Jasnoszare obramowanie */
+    border-radius: 5px;  /* Zaokrąglone rogi */
+    padding: 5px 10px;  /* Padding wewnątrz inputu */
+    font-size: 14px;  /* Rozmiar tekstu */
+    outline: none;  /* Usuwa domyślny styl focus */
+    box-sizing: border-box;  /* Uwzględnia padding w szerokości */
+    border-bottom: var(--darkest-gray) 1px solid;
+    font-family: var(--main-font);
+    color: var(--white);
+}
+
+.PlayListParagraphs {
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 1rem;
+    text-decoration: none;
+    display: block;
+    border-bottom: solid 1px var(--darkest-gray); /* Zmniejsz grubość obramowania */
 }
 
 @keyframes full {

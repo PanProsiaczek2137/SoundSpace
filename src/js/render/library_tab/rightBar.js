@@ -36,6 +36,13 @@ export function showlibraryRightBar(show){
 export function changelibraryRightBar(pictureTo, titleTo, descriptionTo, privacyTo, numberOfSongsTo, durationTo) {
     console.log('wykonano');
 
+    const img = document.getElementById('playlists-info-img');
+    const imgBg = document.getElementById('playlists-info-img-blur');
+    const title = document.getElementById('rigth-bar-library-title');
+    const description = document.getElementById('rigth-bar-library-description');
+    const info = document.getElementById('rigth-bar-library-info');
+
+
     let songsDurations = [];
 
     for (let i = 0; i < durationTo.length; i++) {
@@ -44,16 +51,38 @@ export function changelibraryRightBar(pictureTo, titleTo, descriptionTo, privacy
         }).catch(err => console.error('Błąd:', err));
     }
 
-    const img = document.getElementById('playlists-info-img');
-    const imgBg = document.getElementById('playlists-info-img-blur');
-    const title = document.getElementById('rigth-bar-library-title');
-    const description = document.getElementById('rigth-bar-library-description');
-    const info = document.getElementById('rigth-bar-library-info');
-
     img.src = pictureTo;
     imgBg.src = pictureTo;
     title.innerText = titleTo;
-    description.innerText = descriptionTo;
+
+    if(descriptionTo[0] == 'Loading...'){
+        description.innerText = 'Loading...';
+        if(descriptionTo[1] == 'album'){
+
+            (async () => {
+                console.log('WYKONANO!!!!!!!!')
+                const data = await window.api.getAlbumDataWithExternalLinks(descriptionTo[2], descriptionTo[3])
+                console.log(data)
+                    if (data == null) {
+                        description.innerText = 'This artist or album was not found in the database';
+                    }else{
+                        console.log('Album Data:', data.albumData);
+                        if (data.externalLinks.length > 0) {
+                            console.log('External Links:', data.externalLinks);
+                            const intro = await window.api.getWikipediaIntroFromWikidata(data.externalLinks[0].url);
+                            if (intro) {
+                                description.innerText = intro;
+                            }
+                        } else {
+                            description.innerText = 'no article found about this album';
+                        }
+                    }
+            })();
+
+        }
+    }else{
+        description.innerText = descriptionTo;
+    }
 
     // Czekamy na zakończenie pobierania długości utworów
     setTimeout(() => {
@@ -62,7 +91,7 @@ export function changelibraryRightBar(pictureTo, titleTo, descriptionTo, privacy
         info.innerText = `${privacyTo} ∙ ${numberOfSongsTo} Songs ∙ Duration ${formattedDuration}`;
         console.log(songsDurations);
         console.log('Całkowity czas trwania:', formattedDuration);
-    }, 1);
+    }, 40);
 }
 
 // Funkcja do formatowania długości w sekundy

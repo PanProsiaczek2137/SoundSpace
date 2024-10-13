@@ -1,6 +1,8 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require('electron');
 const path = require('path');
 const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic } = require('./backend/list-audio-files'); // Import funkcji
+const { getWikipediaIntroFromWikidata, getAlbumDataWithExternalLinks } = require('./backend/wiki-api'); // Import funkcji
+const { moveSongToPosition } = require('./backend/playlists'); // Import funkcji
 
 function createWindow() {
     let mainWindow = new BrowserWindow({
@@ -82,6 +84,35 @@ function createWindow() {
         }
     });
 
+
+    ipcMain.handle('get-wikipedia-intro-from-wikidata', async (event, fileName) => {
+        try {
+            return getWikipediaIntroFromWikidata(fileName); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
+    ipcMain.handle('get-album-data-with-external-links', async (event, albumName, artistName) => {
+        try {
+            return getAlbumDataWithExternalLinks(albumName, artistName); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
+    ipcMain.handle('move-song-to-position', async (event, playlist, newOrder) => {
+        try {
+            return moveSongToPosition(playlist, newOrder); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
+
     ipcMain.handle('is-loaded-music', async () => {
         try {
             return isLoadedMusic(); // Zwróć wszystkie nazwy plików audio
@@ -133,8 +164,8 @@ app.on('will-quit', () => {
 
 //! TODO:
 
-//TODO: biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
-//TODO: biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty
+//? biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
+//* biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty
 //TODO: biblioteka edutowanie playlisty i piosenek
 //TODO: przysotoswać design do mniejszego rozmieru okna
 //TODO: skróty klawiszowe
@@ -147,7 +178,7 @@ app.on('will-quit', () => {
 //TODO: dodanie powiadomienia o powitaku użytkownika
 //TODO: dodanie opcje po kliknięciu jego profilu takie jak wyloguj się zmeiń konto zobacz profil czy zmnień status
 
-//? Technologie do użycia: YouTube API, Google Drive API, MusicBrainz API, jakieś ai które nada gatunek piosenkom 
+//? Technologie do użycia: YouTube API, Google Drive API, MusicBrainz API, wiki API, jakieś ai które nada gatunek piosenkom 
 
 //* GOTOWE NA KOMPUTERY
 

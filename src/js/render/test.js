@@ -1,5 +1,5 @@
 import { fullScreenOnOff } from './fullScreen.js';
-
+import { showlibraryRightBar } from './library_tab/rightBar.js';
 
 /*setTimeout(() => {
     window.api.getAudioFiles().then((files) => {
@@ -40,23 +40,26 @@ buttonHome.addEventListener('click', ()=>{
     libraryContent.style.visibility = 'hidden'
     fullScreenOnOff(false);
     //deleteAllSongsFormLibrary()
-    //showlibraryRightBar(false)
+    showlibraryRightBar(false)
 })
 
 
 buttonLibrary.addEventListener('click', ()=>{
     buttonHome.style.backgroundColor = ""
     buttonLibrary.style.backgroundColor = "#161616"
-iconHome.src = "allResources/icon/home.svg"
+    iconHome.src = "allResources/icon/home.svg"
     iconLibrary.src = "allResources/icon/library-filld.svg"
     homeContent.style.visibility = 'hidden'
     libraryContent.style.visibility = 'visible'
 
+    const allFilter = document.getElementById('all-filter');
+    allFilter.click()
+
     fullScreenOnOff(false);
     //showSongsInLibraryWith()
-    /*if(filterType == 'PlayLists'){
-        showlibraryRightBar(true);   
-    }*/
+    //if(filterType == 'PlayLists'){ //! filterType  unknow
+        //showlibraryRightBar(true);   
+    //}
 })
 
 function setTab(to){
@@ -103,6 +106,27 @@ function setTab(to){
 
 
 
+(async () => {
+    const data = await window.api.getAlbumDataWithExternalLinks('lonerism', 'tame impala')
+    console.log(data)
+        if (data) {
+            console.log('Album Data:', data.albumData);
+            //if (data.externalLinks.length > 0) {
+                console.log('External Links:', data.externalLinks);
+                const intro = await window.api.getWikipediaIntroFromWikidata(data.externalLinks[0].url);
+                if (intro) {
+                    console.log('Wikipedia Introduction:', intro);
+                }
+            //} else {
+                //console.log('No external links found.');
+            //}
+        }
+})();
+
+
+
+
+/*
 //? Pełne ścieżki wszystkich plików w folderze muzyka
 window.api.getAllAudioFilePaths().then((files) => {
     console.log(files);
@@ -115,5 +139,17 @@ window.api.getSpecificAudioFile("C:\\Users\\Mateusz\\Music\\She Just Won't Belie
     const img = document.getElementById('testowe');
     img.src = `data:image/png;base64,${file.artistPicture}`
 }).catch(err => console.error('Błąd:', err));
+
+
+setTimeout(() => {
+    window.api.getWikipediaIntro('The_Dark_Side_of_the_Moon').then(intro => {
+        if (intro) {
+            console.log('Wprowadzenie:', intro);
+        } else {
+            console.log('Nie udało się pobrać wprowadzenia.');
+        }
+    });
+}, 1);
+*/
 
 
