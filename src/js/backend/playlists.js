@@ -83,6 +83,100 @@ async function moveSongToPosition(playlist, newSongsOrder) {
 }
 
 
+
+function createJsonFile(fileName, picturePath, discription, privacy) {
+
+    data = {
+        "name": fileName,
+        "picture": picturePath,
+        "discription": discription,
+        "privacy" : privacy,
+        "songs": []
+      }
+
+    // Ścieżka do systemowego folderu Muzyka
+    const musicFolderPath = path.join(os.homedir(), 'Music');
+
+    // Tworzenie pełnej ścieżki do pliku
+    const filePath = path.join(musicFolderPath, `.${fileName}.json`);
+
+    // Konwersja obiektu na JSON
+    const jsonData = JSON.stringify(data, null, 2); // Formatowanie z wcięciem 2 spacje
+
+    // Zapis pliku JSON
+    fs.writeFile(filePath, jsonData, (err) => {
+        if (err) {
+            console.error('Błąd podczas zapisywania pliku:', err);
+        } else {
+            console.log(`Plik ${fileName}.json został zapisany w folderze Muzyka.`);
+        }
+    });
+    hideFile(filePath)
+}
+
+
+
+function doesJsonFileExist(fileName) {
+    const musicFolderPath = path.join(os.homedir(), 'Music');
+    const filePath = path.join(musicFolderPath, `${fileName}.json`);
+
+    // Zwróć true, jeśli plik istnieje, w przeciwnym razie false
+    return fs.existsSync(filePath);
+}
+
+
+
+
+
+// Ścieżka do folderu PlayList Picture
+const folderPath = path.join(process.env.APPDATA, 'SoundSpace', 'PlayList Picture');
+
+// Tworzenie folderu
+fs.mkdir(folderPath, { recursive: true }, (err) => {
+  if (err) {
+    return console.error('Błąd przy tworzeniu folderu:', err);
+  }
+  console.log('Folder PlayList Picture został pomyślnie utworzony:', folderPath);
+});
+
+
+
+// Funkcja zapisująca obraz w folderze PlayList Picture
+function saveImageToPlaylistCovers(fileName, base64Data) {
+    return new Promise((resolve, reject) => {
+        const folderPath = path.join(process.env.APPDATA, 'SoundSpace', 'PlayList Picture');
+        const filePath = path.join(folderPath, fileName);
+
+        // Tworzenie folderu, jeśli nie istnieje
+        fs.mkdir(folderPath, { recursive: true }, (err) => {
+            if (err) {
+                console.error('Błąd przy tworzeniu folderu:', err);
+                return reject(err); // Zwraca błąd, jeśli folderu nie udało się utworzyć
+            }
+
+            // Konwertuj base64 na buffer
+            const buffer = Buffer.from(base64Data, 'base64');
+
+            // Zapisanie pliku obrazu
+            fs.writeFile(filePath, buffer, (err) => {
+                if (err) {
+                    console.error('Błąd przy zapisywaniu pliku:', err);
+                    return reject(err); // Zwraca błąd, jeśli zapisywanie nie powiodło się
+                }
+
+                console.log(`Plik ${fileName} został pomyślnie zapisany w: ${filePath}`);
+                resolve(filePath); // Zwraca ścieżkę do zapisanego pliku
+            });
+        });
+    });
+}
+
+
+
+
+
+
+
 //moveSongToPosition(playlistName, songToMove, targetSong);
 
-module.exports = { moveSongToPosition };
+module.exports = { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers };

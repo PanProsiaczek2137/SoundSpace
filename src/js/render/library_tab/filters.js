@@ -425,7 +425,7 @@ ArtistFilter.addEventListener('click', () => {
                     ArtistFilter.innerText = paragraph.innerText;
                     albumFilter.innerText = "☰ Album";
                     genreFilter.innerText = "☰ Genres";
-                    showlibraryRightBar(true);
+                    showlibraryRightBar(false); //TODO! DO ZMAINY, kiedy będzie można brać obrazky z music brain czy jakoś tak 
 
                     songContainer.innerHTML = "";
                     dropdownContent2.innerHTML = '';
@@ -642,7 +642,7 @@ genreFilter.addEventListener('click', () => {
                     ArtistFilter.innerText = "☰ Artists";
                     albumFilter.innerText = "☰ Album";
                     genreFilter.innerText = paragraph.innerText;
-                    showlibraryRightBar(true);
+                    showlibraryRightBar(false); //TODO! DO ZMAINY, kiedy będzie można brać obrazky z music brain czy jakoś tak (to można już zsobić (ale (mi się niechce (:>))))
 
                     dropdownContent4.innerHTML = '';
                     loadedPlaylistTo = [];

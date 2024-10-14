@@ -18,6 +18,8 @@
         <script src="js/render/songControler.js" type="module"></script>
         <script src="js/render/library_tab/filters.js" type="module"></script>
         <script src="js/render/library_tab/rightBar.js" type="module"></script>
+        <script src="js/render/library_tab/createPlaylist.js" type="module"></script>
+        <script src="js/render/library_tab/addSongs.js" type="module"></script>
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>-->
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +28,6 @@
         <link rel="icon" href="allResources/icon/SoundSpaceIconNew.svg">
     </head>
 <body>
-    <img src="" alt="" id="testowe" style="position: absolute; top: 100px; left: 100px; z-index: 9999999999999999999999;">
     <div id="container">
         <div id="left-bar">
             <h1 onclick="location.reload()" id="title"><p style="position: relative; left: 11px;">Soun</p><img src="allResources/icon/Soun(icon)Space.svg" style="position:relative; left: 1px;" draggable="false"><p style="position: relative; left: -11px;">Space</p></h1>
@@ -50,36 +51,29 @@
                 <p id="nickname" class="prof-item">Pan_prosiaczek</p>
             </div>
         </div>
-        <div id="popup" onmousedown="if(!isMouseOnWindow){showPopupCreatePlaylist(false);showPopupEditPlaylist(false); createPlayListMenuVisible = false;}">
-            <div id="create-playlist-menu" onmouseenter="isMouseOnWindow = true"; onmouseleave="isMouseOnWindow = false">
+        <div id="popup">
+            <div id="create-playlist-menu">
                 <h1>Utwórz Playlistę:</h1>
-                <div id="create-playlist-options">
-                    <input type="text" class="input-create-playlist disable-keybinds" placeholder="Name..." id="play-list-name-input" autocomplete="off" maxlength="32">
-                    <input type="text" class="input-create-playlist disable-keybinds" placeholder="description..." id="play-list-description-input" autocomplete="off" maxlength="500">
-                    <div id="dropdown-create-playlist">
-                        <select name="public/private" class="public-private" id="public-private-create">
-                            <option value="Private">Private</option>
-                            <option value="PublicListen">Public - only listen (Friends)</option>
-                            <option value="PublicAdd">Public - can add (Friends)</option>
-                          </select>
+                    <div id="settings-library-playlist">
+                        <div id="create-playlist-options">
+                            <input type="text" class="input-create-playlist disable-keybinds" placeholder="Name..." id="play-list-name-input" autocomplete="off" maxlength="32">
+                            <textarea class="input-create-playlist disable-keybinds" placeholder="description..." id="play-list-description-input" autocomplete="off" maxlength="500"></textarea>                            <div id="dropdown-create-playlist">
+                                <select name="public/private" class="defult-dropdown" id="public-private-create">
+                                    <option value="Private">Private</option>
+                                    <option value="PublicListen">Public - only listen (Friends)</option>
+                                    <option value="PublicAdd">Public - can add (Friends)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="create-playlist-options-graphics">
+                            <h2 style="margin-bottom: 10px;">Select Playlist image:</h2>
+                            <div id="graphicsToSet">
+                                <img src="allResources/icon/addPlaylistCover.png" alt="" id="addPlaylistCover" style="object-fit: cover; aspect-ratio: 1;">
+                                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <h2 style="margin-bottom: 10px;">Select Playlist image:</h2>
-                <div id="graphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                    <img src="allResources/albumCover/beethoven.jpg" alt="" class="recommendedGraphicsToSet">
-                </div>
-                <button onclick="createPlaylist()" id="create-playlist">Create</button>
+                <button id="create-playlist">Create</button>
             </div>
 
 
@@ -98,7 +92,7 @@
                 </div>
                 <img src="allResources/albumCover/beethoven.jpg" alt="" id="edit-playlist-image">
                 <input type="file" id="fileInput" accept="image/*">
-                <select name="public/private" class="public-private" id="publicPrivateOption">
+                <select name="public/private" class="defult-dropdown" id="publicPrivateOption">
                     <option value="Private">Private</option>
                     <option value="PublicListen">Public - only listen (Friends)</option>
                     <option value="PublicAdd">Public - can add (Friends)</option>
@@ -115,6 +109,70 @@
             
             <!-- Ukryty span do pomiaru szerokości tekstu -->
             <span id="hidden-span" style="position: absolute; visibility: hidden; white-space: pre; padding: 5px; font-family: var(--main-font); font-size: 4rem;"></span>
+
+
+            <div id="add-songs-menu">
+                <div id="add-songs-menu-songs">
+
+                </div>
+                <div id="add-songs-menu-settings">
+                    <div id="add-songs-menu-accept">
+                        <button>Accept</button>
+                        <select name="defult-options" class="defult-dropdown" id="add-songs-menu-defult">
+                            <option value="without">without adding metadata</option>
+                            <option value="necessary">with the necessary metadata added</option>
+                            <option value="missing">with adding missing metadata</option>
+                            <option value="all">adding all metadata</option>
+                        </select>
+                    </div>
+                    <div id="add-songs-menu-set">
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox">
+                            <p>to jest test a ja tu tylko testuję</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
 
         </div>
@@ -161,9 +219,9 @@
                     <!--<button class="librarybtn librarybtnMakeBigger" onclick="selectedFilter = 'Rate'; filterChanged()">To Rate</button>  DO DODANIA  -->
                 </div>
                 <div id="add-song-playlist">
-                    <p id="add-playlist" onclick="showPopupCreatePlaylist('true')">Create PlayList</p>
+                    <p id="add-playlist">Create PlayList</p>
                     <p id="add-song">Add New Song</p>
-                    <input type="file" id="fileInput" style="display: none;" accept="audio/*" multiple>
+                    <input type="file" id="fileInputAdd-song" style="display: none;" accept="audio/*" multiple>
                 </div>
                 <div id="songs" class="library-songs-list">
                     <!--To pracujemy-->

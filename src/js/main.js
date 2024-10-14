@@ -1,8 +1,8 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog  } = require('electron');
 const path = require('path');
 const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic } = require('./backend/list-audio-files'); // Import funkcji
 const { getWikipediaIntroFromWikidata, getAlbumDataWithExternalLinks } = require('./backend/wiki-api'); // Import funkcji
-const { moveSongToPosition } = require('./backend/playlists'); // Import funkcji
+const { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers } = require('./backend/playlists'); // Import funkcji
 
 function createWindow() {
     let mainWindow = new BrowserWindow({
@@ -112,6 +112,34 @@ function createWindow() {
         }
     });
 
+    ipcMain.handle('create-json-file', async (event, playlistName, playlistPicturePath, playlistDiscription, playlistPrivacy) => {
+        try {
+            return createJsonFile(playlistName, playlistPicturePath, playlistDiscription, playlistPrivacy); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
+    ipcMain.handle('does-json-file-exist', async (event, fileName) => {
+        try {
+            return doesJsonFileExist(fileName); // Zwróć metadane dla konkretnego pliku
+        } catch (err) {
+            console.error('Błąd przy pobieraniu pliku:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
+    ipcMain.handle('save-image-to-playlist-covers', async (event, fileName, imageData) => {
+        try {
+            const filePath = await saveImageToPlaylistCovers(fileName, imageData);
+            return filePath; // Zwróć ścieżkę do zapisanego pliku
+        } catch (err) {
+            console.error('Błąd przy zapisywaniu obrazu:', err);
+            throw err; // Rzuć błąd, aby obsłużyć go w rendererze
+        }
+    });
+
 
     ipcMain.handle('is-loaded-music', async () => {
         try {
@@ -122,6 +150,16 @@ function createWindow() {
         }
     });
 }
+
+ipcMain.handle('open-file-dialog', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+        properties: ['openFile', 'multiSelections'],
+        filters: [{ name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg'] }]
+    });
+    if (!canceled) {
+        return filePaths; // Zwraca pełne ścieżki do plików
+    }
+});
 
 app.whenReady().then(createWindow);
 

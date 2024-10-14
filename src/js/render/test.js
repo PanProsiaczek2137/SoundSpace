@@ -126,6 +126,9 @@ function setTab(to){
 
 
 
+
+//window.api.createJsonFile('test', 'jakaś ścieżka', 'to jest tylko test tworzenia playlisty przez js', 'plbliczna (chyba)')
+
 /*
 //? Pełne ścieżki wszystkich plików w folderze muzyka
 window.api.getAllAudioFilePaths().then((files) => {
