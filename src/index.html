@@ -117,59 +117,77 @@
                 </div>
                 <div id="add-songs-menu-settings">
                     <div id="add-songs-menu-accept">
-                        <button>Accept</button>
+                        <button id="add-songs-menu-button">Accept</button>
                         <select name="defult-options" class="defult-dropdown" id="add-songs-menu-defult">
-                            <option value="without">without adding metadata</option>
-                            <option value="necessary">with the necessary metadata added</option>
-                            <option value="missing">with adding missing metadata</option>
-                            <option value="all">adding all metadata</option>
+                            <option value="withoutModification">Without file modification</option>
+                            <option value="withoutMetadata">Without editing metadata</option>
+                            <option value="missing">With editing missing metadata</option>
                         </select>
                     </div>
                     <div id="add-songs-menu-set">
+
+                        <h3>storage</h3>
+
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <select name="host-place" class="defult-dropdown" id="host-place">
+                                <option value="Localy">Localy</option>
+                                <option value="GoogleDrive">Google Drive</option>
+                                <!--<option value="missing">Youtube</option>
+                                <option value="all">Server FTP</option>-->
+                            </select>
+                            <p>where songs uploaded to the program will be stored</p>
+                        </div>
+
+
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox" id="add-songs-input-delete-oryginal">
+                            <p>deletes original files after uploading</p>
+                        </div>
+
+
+                        <h3>general</h3>
+
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox" id="add-songs-input-information-brackets">>
+                            <p>removes the information in brackets next to the song name</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" disabled>
+                            <p>Automatically removes long silence at the beginning or end of a song</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" disabled>
+                            <p>analyzes the tempo of the song and assigns a tag: slow, medium, fast</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" disabled>
+                            <p>If found, adds a YouTube link to this song</p>
+                        </div>
+
+
+                        <h3>informations</h3>
+
+                        <div class="add-songs-menu-single-setting">
+                            <input type="checkbox" id="add-songs-input-add-image" disabled>
+                            <p>if it doesn't detect an image, it sets it to an image from the database</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" id="add-songs-input-track-numner">
+                            <p>If the program does not detect the assigned track number in the album. This is attributed to him by the one who has the data in his database</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" id="add-songs-input-genre">
+                            <p>if the song does not have a genre assigned, it adds it from the database</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" id="add-songs-input-date" disabled>
+                            <p>if the song release date in the file is not given or is incorrect. Allocates it from the database</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
+                            <input type="checkbox" style="min-width: 30px;" disabled>
+                            <p>adds the album description in the file as its description</p>
                         </div>
-                        <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
-                        </div>
-                        <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
-                        </div>
-                        <div class="add-songs-menu-single-setting">
-                            <input type="checkbox">
-                            <p>to jest test a ja tu tylko testuję</p>
-                        </div>
+
                     </div>
                 </div>
             </div>

@@ -4,7 +4,12 @@ const os = require('os');
 const { loadMusicMetadata } = require('music-metadata');  // Importowanie modułu do odczytu metadanych audio
 global.whichAlbumsToAnalyze = [];
 let loaded = false
+const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace');
+const songListFilePath = path.join(appDataPath, 'songList.json');
 
+// Wywołanie funkcji
+checkOrCreateSongList();
+createFolder()
 
 // Funkcja do uzyskania ścieżki do folderu Muzyka
 function getMusicFolderPath() {
@@ -18,6 +23,10 @@ function getMusicFolderPath() {
 
 //const getmissingAlbumCover = fs.readFileSync(path.join(__dirname, 'allResources', 'albumCover', 'missingAlbumCover.png')).toString('base64');
 const getmissingAlbumCover = fs.readFileSync(path.join(__dirname, '..', '..', 'allResources', 'albumCover', 'missingAlbumCover.png')).toString('base64');
+const getmissingAlbumCoverLocalPath = path.join(__dirname, '..', '..', 'allResources', 'albumCover', 'missingAlbumCover.png');
+
+fs.copyFile(getmissingAlbumCoverLocalPath, path.join(appDataPath, 'Album Covers', path.basename(getmissingAlbumCoverLocalPath)), ()=>{})
+const missingAlbumCoverPath = path.join(appDataPath, 'Album Covers', 'missingAlbumCover.png')
 
 // Funkcja do odczytu metadanych pliku audio przy użyciu music-metadata
 async function getAudioFileMetadata(filePath) {
@@ -135,9 +144,6 @@ function getSpecificJsonFile(filePath) {
 
 
 
-const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace');
-const songListFilePath = path.join(appDataPath, 'songList.json');
-
 
 function getSongData(songPath = null) {
     // Sprawdzenie, czy plik songList.json istnieje
@@ -215,9 +221,7 @@ function createFolder() {
     });
 }
 
-// Wywołanie funkcji
-checkOrCreateSongList();
-createFolder()
+
 
 async function checkOrAddSongsInformations(){
     const localSongList = getAllAudioFilePaths()
@@ -308,6 +312,8 @@ async function addToJsonFile(filePath, newObject) {
         let path;
         if(data.picture != getmissingAlbumCover){
             path = await checkOrAddAlbumCovers("data:image/png;base64,"+data.picture, data.album)
+        }else{
+            path = missingAlbumCoverPath
         }
         console.log(path)
         data.picture = path 

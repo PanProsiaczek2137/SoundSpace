@@ -397,6 +397,7 @@ const dropdownContent2 = document.getElementById('dropdown-content2');
 const ArtistFilter = document.getElementById('artist-filter');
 //* DROP DOWN DLA ARTYSTÓW
 ArtistFilter.addEventListener('click', () => {
+    realoadAllArtistsAlbumsGenres()
     setTimeout(() => {
         console.log(dropdownContent2.style.display);
         dropdownContent2.style.display = 'block';
@@ -501,6 +502,7 @@ const dropdownContent3 = document.getElementById('dropdown-content3');
 const albumFilter = document.getElementById('album-filter');
 //* DROP DOWN DLA ALBUMÓW
 albumFilter.addEventListener('click', () => {
+    realoadAllArtistsAlbumsGenres()
     setTimeout(() => {
         console.log(dropdownContent3.style.display);
         dropdownContent3.style.display = 'block';
@@ -611,6 +613,7 @@ const dropdownContent4 = document.getElementById('dropdown-content4');
 const genreFilter = document.getElementById('genre-filter');
 //* DROP DOWN DLA GATUNKÓW
 genreFilter.addEventListener('click', () => {
+    realoadAllArtistsAlbumsGenres()
     setTimeout(() => {
         console.log(dropdownContent4.style.display);
         dropdownContent4.style.display = 'block';

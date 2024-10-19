@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('api', {
     createJsonFile: (playlistName, playlistPicturePath, playlistDiscription, playlistPrivacy) => ipcRenderer.invoke('create-json-file', playlistName, playlistPicturePath, playlistDiscription, playlistPrivacy),
     doesJsonFileExist: (fileName) => ipcRenderer.invoke('does-json-file-exist', fileName),
     saveImageToPlaylistCovers: (fileName, imageData) => ipcRenderer.invoke('save-image-to-playlist-covers', fileName, imageData),
+    transferAudioFile: (sourcePath, destination, settings) => ipcRenderer.invoke('transfer-audio-file', sourcePath, destination, settings),
     onPreviousTrack: (callback) => ipcRenderer.on('media-previous-track', callback),
     onNextTrack: (callback) => ipcRenderer.on('media-next-track', callback),
     onStopPlayTrack: (callback) => ipcRenderer.on('media-stop-play-track', callback),

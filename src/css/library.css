@@ -276,7 +276,7 @@
 }
 /* Ukrywamy domyślny checkbox */
 input[type="checkbox"] {
-    margin-left: 30px;
+    margin-left: 25px;
     appearance: none;
     -webkit-appearance: none; /* Dla przeglądarek WebKit */
     width: 30px;
@@ -311,11 +311,37 @@ input[type="checkbox"]:hover {
     border-color: #888;
 }
 
+input[type="checkbox"]:disabled {
+    border-color: #333;
+}
+
+
 /* Styl dla paragrafu */
 .add-songs-menu-single-setting p {
     display: inline-block;
     margin-left: 10px;
     font-size: 16px;
+}
+
+.add-songs-menu-single-setting select{
+    margin-left: 25px;
+    width: 175px;
+    height: 40px;
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 1.5rem;
+}
+
+#add-songs-menu-set h3{
+    font-family: var(--main-font);
+    color: var(--white);
+    font-size: 2.75rem;
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+#add-songs-menu-set h3:first-child{
+    margin-top: 0px;
 }
 
 

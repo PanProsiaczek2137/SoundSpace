@@ -3,6 +3,7 @@ const path = require('path');
 const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic } = require('./backend/list-audio-files'); // Import funkcji
 const { getWikipediaIntroFromWikidata, getAlbumDataWithExternalLinks } = require('./backend/wiki-api'); // Import funkcji
 const { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers } = require('./backend/playlists'); // Import funkcji
+const { transferAudioFile } = require('./backend/saving-file.js'); // Import funkcji
 
 function createWindow() {
     let mainWindow = new BrowserWindow({
@@ -140,6 +141,15 @@ function createWindow() {
         }
     });
 
+    ipcMain.handle('transfer-audio-file', async (event, sourcePath, destination, settings) => {
+        try {
+            return await transferAudioFile(sourcePath, destination, settings);
+        } catch (err) {
+            console.error('Błąd przy zapisywaniu pliku audio:', err);
+            throw err;
+        }
+    });
+
 
     ipcMain.handle('is-loaded-music', async () => {
         try {
@@ -203,8 +213,8 @@ app.on('will-quit', () => {
 //! TODO:
 
 //? biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
-//* biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty
-//TODO: biblioteka edutowanie playlisty i piosenek
+//* biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty (zrobić jeszcze aby filtr all nie czytał plików z music tylko z musiclist.json)
+//TODO: biblioteka edutowanie playlisty
 //TODO: przysotoswać design do mniejszego rozmieru okna
 //TODO: skróty klawiszowe
 //TODO: pasek wyszukiwania
