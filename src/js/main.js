@@ -1,8 +1,8 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu, dialog  } = require('electron');
 const path = require('path');
-const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic } = require('./backend/list-audio-files'); // Import funkcji
+const { getAudioFiles, getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic, addArtist, addAlbum, getArtist } = require('./backend/list-audio-files'); // Import funkcji
 const { getWikipediaIntroFromWikidata, getAlbumDataWithExternalLinks } = require('./backend/wiki-api'); // Import funkcji
-const { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers } = require('./backend/playlists'); // Import funkcji
+const { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers, addRemoveSongToPlaylist } = require('./backend/playlists'); // Import funkcji
 const { transferAudioFile } = require('./backend/saving-file.js'); // Import funkcji
 
 function createWindow() {
@@ -150,10 +150,46 @@ function createWindow() {
         }
     });
 
+    ipcMain.handle('add-remove-song-to-playlist', async (event, playlistName, songPath) => {
+        try {
+            return await addRemoveSongToPlaylist(playlistName, songPath);
+        } catch (err) {
+            console.error('Błąd przy zapisywaniu pliku audio:', err);
+            throw err;
+        }
+    });
+
 
     ipcMain.handle('is-loaded-music', async () => {
         try {
             return isLoadedMusic(); // Zwróć wszystkie nazwy plików audio
+        } catch (err) {
+            console.error('Błąd podczas pobierania ścieżek do plików json:', err);
+            return []; // W przypadku błędu, zwróć pustą tablicę
+        }
+    });
+
+    ipcMain.handle('add-artist', async (event, name) => {
+        try {
+            return addArtist(name); // Zwróć wszystkie nazwy plików audio
+        } catch (err) {
+            console.error('Błąd podczas pobierania ścieżek do plików json:', err);
+            return []; // W przypadku błędu, zwróć pustą tablicę
+        }
+    });
+
+    ipcMain.handle('add-album', async (event, artistName, albumName, songs, date, description) => {
+        try {
+            return addAlbum(artistName, albumName, songs, date, description); // Zwróć wszystkie nazwy plików audio
+        } catch (err) {
+            console.error('Błąd podczas pobierania ścieżek do plików json:', err);
+            return []; // W przypadku błędu, zwróć pustą tablicę
+        }
+    });
+
+    ipcMain.handle('get-artist', async (event, artistName) => {
+        try {
+            return getArtist(artistName); // Zwróć wszystkie nazwy plików audio
         } catch (err) {
             console.error('Błąd podczas pobierania ścieżek do plików json:', err);
             return []; // W przypadku błędu, zwróć pustą tablicę
@@ -214,6 +250,8 @@ app.on('will-quit', () => {
 
 //? biblioteka filtry i informacja o playliście/wykonawcy/albumie/gatunku po boku
 //* biblioteka towrzenie playlisty i dodawanie piosenek do progamu i do playlisty (zrobić jeszcze aby filtr all nie czytał plików z music tylko z musiclist.json)
+//TODO!: dodaje artystę i jego albumu przy dodawaniu piosenek do pliku artistlist.json
+//TODO!: zrobić że jak piosenka niema albumu to sprawdza w bazie danych. A jak niema to dodaje obrazek po nazwie piosenki i wykonawca w nawiasie
 //TODO: biblioteka edutowanie playlisty
 //TODO: przysotoswać design do mniejszego rozmieru okna
 //TODO: skróty klawiszowe

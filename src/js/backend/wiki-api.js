@@ -68,7 +68,8 @@ async function getAlbumDataWithExternalLinks(albumName, artistName) {
     };
 }
 
-async function getAlbumTracks(albumName, artistName) {
+/*
+async function getAlbumTracks(albumName, artistName, retryCount = 3) {
     const { MusicBrainzApi } = await loadMusicBrainzApi();
 
     const mbApi = new MusicBrainzApi({
@@ -77,139 +78,260 @@ async function getAlbumTracks(albumName, artistName) {
         appContactInfo: 'user@mail.org',
     });
 
-    try {
-        // Wyszukiwanie release-group (albumu) na podstawie albumu i artysty
-        const releaseGroupList = await mbApi.search('release-group', {
-            query: {
-                release: albumName,
-                artist: artistName
+    async function performRequest() {
+        try {
+            // Search for the release-group (album) based on album name and artist name
+            const releaseGroupList = await mbApi.search('release-group', {
+                query: {
+                    release: albumName,
+                    artist: artistName
+                }
+            });
+
+            // Find an exact match for the album
+            const matchingReleaseGroup = releaseGroupList['release-groups'].find(
+                (releaseGroup) =>
+                    releaseGroup.title.toLowerCase() === albumName.toLowerCase() &&
+                    releaseGroup['artist-credit'] &&
+                    releaseGroup['artist-credit'][0].name.toLowerCase() === artistName.toLowerCase()
+            );
+
+            if (!matchingReleaseGroup) {
+                console.log(`No albums found for "${albumName}" by "${artistName}".`);
+                return [];
             }
+
+            // Fetch details for the release-group
+            const releaseGroupDetails = await mbApi.lookup('release-group', matchingReleaseGroup.id, ['releases']);
+
+            // Select the first release from the group
+            const releaseId = releaseGroupDetails.releases[0].id;
+
+            // Fetch details for the release, including the tracklist
+            const releaseDetails = await mbApi.lookup('release', releaseId, ['recordings']);
+
+            // Check if `media` exists and is an array
+            if (!releaseDetails.media || !Array.isArray(releaseDetails.media)) {
+                console.error('Invalid media data:', releaseDetails.media);
+                return [];
+            }
+
+            // Collect all tracks
+            const tracks = releaseDetails.media.flatMap(media =>
+                media.tracks ? media.tracks.map(track => track.title) : []
+            );
+
+            if (!tracks.length) {
+                console.error(`No tracks found in the media for "${albumName}" by "${artistName}".`);
+                return [];
+            }
+
+            console.log(`Found ${tracks.length} tracks on album "${albumName}" by "${artistName}":`);
+            return tracks;
+        } catch (error) {
+            if (error.response && error.response.status === 503 && retryCount > 0) {
+                console.warn(`Error 503 encountered. Retrying in 10 seconds... (${retryCount} retries left)`);
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for 10 seconds
+                return getAlbumTracks(albumName, artistName, retryCount - 1); // Retry the request
+            } else {
+                console.error('Error fetching album tracks:', error);
+                return [];
+            }
+        }
+    }
+
+    return performRequest();
+}
+*/
+
+async function getAlbumTracks(albumName, artistName, retryCount = 3) {
+    async function fetchFromMusicBrainz(endpoint, params = {}) {
+        const baseURL = 'https://musicbrainz.org/ws/2/';
+        const url = new URL(endpoint, baseURL);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json',
+                    'User-Agent': 'SoundSpace/0.1.0 (user@mail.org)'  // Add your app name and contact info here
+                }
+            });
+    
+            if (response.status === 503 && retryCount > 0) {
+                console.warn(`Received 503, retrying in 10 seconds... (${retryCount} retries left)`);
+                await new Promise(resolve => setTimeout(resolve, 10000));
+                return fetchFromMusicBrainz(endpoint, params);  // Retry request
+            } else if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+    
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
+    }
+
+    async function performRequest() {
+        // Step 1: Search for release-groups (albums, EPs, singles) by the artist and album name
+        const releaseGroupSearch = await fetchFromMusicBrainz('release-group/', {
+            query: `${albumName} AND artist:${artistName}`,
+            fmt: 'json'
         });
 
-        // Znalezienie dokładnie pasującego albumu
-        const matchingReleaseGroup = releaseGroupList['release-groups'].find(
-            (releaseGroup) =>
-                releaseGroup.title.toLowerCase() === albumName.toLowerCase() &&
-                releaseGroup['artist-credit'] &&
-                releaseGroup['artist-credit'][0].name.toLowerCase() === artistName.toLowerCase()
-        );
-
-        if (!matchingReleaseGroup) {
-            console.log(`No albums found for "${albumName}" by "${artistName}".`);
+        if (!releaseGroupSearch || !releaseGroupSearch['release-groups'] || releaseGroupSearch['release-groups'].length === 0) {
+            console.log(`No albums or EPs found for "${albumName}" by "${artistName}".`);
             return [];
         }
 
-        // Pobieranie szczegółowych informacji o release-group
-        const releaseGroupDetails = await mbApi.lookup('release-group', matchingReleaseGroup.id, ['releases']);
-
-        // Wybieranie pierwszego wydania (release) z grupy
-        const releaseId = releaseGroupDetails.releases[0].id;
-
-        // Pobieranie szczegółowych informacji o release, w tym o utworach (tracklist)
-        const releaseDetails = await mbApi.lookup('release', releaseId, ['recordings']);
-
-        // Zbieranie wszystkich utworów
-        const tracks = releaseDetails.media.flatMap(media => 
-            media.tracks.map(track => track.title)
+        // Step 2: Find the most relevant release-group
+        const matchingReleaseGroup = releaseGroupSearch['release-groups'].find(releaseGroup =>
+            releaseGroup.title.toLowerCase() === albumName.toLowerCase()
         );
 
-        console.log(`Found ${tracks.length} tracks on album "${albumName}" by "${artistName}":`);
-        //console.log(tracks);
+        if (!matchingReleaseGroup) {
+            console.log(`No exact match for "${albumName}".`);
+            return [];
+        }
+
+        // Step 3: Get releases for the release-group
+        const releaseGroupId = matchingReleaseGroup.id;
+        const releaseGroupDetails = await fetchFromMusicBrainz(`release-group/${releaseGroupId}`, { inc: 'releases', fmt: 'json' });
+
+        if (!releaseGroupDetails || !releaseGroupDetails.releases || releaseGroupDetails.releases.length === 0) {
+            console.log('No releases found for this release group.');
+            return [];
+        }
+
+        // Step 4: Get tracks from the first release in the release-group
+        const releaseId = releaseGroupDetails.releases[0].id;
+        const releaseDetails = await fetchFromMusicBrainz(`release/${releaseId}`, { inc: 'recordings', fmt: 'json' });
+
+        if (!releaseDetails || !releaseDetails.media || releaseDetails.media.length === 0) {
+            console.log('No track information found for the selected release.');
+            return [];
+        }
+
+        // Step 5: Extract the tracklist from the release
+        const tracks = releaseDetails.media.flatMap(media =>
+            media.tracks ? media.tracks.map(track => track.title) : []
+        );
+
+        if (tracks.length === 0) {
+            console.log('No tracks found.');
+        }
 
         return tracks;
-    } catch (error) {
-        console.error('Error fetching album tracks:', error);
-        return [];
     }
+
+    return performRequest();
 }
 
 
-async function getSongTags(artist, title) {
+
+async function getSongTags(artist, title, album) {
     const fetch = await loadFetch(); // Ładujemy fetch
 
-    const searchUrl = `https://musicbrainz.org/ws/2/recording/?query=artist:${encodeURIComponent(artist)}%20AND%20recording:${encodeURIComponent(title)}&fmt=json`;
+    // Funkcja do pobierania tagów
+    async function fetchTags(url) {
+        let success = false;
+        let data;
+        while (!success) {
+            try {
+                console.log(`Fetching ${url}`);
+                const response = await fetch(url);
 
-    let success = false;
-    let data;
-
-    while (!success) {
-        try {
-            console.log(`Fetching ${searchUrl}`);
-            const response = await fetch(searchUrl);
-
-            if (!response.ok) {
-                if (response.status === 503) {
-                    // Jeśli status 503, czekaj 5 sekund i ponów próbę
-                    console.warn(`Received 503 error. Retrying after 5 seconds...`);
-                    await new Promise(resolve => setTimeout(resolve, 5000));
-                    continue; // Ponów próbę
+                if (!response.ok) {
+                    if (response.status === 503) {
+                        console.warn(`Received 503 error. Retrying after 10 seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, 10000));
+                        continue; // Ponów próbę
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                throw new Error(`HTTP error! status: ${response.status}`);
+
+                data = await response.json();
+                success = true; // Jeśli się uda, przerywamy pętlę
+
+            } catch (error) {
+                console.error('Wystąpił błąd podczas pobierania tagów:', error);
+                console.log('Retrying in 10 seconds...');
+                await new Promise(resolve => setTimeout(resolve, 10000)); // Jeśli inny błąd, czekaj 10s i ponów próbę
             }
-
-            data = await response.json();
-            success = true; // Jeśli się uda, przerywamy pętlę
-
-        } catch (error) {
-            console.error('Wystąpił błąd podczas pobierania tagów:', error);
-            console.log('Retrying in 10 seconds...');
-            await new Promise(resolve => setTimeout(resolve, 10000)); // Jeśli inny błąd, czekaj 10s i ponów próbę
         }
+        return data;
     }
 
-    // Przetwarzanie danych
+    // Szukanie tagów dla utworu
+    const songSearchUrl = `https://musicbrainz.org/ws/2/recording/?query=artist:${encodeURIComponent(artist)}%20AND%20(recording:${encodeURIComponent(title)}%20OR%20title:${encodeURIComponent(title)})&fmt=json`;
+    let data = await fetchTags(songSearchUrl);
+    let songTags = findBestTags(data, 'recordings', artist);
+    if (songTags) {
+        return songTags;
+    }
+
+    // Szukanie tagów dla albumu, jeśli brak tagów dla utworu
+    console.warn('No song tags found, searching for album tags...');
+    const albumSearchUrl = `https://musicbrainz.org/ws/2/release-group/?query=artist:${encodeURIComponent(artist)}%20AND%20release:${encodeURIComponent(album)}&fmt=json`;
+    data = await fetchTags(albumSearchUrl);
+    let albumTags = findBestTags(data, 'release-groups');
+    if (albumTags) {
+        return albumTags;
+    }
+
+    // Szukanie tagów dla wykonawcy, jeśli brak tagów dla albumu
+    console.warn('No album tags found, searching for artist tags...');
+    const artistSearchUrl = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(artist)}&fmt=json`;
+    data = await fetchTags(artistSearchUrl);
+    let artistTags = findBestTags(data, 'artists');
+    if (artistTags) {
+        return artistTags;
+    }
+
+    // Jeśli nie znaleziono żadnych tagów
+    console.warn('No artist tags found');
+    return null;
+}
+
+// Funkcja do wyszukiwania najlepszych tagów
+function findBestTags(data, type, artist) {
     let whichOneIsIt = 0;
     let howManyElements = 0;
-    for (let i = 0; i < data.recordings.length; i++) {
-        if (data.recordings[i].tags !== undefined && data.recordings[i].tags.length > howManyElements) {
-            howManyElements = data.recordings[i].tags.length;
-            whichOneIsIt = i;
+
+    for (let i = 0; i < data[type].length; i++) {
+
+        if(type == 'recordings'){
+            if (data[type][i].tags !== undefined && data[type][i].tags.length > howManyElements) {
+                for(let j = 0; j < data[type][i]["artist-credit"].length; j++){
+                    if(data[type][i]["artist-credit"][j].name == artist){
+                        howManyElements = data[type][i].tags.length;
+                        whichOneIsIt = i;
+                    }
+                }
+            }
+
+        }else{
+            if (data[type][i].tags !== undefined && data[type][i].tags.length > howManyElements) {
+                howManyElements = data[type][i].tags.length;
+                whichOneIsIt = i;
+            }
         }
     }
 
     if (howManyElements === 0) {
-        console.warn('No tags found');
         return null;
     }
 
-    const sortedTags = data.recordings[whichOneIsIt].tags.sort((a, b) => b.count - a.count);
-    
-    // Lista preferowanych gatunków i ich podgatunków
-    const genreMap = {
-        rock: ["classic rock", "hard rock", "alternative rock", "gothic rock", "progressive rock", "psychedelic rock", "symphonic rock", "slow rock", "punk rock", "indie rock", "garage rock"],
-        metal: ["death metal", "thrash metal", "heavy metal", "black metal"],
-        hiphop: ["gangsta", "christian rap", "rap", "christian gangsta rap"],
-        techno: ["euro-techno", "techno-industrial", "hardcore techno"],
-        jazz: ["acid jazz", "jazz & funk", "bebop", "swing", "avantgarde"],
-        electronic: ["downtempo", "dubstep", "idm", "electro", "electroclash", "ebm", "psytrance"],
-        pop: ["synthpop", "pop-folk", "eurodance"],
-        reggae: ["dance hall"],
-    };
+    const sortedTags = data[type][whichOneIsIt].tags.sort((a, b) => b.count - a.count);
+    console.log('................');
+    console.log(sortedTags);
+    console.log('................');
 
-    // Wyszukujemy bardziej szczegółowe tagi
-    let selectedTag = null;
-    let baseTag = null;
-
-    for (const tag of sortedTags) {
-        const tagName = tag.name.toLowerCase();
-        
-        // Sprawdzamy dla każdego gatunku głównego
-        for (const [genre, subgenres] of Object.entries(genreMap)) {
-            if (tagName === genre) {
-                baseTag = tag.name; // Zachowujemy ogólny tag
-            } else if (subgenres.includes(tagName)) {
-                selectedTag = tag.name; // Preferujemy bardziej szczegółowy tag
-                break; // Znalezienie bardziej szczegółowego tagu przerywa pętlę
-            }
-        }
-
-        // Jeśli znaleźliśmy bardziej szczegółowy tag, przerywamy pętlę główną
-        if (selectedTag) break;
-    }
-
-    // Jeśli nie znaleziono bardziej szczegółowego tagu, zwracamy ogólny lub pierwszy dostępny tag
-    return selectedTag || baseTag || sortedTags[0].name;
+    // Zwracamy najbardziej popularny tag
+    return sortedTags[0].name;
 }
+
 
 
 // Przykład użycia

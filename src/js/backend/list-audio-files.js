@@ -6,9 +6,12 @@ global.whichAlbumsToAnalyze = [];
 let loaded = false
 const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace');
 const songListFilePath = path.join(appDataPath, 'songList.json');
+const artistListFilePath = path.join(appDataPath, 'artistList.json');
+
 
 // Wywołanie funkcji
 checkOrCreateSongList();
+checkOrCreateArtistList()
 createFolder()
 
 // Funkcja do uzyskania ścieżki do folderu Muzyka
@@ -119,27 +122,41 @@ function getAllJsonFilePaths() {
 
 
     
-function getSpecificJsonFile(filePath) {
-        return new Promise((resolve, reject) => {
-            fs.readFile(filePath, 'utf8', (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    if (!data) {
-                        reject(new Error('Plik JSON jest pusty'));
-                        return;
-                    }
-                    try {
-                        const jsonData = JSON.parse(data);
-                        resolve(jsonData);
-                    } catch (parseErr) {
-                        reject(parseErr);
-                    }
-                }
-            });
-        });
-}
+function getSpecificJsonFile(source) {
+    return new Promise((resolve, reject) => {
+        let filePath;
 
+        // Ustawienie ścieżki do pliku w zależności od argumentu 'source'
+        if (source === 'local') {
+            const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace', 'songList.json');
+            filePath = appDataPath;
+        }else if(source === 'artist'){
+            const appDataPath = path.join(os.homedir(), 'AppData', 'Roaming', 'soundspace', 'artistList.json');
+            filePath = appDataPath;
+        }else {
+            // Zakładamy, że source jest ścieżką do pliku
+            filePath = source;
+        }
+
+        // Odczyt pliku
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                if (!data) {
+                    reject(new Error('Plik JSON jest pusty'));
+                    return;
+                }
+                try {
+                    const jsonData = JSON.parse(data);
+                    resolve(jsonData);
+                } catch (parseErr) {
+                    reject(parseErr);
+                }
+            }
+        });
+    });
+}
 
 
 
@@ -210,6 +227,25 @@ function checkOrCreateSongList() {
         }
     }
 }
+
+// Funkcja sprawdzająca, czy plik istnieje
+function checkOrCreateArtistList() {
+
+    // Sprawdź, czy plik artistList.json istnieje
+    if (!fs.existsSync(artistListFilePath)) {
+        // Jeśli plik nie istnieje, utwórz go z podstawową strukturą
+        const initialData = {
+            
+        };
+        fs.writeFileSync(artistListFilePath, JSON.stringify(initialData, null, 2));
+        console.log('Utworzono plik artistList.json.');
+        checkOrAddSongsInformations()
+    } else {
+        console.log('Plik artistList.json już istnieje.');
+        checkOrAddSongsInformations()
+    }
+}
+
 function createFolder() {
     const dirPath = path.join(appDataPath, 'Album Covers'); 
     fs.mkdir(dirPath, { recursive: true }, (err) => {
@@ -220,6 +256,7 @@ function createFolder() {
         }
     });
 }
+
 
 
 
@@ -388,9 +425,123 @@ function isLoadedMusic(){
 }
 
 
+async function addArtist(name, genras, discription, image) {
+    let jsonData = {};
+
+    // Sprawdzamy, czy plik istnieje
+    if (fs.existsSync(artistListFilePath)) {
+        const fileContent = fs.readFileSync(artistListFilePath, 'utf-8');
+        jsonData = JSON.parse(fileContent);
+    }
+
+    console.log(jsonData); // Sprawdzenie zawartości jsonData
+
+    // Dodajemy nowy obiekt do danych
+    try {
+        // Upewniamy się, że jsonData to obiekt
+        if (typeof jsonData !== 'object' || Array.isArray(jsonData)) {
+            throw new Error('jsonData nie jest obiektem');
+        }
+
+        console.log(jsonData); // Sprawdzenie zawartości jsonData przed dodaniem
+
+        // Dodajemy nowego artystę
+        if (!jsonData[name]) { // Sprawdzamy, czy artysta już istnieje
+            jsonData[name] = {
+                genras: genras,
+                discription: discription,
+                image: image,
+                Albums: {}
+            };
+        } else {
+            console.log(`Artysta "${name}" już istnieje.`);
+        }
+
+        // Zapisujemy dane z powrotem do pliku
+        fs.writeFileSync(artistListFilePath, JSON.stringify(jsonData, null, 2));
+
+        console.log('Obiekt został dodany.');
+        return 'add';
+    } catch (error) {
+        console.error('Wystąpił błąd:', error);
+        return "didn't add";
+    }
+}
+
+async function addAlbum(artistName, albumName, songs, date, description) {
+    let jsonData = {};
+
+    // Sprawdzamy, czy plik istnieje
+    if (fs.existsSync(artistListFilePath)) {
+        const fileContent = fs.readFileSync(artistListFilePath, 'utf-8');
+        jsonData = JSON.parse(fileContent);
+    }
+
+    try {
+        // Upewniamy się, że jsonData to obiekt
+        if (typeof jsonData !== 'object' || Array.isArray(jsonData)) {
+            throw new Error('jsonData nie jest obiektem');
+        }
+
+        // Sprawdzamy, czy artysta istnieje
+        if (!jsonData[artistName]) {
+            throw new Error(`Artysta "${artistName}" nie istnieje.`);
+        }
+
+        // Dodajemy album i jego szczegóły do artysty
+        if (!jsonData[artistName].Albums) {
+            jsonData[artistName].Albums = {}; // Tworzymy obiekt Albums, jeśli nie istnieje
+        }
+
+        // Dodajemy album z wymaganym formatem
+        jsonData[artistName].Albums[albumName] = {
+            date: date,
+            description: description,
+            songs: songs
+        };
+
+        // Zapisujemy dane z powrotem do pliku
+        fs.writeFileSync(artistListFilePath, JSON.stringify(jsonData, null, 2));
+
+        console.log('Album został dodany.');
+        return 'album added';
+    } catch (error) {
+        console.error('Wystąpił błąd:', error);
+        return "album didn't add";
+    }
+}
+
+
+async function getArtist(artistName) {
+    let jsonData = {};
+
+    // Sprawdzamy, czy plik istnieje
+    if (fs.existsSync(artistListFilePath)) {
+        const fileContent = fs.readFileSync(artistListFilePath, 'utf-8');
+        jsonData = JSON.parse(fileContent);
+    } else {
+        console.error("Plik artistList.json nie istnieje.");
+        return null;
+    }
+
+    // Sprawdzamy, czy artysta istnieje
+    if (jsonData[artistName]) {
+        console.log(`Znaleziono artystę: ${artistName}`);
+        return jsonData[artistName];
+    } else {
+        console.log(`Artysta "${artistName}" nie został znaleziony.`);
+        return null;
+    }
+}
+
+//TODO: dodać funkcje która sprawdza czy istnieje artysta i czy istnieje album u artysty a dokładniej zwraca poprostu zawartość artysty/albumu. Jeśli go niema to zwraca false
+
+setTimeout(() => {
+    addAlbum('Tame Impala', 'test', ['song1', 'song2'], 2008, 'okej')
+    console.log(getArtist("Tame Impala"));
+}, 1000);
 
 
 
 
-
-module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic };
+module.exports = { getAllAudioFilePaths, getSpecificAudioFile, getAllJsonFilePaths, getSpecificJsonFile, getSongData, isLoadedMusic, addArtist, addAlbum, getArtist };

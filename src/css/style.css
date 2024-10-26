@@ -525,6 +525,93 @@ body {
     mix-blend-mode: difference; /* odwrócenie koloru obrazka */
 }
 
+#dropdown-content-playlist{
+    overflow-y: auto;
+    bottom: 82px;
+    right: 15px;
+    position: absolute;
+    max-height: 336px;
+    width: 200px;
+    background-color: var(--light-grey);
+    z-index: 100;
+}
+
+/* Stylizacja całego suwaka */
+#dropdown-content-playlist::-webkit-scrollbar {
+    width: 4px; /* Szerokość suwaka */
+}
+
+/* Stylizacja tła suwaka */
+#dropdown-content-playlist::-webkit-scrollbar-track {
+    background: var(--light-grey); /* Kolor tła suwaka */
+}
+
+/* Stylizacja uchwytu suwaka */
+#dropdown-content-playlist::-webkit-scrollbar-thumb {
+    background: var(--lightest-gray); /* Kolor uchwytu */
+    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
+}
+
+/* Stylizacja uchwytu suwaka przy najechaniu */
+#dropdown-content-playlist::-webkit-scrollbar-thumb:hover {
+    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
+}
+
+#dropdown-content-playlist p{
+    color: var(--white);
+    font-family: var(--main-font);
+    font-size: 1.35rem;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 5px;
+    border-top: solid 1px var(--darkest-gray);
+    border-bottom: solid 1px var(--darkest-gray);
+}
+
+#loading-songs{
+    width: 250px;
+    height: 100px;
+    background-color: var(--dark-gray);
+    position: absolute;
+    right: 15px;
+    bottom: 100px;
+    visibility: visible;
+}
+
+#loading-songs progress {
+    width: 100%;          /* Szerokość paska postępu */
+    height: 30px;         /* Wysokość paska postępu */
+    appearance: none;    /* Ukrywa domyślny wygląd w przeglądarkach */
+}
+
+/* Styl dla pasków postępu w przeglądarkach, które obsługują to */
+#loading-songs progress::-webkit-progress-bar {
+    background-color: #111111; /* Tło paska postępu */
+}
+
+#thisSong::-webkit-progress-value {
+    background-color: #262d4d; /* Kolor wypełnienia paska postępu */
+}
+#thisSong{
+    position: relative;
+    bottom: 10px;
+}
+#allSongs::-webkit-progress-value {
+    background-color: #105f09; /* Kolor wypełnienia paska postępu */
+}
+#allSongs {
+    position: relative;
+    bottom: 17px;
+}
+#transferring-song-information {
+    position: absolute;
+    bottom: 5px;
+    color: var(--darker-white);
+    font-family: var(--main-font);
+    font-size: 1rem;
+    text-align: center;
+    width: 100%;
+}
 
 
 @keyframes shrink-to-zero {

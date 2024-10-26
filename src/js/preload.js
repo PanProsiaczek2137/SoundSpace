@@ -15,9 +15,13 @@ contextBridge.exposeInMainWorld('api', {
     doesJsonFileExist: (fileName) => ipcRenderer.invoke('does-json-file-exist', fileName),
     saveImageToPlaylistCovers: (fileName, imageData) => ipcRenderer.invoke('save-image-to-playlist-covers', fileName, imageData),
     transferAudioFile: (sourcePath, destination, settings) => ipcRenderer.invoke('transfer-audio-file', sourcePath, destination, settings),
+    addRemoveSongToPlaylist: (playlistName, songPath) => ipcRenderer.invoke('add-remove-song-to-playlist', playlistName, songPath),
     onPreviousTrack: (callback) => ipcRenderer.on('media-previous-track', callback),
     onNextTrack: (callback) => ipcRenderer.on('media-next-track', callback),
     onStopPlayTrack: (callback) => ipcRenderer.on('media-stop-play-track', callback),
     isLoadedMusic: () => ipcRenderer.invoke('is-loaded-music'),
-    openFileDialog: () => ipcRenderer.invoke('open-file-dialog')
+    openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
+    addArtist: (name) => ipcRenderer.invoke('add-artist', name),
+    addAlbum: (artistName, albumName, songs, date, description) => ipcRenderer.invoke('add-album', artistName, albumName, songs, date, description),
+    getArtist: (artistName) => ipcRenderer.invoke('get-artist', artistName)
 });

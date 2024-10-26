@@ -103,9 +103,15 @@ function setTab(to){
 };
 
 
+try {
+    let test = await window.api.addArtist('okej');
+    console.log(test); // Sprawdzanie wyniku
+} catch (error) {
+    console.error('Wystąpił błąd podczas dodawania artysty:', error);
+}
 
 
-
+/*
 (async () => {
     const data = await window.api.getAlbumDataWithExternalLinks('lonerism', 'tame impala')
     console.log(data)
@@ -122,7 +128,7 @@ function setTab(to){
             //}
         }
 })();
-
+*/
 
 
 

@@ -119,21 +119,22 @@ export function convertBackslashes(path) {
 
 
 
-export function setPlaylist(to, content, startFrom, playOnStart) {
+export async function setPlaylist(to, content, startFrom, playOnStart) {
     if (to === 'all') {
         RightBar.innerHTML = ""
         playingPlaylist = []
         console.log('pliylist form folder music')
-        window.api.getAllAudioFilePaths().then(async (files) => {
-            for (let i = 0; i < files.length; i++) {
-                await setRightBarSong(files[i]);
-                playingPlaylist.push(files[i]);
+        await window.api.getSpecificJsonFile('local').then(async (files) => {
+            for (let i = 0; i < Object.keys(files).length; i++) {
+                //console.log(Object.values(files)[0])
+                await setRightBarSong(Object.values(files)[i].filePath);
+                playingPlaylist.push(Object.values(files)[i].filePath);
                 if(i == 0 && startFrom == undefined || null){
-                    setSong(files[i], playOnStart);
+                    setSong(Object.values(files)[i].filePath, playOnStart);
                 }else if(i == 0 && startFrom != undefined || null){
-                    setSong(files[startFrom], playOnStart);
+                    setSong(Object.values(files)[startFrom].filePath, playOnStart);
                 }
-                if(i == files.length-1 && startFrom != undefined || null){
+                if(i == Object.keys(files).length-1 && startFrom != undefined || null){
                     playedPlaylistTrack = Number(startFrom)
                 }
             }

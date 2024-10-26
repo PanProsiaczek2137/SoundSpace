@@ -7,7 +7,22 @@ const popupMenu = document.getElementById('popup')
 
 let pathsToFiles = []
 
+const hostPlace = document.getElementById('host-place');
+const inputDeleteOryginal = document.getElementById('add-songs-input-delete-oryginal');
+const inputInformationBrackets = document.getElementById('add-songs-input-information-brackets');
+const inputTrackNumner = document.getElementById('add-songs-input-track-numner');
+const inputGenre = document.getElementById('add-songs-input-genre');
+const addSongsMenuDefult = document.getElementById('add-songs-menu-defult')
+
 addSong.addEventListener('click', async () => {
+
+    addSongsMenuDefult.value = 'important'
+    hostPlace.value = 'Localy'
+    inputDeleteOryginal.checked = true
+    inputInformationBrackets.checked = true
+    inputTrackNumner.checked = false
+    inputGenre.checked = true
+
     const filePaths = await window.api.openFileDialog();
     addSongsMenuSongs.innerHTML = ''
     filePaths.forEach(filePath => {
@@ -50,23 +65,48 @@ popupMenu.addEventListener('click', (event)=>{
     }
 })
 
-const inputDeleteOryginal = document.getElementById('add-songs-input-delete-oryginal');
-const inputInformationBrackets = document.getElementById('add-songs-input-information-brackets');
-const inputTrackNumner = document.getElementById('add-songs-input-track-numner');
-const inputGenre = document.getElementById('add-songs-input-genre');
 
-setInterval(() => {
-    console.log(inputGenre.checked)
-}, 1000);
+addSongsMenuDefult.addEventListener('change', ()=>{
+    console.log(addSongsMenuDefult.value)
 
+    if(addSongsMenuDefult.value == 'without'){
+        inputInformationBrackets.checked = false
+        inputTrackNumner.checked = false
+        inputGenre.checked = false
+    }
+    if(addSongsMenuDefult.value == 'important'){
+        inputInformationBrackets.checked = true
+        inputTrackNumner.checked = false
+        inputGenre.checked = true
+    }
+    if(addSongsMenuDefult.value == 'all'){
+        inputInformationBrackets.checked = true
+        inputTrackNumner.checked = true
+        inputGenre.checked = true
+    }
+})
+
+
+
+const transferringSongInformation = document.getElementById('transferring-song-information')
 const addSongsMenuButton = document.getElementById('add-songs-menu-button');
-addSongsMenuButton.addEventListener('click', ()=>{
-    const hostPlace = document.getElementById('host-place');
 
+const loadingSongs = document.getElementById('loading-songs');
+loadingSongs.style.visibility = 'hidden'
+loadingSongs.style.animation = "fullscreenOff-RightBar 0.3s ease-in-out forwards"
+
+addSongsMenuButton.addEventListener('click', ()=>{
+    loadingSongs.style.visibility = 'visible'
+    loadingSongs.style.animation = "fullscreenOn-RightBar 0.5s ease-in-out forwards"
     async function transferAllAudioFiles(paths) {
+        const allSongsProgres = document.getElementById('allSongs')
+        allSongsProgres.max = paths.length
+        allSongsProgres.value = 0
+        console.log('ustawia na max: '+ paths.length)
         for (let i = 0; i < paths.length; i++) {
             try {
                 console.time('start')
+                transferringSongInformation.innerText = Math.floor((allSongsProgres.value / allSongsProgres.max) * 100) + "%"
                 const file = await window.api.transferAudioFile(paths[i], hostPlace.value, {
                     removeOriginal: inputDeleteOryginal.checked,
                     removeInformationInBrackets: inputInformationBrackets.checked,
@@ -75,12 +115,24 @@ addSongsMenuButton.addEventListener('click', ()=>{
                     setSongTags: inputGenre.checked,
                     setAlbumReleaseDate: true,
                 });
-                console.log(file);
+                document.getElementById('transferring-song-cover').src = file.picture
+                document.getElementById('transferring-song-name').innerText = file.title
+                document.getElementById('transferring-song-artist').innerText = file.artist
+
                 console.timeEnd('start')
-            } catch (err) {
+                allSongsProgres.value += 1
+                transferringSongInformation.innerText = Math.floor((allSongsProgres.value / allSongsProgres.max) * 100) + "%"
+                console.log('proces: '+ allSongsProgres.value)
+            } catch (err) { 
                 console.error('Błąd:', err);
             }
         }
+        setTimeout(() => {
+            loadingSongs.style.animation = "fullscreenOff-RightBar 0.3s ease-in-out forwards"
+            setTimeout(() => {
+                loadingSongs.style.visibility = 'hidden'
+            }, 300);
+        }, 1000);
         pathsToFiles = []
     }
     

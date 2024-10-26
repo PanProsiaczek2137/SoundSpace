@@ -20,6 +20,7 @@
         <script src="js/render/library_tab/rightBar.js" type="module"></script>
         <script src="js/render/library_tab/createPlaylist.js" type="module"></script>
         <script src="js/render/library_tab/addSongs.js" type="module"></script>
+        <script src="js/render/addSongsToPlaylist.js" type="module"></script>
         <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>-->
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -119,9 +120,9 @@
                     <div id="add-songs-menu-accept">
                         <button id="add-songs-menu-button">Accept</button>
                         <select name="defult-options" class="defult-dropdown" id="add-songs-menu-defult">
-                            <option value="withoutModification">Without file modification</option>
-                            <option value="withoutMetadata">Without editing metadata</option>
-                            <option value="missing">With editing missing metadata</option>
+                            <option value="without">Without editing data</option>
+                            <option value="important">with editing the most important data</option>
+                            <option value="all">With editing all  data</option>
                         </select>
                     </div>
                     <div id="add-songs-menu-set">
@@ -148,7 +149,7 @@
                         <h3>general</h3>
 
                         <div class="add-songs-menu-single-setting">
-                            <input type="checkbox" id="add-songs-input-information-brackets">>
+                            <input type="checkbox" id="add-songs-input-information-brackets">
                             <p>removes the information in brackets next to the song name</p>
                         </div>
                         <div class="add-songs-menu-single-setting">
@@ -192,6 +193,11 @@
                 </div>
             </div>
             
+            <div id="loading-songs">
+                <div style="padding-top: 6px; padding-bottom: 26px;"><div style="display: flex;"><img src="allResources/albumCover/missingAlbumCover.png" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1; object-fit: cover;" id="transferring-song-cover"><div style="display: flex; flex-direction: column;"><p class="rightBarSongName" id="transferring-song-name" style="overflow-x: hidden; width: 175px;">DivisionBell</p> <p class="rightBarArtistName" id="transferring-song-artist" style="overflow-x: hidden; width: 175px; margin-top: 3px;">PinkFloyd</p></div></div></div>
+                <progress id="allSongs" value="67" max="100"></progress>
+                <p id="transferring-song-information">Transfering...</p>
+            </div>
 
         </div>
 
@@ -288,10 +294,9 @@
             <div id="additional">
                 <img src="allResources/icon/fullScreen.svg" alt="" class="additional-icon" draggable="false" id="fullScreen-button">
                 <img src="allResources/icon/moreOptions.svg" alt="" class="additional-icon" draggable="false">
-                    <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false" onclick="refreshDropDownAddToPlaylist(); document.getElementById('dropdown-content-playlist').style.visibility = 'visible'; setTimeout(() => {canHideDropDownAddToPlaylist = true}, 1); if(canHideDropDownAddToPlaylist){setTimeout(() => {canHideDropDownAddToPlaylist = false}, 2)};" id="dropbtnPlaylist">
+                    <img src="allResources/icon/libraryAdd.svg" alt="" class="additional-icon" draggable="false" id="dropbtnPlaylist">
                     <div id="dropdown-content-playlist" style="visibility: hidden;">
-                        <p class="playlistToAddTo">PlayList1</p>
-                        <p class="playlistToAddTo">PlayList2</p>
+
                     </div>
                 <img src="allResources/icon/volume2.svg" alt="" class="additional-icon" draggable="false" id="volume">
                 <input type="range" id="volume-bar" style="margin-right: 15px;" min="0" max="100" value="50" hidden>

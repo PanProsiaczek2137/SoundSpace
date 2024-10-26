@@ -40,54 +40,69 @@ async function transferAudioFile(sourcePath, destination, settings) {
       picturePath = missingAlbumCoverPath;
   }
 
+
+
+
+
+
   let trackNumber = 0;
+if(settings.setAlbumTrackNumber){
+    if (file.trackNumber == 63 || (file.trackNumber == null)) {
+        console.log('WYSZUKUJE!!!!!!!!!!!');
 
-  if (file.trackNumber == 63 || (file.trackNumber == null && settings.setAlbumTrackNumber)) {
-      console.log('WYSZUKUJE!!!!!!!!!!!');
+        // Czekaj na zakończenie pobierania utworów
+        const list = await getAlbumTracks(file.album, file.artist);
 
-      // Czekaj na zakończenie pobierania utworów
-      const list = await getAlbumTracks(file.album, file.artist);
-      console.log(list);
-      console.log('szuka ' + file.fileName);
-      
-      // Normalizacja nazwy pliku
-      const normalizedFileName = file.fileName
-          .replace(/\.\w+$/, '')  // Usuwa rozszerzenie pliku
-          .trim()
-          .toLowerCase()
-          .replace(/[.\-]/g, ' ')  // Zamienia kropki i myślniki na spacje
-          .replace(/\s+/g, ' ');   // Usuwa nadmiarowe spacje
+        // Normalizacja nazwy pliku
+        const normalizedFileName = removeParentheses(file.fileName)
 
-      // Szukaj najbardziej podobnego utworu
-      let closestIndex = -1;
-      let closestMatchScore = 0;
+        console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
+        console.log('szuka ' + normalizedFileName);
+        console.log('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
 
-      list.forEach((track, index) => {
-          const normalizedTrackName = track
-              .trim()
-              .toLowerCase()
-              .replace(/[.\-]/g, ' ')
-              .replace(/\s+/g, ' ');
+        // Szukaj najbardziej podobnego utworu
+        let closestIndex = -1;
+        let closestMatchScore = Infinity; // Zainicjuj na dużą liczbę
+        const trackNumbersFound = new Set(); // Zbiór do przechowywania znalezionych numerów utworów
 
-          // Sprawdź, czy znormalizowana nazwa utworu zawiera znormalizowaną nazwę pliku
-          const matchScore = normalizedTrackName.includes(normalizedFileName) ? 1 : 0;
+        list.forEach((track, index) => {
+            const normalizedTrackName = track
+                .trim()
+                .toLowerCase()
+                .replace(/[.\-]/g, ' ')
+                .replace(/\s+/g, ' ');
 
-          if (matchScore > closestMatchScore) {
-              closestMatchScore = matchScore;
-              closestIndex = index;
-          }
-      });
+            // Oblicz odległość Levenshteina
+            const distance = levenshteinDistance(normalizedFileName, normalizedTrackName);
 
-      // Sprawdzenie, czy znaleziono dopasowanie
-      if (closestIndex !== -1) {
-          trackNumber = closestIndex + 1; // Użyj +1, ponieważ numeracja utworów zaczyna się od 1
-          console.log('znaleziono na miejscu ' + trackNumber);
-      } else {
-          console.log('Nie znaleziono utworu.');
-      }
-  } else {
-      trackNumber = file.trackNumber;
-  }
+            // Jeśli ta odległość jest mniejsza niż closestMatchScore, aktualizuj
+            if (distance < closestMatchScore) {
+                closestMatchScore = distance;
+                closestIndex = index;
+            }
+
+            // Sprawdź, czy numer utworu jest już w zbiorze
+            const trackNum = track.trackNumber;
+            if (trackNumbersFound.has(trackNum)) {
+                console.log(`Numer utworu ${trackNum} już istnieje: ${track.title}`);
+            } else {
+                trackNumbersFound.add(trackNum);
+            }
+        });
+
+        // Sprawdzenie, czy znaleziono dopasowanie
+        if (closestIndex !== -1) {
+            trackNumber = closestIndex + 1; // Użyj +1, ponieważ numeracja utworów zaczyna się od 1
+            console.log('znaleziono na miejscu ' + trackNumber);
+        } else {
+            console.log('Nie znaleziono utworu.');
+        }
+    } else {
+        trackNumber = file.trackNumber;
+    }
+}else{
+    trackNumber = file.trackNumber;
+}
 
 
 
@@ -104,17 +119,29 @@ async function transferAudioFile(sourcePath, destination, settings) {
     'trailer', 'lo-fi', 'tribal', 'acid punk', 'acid jazz', 'polka', 'retro', 'musical', 'rock & roll', 
     'hard rock', 'progressive rock'];
 
+    console.log('[[[[[[[[[[[[[[[[[[[[[[[')
+    console.log(file.genre)
+    console.log('[[[[[[[[[[[[[[[[[[[[[[[')
 
 // Użycie funkcji
 let genre;
-await getSongTags(file.artist, file.title).then(tags => {
-    console.log(tags);
-    if (tags != null) {
-        genre = tags;
-    } else {
-        genre = file.genre;
-    }
-});
+if(settings.setSongTags){
+    if(file.genre != null)
+    console.log('szuka: '+ file.artist + " piosenka o nazwie: "+ file.title)
+    await getSongTags(file.artist, file.title, file.album).then(tags => {
+        console.log('--------------------------------');
+        console.log(tags);
+        console.log('--------------------------------');
+        if (tags != null) {
+            genre = tags;
+        } else {
+            genre = file.genre;
+        }
+    });
+
+}else{
+    genre = file.genre
+}
 
   console.log('track ' + trackNumber);
 
@@ -148,13 +175,28 @@ await getSongTags(file.artist, file.title).then(tags => {
   if (settings.removeOriginal) {
       fs.rm(sourcePath, (err) => { console.log(err); });
   }
-    return true
+    return {'picture': picturePath, 'title': title, 'artist': file.artist}
 }
 
 
-function removeParentheses(text) {
-  return text.replace(/\s*\(.*?\)/, '');
+function removeParentheses(nazwaPliku) {
+    // Znajduje ostatnią kropkę w nazwie pliku
+    const ostatniaKropka = nazwaPliku.lastIndexOf('.');
+    
+    // Sprawdza, czy kropka została znaleziona
+    let nazwaBezRozszerzenia;
+    if (ostatniaKropka !== -1) {
+        // Zwraca część nazwy pliku przed ostatnią kropką
+        nazwaBezRozszerzenia = nazwaPliku.substring(0, ostatniaKropka);
+    } else {
+        // Jeśli nie ma kropki, używa oryginalnej nazwy pliku
+        nazwaBezRozszerzenia = nazwaPliku;
+    }
+
+    // Usuwa ostatnie nawiasy i ich zawartość
+    return nazwaBezRozszerzenia.replace(/\s*\([^()]*\)\s*$/, '');
 }
+
 function getMusicFolderPath() {
   const platform = os.platform();
   if (platform === 'win32' || platform === 'darwin' || platform === 'linux') {
@@ -198,6 +240,36 @@ function dataURLtoBuffer(dataURL) {
   }
   return Buffer.from(matches[2], 'base64');
 }
+// Function to calculate the Levenshtein distance
+function levenshteinDistance(a, b) {
+    const matrix = [];
+
+    // Tworzymy pustą macierz
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+
+    // Wypełniamy macierz
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                matrix[i][j] = matrix[i - 1][j - 1]; // Brak operacji
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1, // Zastąpienie
+                    Math.min(matrix[i][j - 1] + 1, // Wstawienie
+                               matrix[i - 1][j] + 1) // Usunięcie
+                );
+            }
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
 
 
 //TODO: dodawanie brazka dopiero jak będą dostępne na musicbrainz

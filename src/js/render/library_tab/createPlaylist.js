@@ -1,37 +1,46 @@
 const playListCreateButton = document.getElementById('add-playlist');
-const createPlaylistMenu = document.getElementById('create-playlist-menu')
-const popupMenu = document.getElementById('popup')
+const createPlaylistMenu = document.getElementById('create-playlist-menu');
+const popupMenu = document.getElementById('popup');
 
-playListCreateButton.addEventListener('click', ()=>{
-    popupMenu.style.visibility = 'visible'
-    createPlaylistMenu.style.visibility = 'visible'
+playListCreateButton.addEventListener('click', () => {
+    popupMenu.style.visibility = 'visible';
+    createPlaylistMenu.style.visibility = 'visible';
     popupMenu.style.animation = 'show 0.2s ease-in-out';
     createPlaylistMenu.style.animation = 'fullscreenOn-AlbumCover 0.3s ease-in-out';
-})
+});
 
-popupMenu.addEventListener('click', (event)=>{
-    if(event.target == popupMenu){
+popupMenu.addEventListener('click', (event) => {
+    if (event.target == popupMenu) {
         setTimeout(() => {
-            popupMenu.style.visibility = 'hidden'
-            createPlaylistMenu.style.visibility = 'hidden'
+            popupMenu.style.visibility = 'hidden';
+            createPlaylistMenu.style.visibility = 'hidden';
         }, 300);
         popupMenu.style.animation = 'hide 0.3s ease-in-out';
         createPlaylistMenu.style.animation = 'fullscreenOff-AlbumCover 0.3s ease-in-out';
     }
-})
-
-
+});
 
 const playlistNameInput = document.getElementById('play-list-name-input');
 const playlistDescriptionInput = document.getElementById('play-list-description-input');
 const dropdownCreatePlaylist = document.getElementById('public-private-create');
 const graphicsToSet = document.getElementById('graphicsToSet');
-const createPlaylist = document.getElementById('create-playlist')
+const createPlaylist = document.getElementById('create-playlist');
+
+const addPlaylistCover = document.getElementById('addPlaylistCover');
+
 
 let imgData;
 
+// Ustal domyślny obrazek (zmień ścieżkę na odpowiednią)
+const defaultCoverImage = './allResources/albumCover/missingAlbumCover.png'; // Ustaw odpowiednią ścieżkę do domyślnego obrazka
+
 createPlaylist.addEventListener('click', () => {
     const playlistName = playlistNameInput.value.trim();
+
+    playlistNameInput.value = ""
+    playlistDescriptionInput.value = ""
+    dropdownCreatePlaylist.value = "Private"
+    addPlaylistCover.src = './allResources/icon/addPlaylistCover.png'
 
     // Funkcja do sprawdzenia, czy nazwa playlisty jest prawidłowa
     const isValidPlaylistName = (name) => {
@@ -47,13 +56,21 @@ createPlaylist.addEventListener('click', () => {
         if (isValidPlaylistName(playlistName) && !files) {
             console.log('wykonano');
 
+            // Jeśli nie ma danych obrazu, użyj domyślnego obrazka
+            const coverImagePath = imgData ? `${playlistName}.png` : defaultCoverImage;
+
             // Upewnij się, że przesyłasz imgData jako poprawny string
-            window.api.saveImageToPlaylistCovers(playlistName+'.png', imgData).then((filePath) => {
-                console.log('Ścieżka do zapisanego pliku:', filePath);
-                window.api.createJsonFile(playlistName, filePath, playlistDescriptionInput.value, dropdownCreatePlaylist.value);
-            }).catch((err) => {
-                console.error('Błąd przy zapisywaniu obrazu:', err);
-            });
+            if (imgData) {
+                window.api.saveImageToPlaylistCovers(coverImagePath, imgData).then((filePath) => {
+                    console.log('Ścieżka do zapisanego pliku:', filePath);
+                    window.api.createJsonFile(playlistName, filePath, playlistDescriptionInput.value, dropdownCreatePlaylist.value);
+                }).catch((err) => {
+                    console.error('Błąd przy zapisywaniu obrazu:', err);
+                });
+            } else {
+                // Używamy domyślnego obrazka
+                window.api.createJsonFile(playlistName, defaultCoverImage, playlistDescriptionInput.value, dropdownCreatePlaylist.value);
+            }
 
             setTimeout(() => {
                 popupMenu.style.visibility = 'hidden';
@@ -68,7 +85,6 @@ createPlaylist.addEventListener('click', () => {
 });
 
 
-const addPlaylistCover = document.getElementById('addPlaylistCover');
 const fileInput = document.getElementById('fileInput');
 
 // Otwórz eksplorator plików po kliknięciu w obrazek
@@ -87,7 +103,7 @@ fileInput.addEventListener('change', (event) => {
         reader.onload = (e) => {
             const base64Data = e.target.result.split(',')[1]; // Usuń prefiks
             addPlaylistCover.src = e.target.result; // Ustaw src na nowo wybrany plik
-            imgData = base64Data
+            imgData = base64Data;
         };
 
         reader.readAsDataURL(file); // Odczytaj plik jako URL

@@ -173,10 +173,75 @@ function saveImageToPlaylistCovers(fileName, base64Data) {
 
 
 
+async function addRemoveSongToPlaylist(playlistName, songPath) {
+    const allPlaylist = getAllJsonFilePaths();
+    let pathToPlaylist;
+    let removeAdd;
+
+    // Szukamy ścieżki do playlisty
+    for (let i = 0; i < allPlaylist.length; i++) {
+        if (path.basename(allPlaylist[i], '.json') === playlistName) {
+            pathToPlaylist = allPlaylist[i];
+            break; // Znaleźliśmy playlistę, więc wychodzimy z pętli
+        }
+    }
+    await unhideFile(pathToPlaylist);
+
+    // Jeśli znaleziono playlistę, edytujemy ją
+    if (pathToPlaylist) {
+        // Odczytujemy zawartość pliku
+        fs.readFile(pathToPlaylist, 'utf8', (err, data) => {
+            if (err) {
+                console.error(`Błąd podczas odczytu pliku: ${err}`);
+                return;
+            }
+
+            // Parsujemy JSON
+            let playlist;
+            try {
+                playlist = JSON.parse(data);
+            } catch (parseError) {
+                console.error(`Błąd podczas parsowania JSON: ${parseError}`);
+                return;
+            }
+
+            // Sprawdzamy, czy piosenka już znajduje się w tablicy "songs"
+            const songIndex = playlist.songs.indexOf(songPath);
+            if (songIndex === -1) {
+                // Jeśli piosenka nie istnieje, dodajemy ją
+                playlist.songs.push(songPath);
+                console.log(`Piosenka została dodana do playlisty: ${playlistName}`);
+                removeAdd = 'add'
+            } else {
+                // Jeśli piosenka już istnieje, usuwamy ją
+                playlist.songs.splice(songIndex, 1);
+                console.log(`Piosenka została usunięta z playlisty: ${playlistName}`);
+                removeAdd = 'remove'
+            }
+
+            // Zapisujemy zmodyfikowany obiekt z powrotem do pliku
+            fs.writeFile(pathToPlaylist, JSON.stringify(playlist, null, 2), (writeErr) => {
+                if (writeErr) {
+                    console.error(`Błąd podczas zapisu pliku: ${writeErr}`);
+                } else {
+
+                }
+            });
+
+        });
+    } else {
+        console.log(`Nie znaleziono playlisty o nazwie: ${playlistName}`);
+    }
+    await hideFile(pathToPlaylist)
+    return removeAdd
+}
+
+// Przykład wywołania
+//addRemoveSongToPlaylist('.aaaaaaaaaaa', 'C:\\Users\\Mateusz\\Music\\Carry That Weight (Remastered 2009).mp3');
 
 
 
 
 //moveSongToPosition(playlistName, songToMove, targetSong);
 
-module.exports = { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers };
+module.exports = { moveSongToPosition, createJsonFile, doesJsonFileExist, saveImageToPlaylistCovers, addRemoveSongToPlaylist };

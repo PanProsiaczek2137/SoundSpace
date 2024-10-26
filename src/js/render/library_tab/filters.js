@@ -32,16 +32,7 @@ allFilter.addEventListener('click', () => {
     window.stop = true;  // Ustaw stop na true, aby przerwać aktualną operację
     setTimeout(() => {
         displayAllSongs(); // Po krótkim czasie uruchom ponownie funkcję
-    }, 100);
-});
-
-const LibraryBtn = document.getElementById('Library');
-LibraryBtn.addEventListener('click', () => {
-    songContainer.innerHTML = ""
-    window.stop = true;  // Zatrzymaj aktualne ładowanie
-    setTimeout(() => {
-        displayAllSongs(); // Ponownie uruchom ładowanie po zatrzymaniu
-    }, 100);
+    }, 5);
 });
 
 
@@ -51,48 +42,49 @@ async function displayAllSongs() {
     selectedFilter = 'all';
     songContainer.innerHTML = '';
     window.stop = false;  // Resetowanie flagi do zatrzymania
-
-
-
-    window.api.getAllAudioFilePaths().then((files) => {
-        for (let i = 0; i < files.length; i++) {
-            window.api.getSongData(files[i]).then((file) => {
+    
+    const mainFile = await window.api.getSpecificJsonFile('local');
+    console.log(mainFile)
+    console.log(Object.keys(mainFile).length)
+        for (let i = 0; i < Object.keys(mainFile).length; i++) {
                 
-                    if (window.stop) {
-                        console.log("Przerwano ładowanie");
-                        return;  // Zakończ wykonywanie, jeśli stop jest ustawione na true
-                    }
-                        
                     const newDiv = document.createElement('div');
                     newDiv.classList = 'songToSelectInLibrary';
                     newDiv.id = i;
                     newDiv.style.display = "flex";
                     newDiv.onclick = () => {
                         setTimeout(() => {
-                            setPlaylist('all', null, newDiv.id, true);
-                            fullScreenOnOff(true);
+                            try {
+                                setPlaylist('all', null, newDiv.id, true);
+                                fullScreenOnOff(true);
+                            } catch (parseErr) {
+
+                            }
                         }, 100);
         
                     };
         
-                    let secondsDuration = Math.floor(file.duration) % 60;
-                    let minutesDuration = file.duration.toFixed(2) / 60;
+                    console.log(Object.values(mainFile)[i]);
+
+                    let secondsDuration = Math.floor(Object.values(mainFile)[i].duration) % 60;
+                    let minutesDuration = Object.values(mainFile)[i].duration.toFixed(2) / 60;
                     let correctTime = `${Math.floor(minutesDuration)}:${secondsDuration < 10 ? "0" + secondsDuration : secondsDuration}`;
                     
 
+
                     newDiv.innerHTML = `
                         <div style="display: flex; background-color: #161616; z-index: 10">
-                            <img src="${file.picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
+                            <img src="${Object.values(mainFile)[i].picture}" style="height: 55px; margin-left: 10px; margin-right: 10px; aspect-ratio: 1 / 1; object-fit: cover;" draggable="false">
                             <div style="display: flex; flex-direction: column;">
-                                <p class="rightBarSongName" draggable="false">${file.title}</p>
-                                <p class="rightBarArtistName" draggable="false">${file.artist}</p>
+                                <p class="rightBarSongName" draggable="false">${Object.values(mainFile)[i].title}</p>
+                                <p class="rightBarArtistName" draggable="false">${Object.values(mainFile)[i].artist}</p>
                             </div>
                         </div>
                         <div class="artist-genre-library-text" style="right: 425px">
-                            <p>${file.album}</p>
+                            <p>${Object.values(mainFile)[i].album}</p>
                         </div>
                         <div class="artist-genre-library-text" style="right: 175px">
-                            <p>${file.genre}</p>
+                            <p>${Object.values(mainFile)[i].genre}</p>
                         </div>
                         <div style="display: flex; align-items: center">
                             <p class="songTime" draggable="false">${correctTime}</p>
@@ -101,10 +93,7 @@ async function displayAllSongs() {
             
                     songContainer.appendChild(newDiv);
 
-        
-            }).catch(err => console.error('Błąd:', err));
         }
-    }).catch(err => console.error('Błąd:', err));
 }
 
 
@@ -181,7 +170,7 @@ setTimeout(() => {
             console.error('Błąd:', err);
         }
     }
-, 1);
+, 10);
 });
 
 let ahaok = null;
@@ -492,7 +481,7 @@ ArtistFilter.addEventListener('click', () => {
         } catch (err) {
             console.error('Błąd:', err);
         }
-    }, 1);
+    }, 10);
 });
 
 
@@ -605,7 +594,7 @@ albumFilter.addEventListener('click', () => {
         } catch (err) {
             console.error('Błąd:', err);
         }
-    }, 1);
+    }, 10);
 });
 
 
@@ -701,7 +690,7 @@ genreFilter.addEventListener('click', () => {
         } catch (err) {
             console.error('Błąd:', err);
         }
-    }, 1);
+    }, 10);
 });
 
 
@@ -827,11 +816,16 @@ function getClosestDiv(containerId, referenceElement) {
 //? pokazywanie i chowanie się prawego baru jak i informacje na nich o wybranym filtrze (przesunięte aż do kiedy banda debili przestanie ddos'ować internet archiwe)
 // podświetli graną piosenkę na aktóalnej playliście
 // możlwość zmiany kolejności playlisty na stałe
-//* dodać wyszukiwanie w dropdown'ach jeśli jaką więcej niż 10 wyników
+// dodać wyszukiwanie w dropdown'ach jeśli jaką więcej niż 10 wyników
 // optymalizacja tworzenia div'ów jako jedna funkja a nie 3 bądź 4 osobne
 // zoptymailizowanie się wczytywania playlisty lokalnej z nowej funkji a nie starej
 
-
+// aby wybur trybu ustawień działał i domyślne ustawienia
+// aby też sczytywało EP i single
+// dodawanie piosenek do playlisty
+// poprawienie wyglądu UI tworzenia playlisty
+//* inforamcja o ładowaniu się piosenek
+//TODO?: usprawnić system wyszukiwania
 
 /*
 //*Przykład użycia (o wiele szybszy!)

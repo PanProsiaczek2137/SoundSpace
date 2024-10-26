@@ -364,6 +364,7 @@ input[type="checkbox"]:disabled {
 #play-list-description-input{
     height: 325px;
     resize: none;
+    padding-top: 7px;
 }
 
 /* Stylizacja całego suwaka */
@@ -562,48 +563,6 @@ input[type="checkbox"]:disabled {
     font-family: Arial, sans-serif;
     display: flex;
     align-items: center;
-}
-
-#dropdown-content-playlist{
-    overflow-y: auto;
-    bottom: 95px;
-    right: 15px;
-    position: absolute;
-    max-height: 336px;
-    width: 200px;
-    background-color: var(--light-grey);
-}
-
-/* Stylizacja całego suwaka */
-#dropdown-content-playlist::-webkit-scrollbar {
-    width: 4px; /* Szerokość suwaka */
-}
-
-/* Stylizacja tła suwaka */
-#dropdown-content-playlist::-webkit-scrollbar-track {
-    background: var(--light-grey); /* Kolor tła suwaka */
-}
-
-/* Stylizacja uchwytu suwaka */
-#dropdown-content-playlist::-webkit-scrollbar-thumb {
-    background: var(--lightest-gray); /* Kolor uchwytu */
-    transition: background 0.3s; /* Płynne przejście przy zmianie koloru */
-}
-
-/* Stylizacja uchwytu suwaka przy najechaniu */
-#dropdown-content-playlist::-webkit-scrollbar-thumb:hover {
-    background: var(--shadow-white); /* Jaśniejszy kolor uchwytu przy najechaniu */
-}
-
-#dropdown-content-playlist p{
-    color: var(--white);
-    font-family: var(--main-font);
-    font-size: 1.35rem;
-    padding-top: 7px;
-    padding-bottom: 7px;
-    padding-left: 2px;
-    border-top: solid 1px var(--darkest-gray);
-    border-bottom: solid 1px var(--darkest-gray);
 }
 
 .dropdown-content{
@@ -988,8 +947,3 @@ input[type="checkbox"]:disabled {
     }
 }
 
-
-
-/*#dropdown-content-playlist p:hover{
-    background-color: var(--lightest-gray);
-}  najpierw zrobić check box czy coś takiego przy AddToPlaylist potem to włączyć   */
