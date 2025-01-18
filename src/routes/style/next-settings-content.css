@@ -1,0 +1,27 @@
+#next-settings-content{
+    height: calc(50%);
+    width: 100%;
+    background-color: var(--black);
+    display: flex;
+    scroll-snap-type: x mandatory; /* Włącza snap w poziomie */
+    overflow-x: auto; /* Umożliwia przewijanie */
+    /*overscroll-behavior: none;*/
+}  
+
+#next, #settings{
+    height: 100%;
+    scroll-snap-align: start; /* Karty przyklejają się do początku kontenera */
+    flex-shrink: 0; /* Zapobiega kurczeniu kart */
+    width: 100%; /* Karty mają szerokość 100% kontenera */
+}
+
+#next{
+    background: var(--black);
+
+
+}
+
+#settings{
+    background-color: #399b4675;
+
+}

@@ -1,0 +1,16 @@
+#left-bar{
+    width: 250px;
+    height: 100vh;
+    position:absolute;
+    top: 0px;
+    left: 0px;
+    background-color: var(--black);
+    border-right: 1px solid var(--light-black);
+    z-index: 7;
+}
+
+@media (width < 650px) {
+    #left-bar{
+        width: 100px;
+    }
+  }
