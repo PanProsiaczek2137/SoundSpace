@@ -1,11 +1,14 @@
-<<<<<<< HEAD
-# Tauri + SvelteKit + TypeScript
+# SoundSpace 🎶
+SoundSpace to open-source'owy odtwarzacz muzyki na **Androida** i **Desktop**. Prosty, szybki i łatwy w użyciu, obsługujący lokalne pliki muzyczne.
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+## Funkcje
+- Odtwarzanie lokalnych plików audio
+- Wsparcie dla **Androida** i **Desktop**
 
-## Recommended IDE Setup
+## Instalacja
+1. Sklonuj repozytorium.
+2. Zbuduj aplikację na wybranej platformie.
+3. Uruchom i ciesz się muzyką!
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
-=======
-# SoundSpace
->>>>>>> 3bb2a6423e968043e7b8b92a10978f08c9298939
+## Licencja
+MIT License
