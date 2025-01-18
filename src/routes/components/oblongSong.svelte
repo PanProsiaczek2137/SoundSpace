@@ -14,6 +14,7 @@
     let img: any;
     let container: HTMLElement;
 
+    let isClick = true;
     let holdTimeout: any;
     const holdDuration = 200;
     let moving = false;
@@ -81,16 +82,18 @@
     }
 
     function handleHoldStart(event: PointerEvent | TouchEvent) {
-        // Resetujemy zmienną isMoved przy rozpoczęciu przytrzymania
+        // Resetujemy zmienną isMoved oraz isClick przy rozpoczęciu przytrzymania
         isMoved = false;
+        isClick = true;  // Resetujemy isClick przed rozpoczęciem przytrzymania
 
         // Nasłuchujemy na ruch w czasie przytrzymania
         const moveListener = (moveEvent: PointerEvent | TouchEvent) => {
             if (
-                (moveEvent instanceof PointerEvent && Math.abs(moveEvent.clientY - initialMouseY) > 10) || // Można zmienić wartość 10, zależnie od czułości
+                (moveEvent instanceof PointerEvent && Math.abs(moveEvent.clientY - initialMouseY) > 10) ||
                 (moveEvent instanceof TouchEvent && Math.abs(moveEvent.touches[0].clientY - initialMouseY) > 10)
             ) {
                 isMoved = true; // Wykryto ruch, anulujemy odliczanie
+                isClick = false;  // Zmiana na false, ponieważ było przesunięcie
                 clearTimeout(holdTimeout); // Anulujemy odliczanie
                 document.removeEventListener('pointermove', moveListener); // Usuwamy nasłuchiwacz
                 document.removeEventListener('touchmove', moveListener); // Usuwamy nasłuchiwacz
@@ -117,7 +120,6 @@
 
                 initialContainerY = container.offsetTop;
                 container.style.position = "absolute";
-                //container.style.top = `${initialContainerY}px`;
                 container.style.zIndex = "1000"; // Zwiększamy z-index, aby element był nad innymi
             }
         }, holdDuration); // Po 0.2 sekundy ustawiamy moving na true, jeśli nie było ruchu
@@ -168,6 +170,14 @@
             container.style.position = "";
         }, 10);
 
+        if (isClick) {
+            console.log('Kliknięto element!');
+            // Tutaj obsługujesz kliknięcie
+        } else {
+            console.log('Element został przytrzymany!');
+            // Tutaj obsługujesz przytrzymanie
+        }
+
         const closestIndex = findClosestElement();
         if (closestIndex !== null) {
             console.log('Najbliższy element ma indeks:', closestIndex);
@@ -195,6 +205,10 @@
             clearTimeout(holdTimeout); // Anulujemy odliczanie przy zwolnieniu przycisku
             if (moving) {
                 handlePointerUp();
+            } else {
+                setPlayedSong(myIndex).then(() => {
+                    playLocal(true);
+                });
             }
         });
 
@@ -202,6 +216,10 @@
             clearTimeout(holdTimeout); // Anulujemy odliczanie przy zwolnieniu przycisku
             if (moving) {
                 handlePointerUp();
+            } else {
+                setPlayedSong(myIndex).then(() => {
+                    playLocal(true);
+                });
             }
         });
 
@@ -258,12 +276,7 @@
 
 
 
-<div bind:this={container} data-index={myIndex} class="oblong-song" id="container" tabindex="-1" role="button" onkeydown={() => {}} onclick={() => {
-    setPlayedSong(myIndex).then(() => {
-        playLocal(true);
-    });
-    console.log('ustawiono piosenkę');
-}}>
+<div bind:this={container} data-index={myIndex} class="oblong-song" id="container" tabindex="-1" role="button">
     {#if isLoading}
         <p>Ładowanie...</p>
     {:else}
