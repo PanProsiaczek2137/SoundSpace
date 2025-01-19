@@ -463,8 +463,7 @@
     <div id="next-settings-content" class="section"> <!--  ONLY MOBILE  -->
         <div id="next">
             {#each playList as song, index}
-            <OblongSong theSong={song} myIndex={index} />
-            
+                <OblongSong theSong={song} theID={index} />
             {/each}
         </div>
         <div id="settings">
@@ -488,7 +487,7 @@
     </div>
     <div id="play-list" class="scroll-container">
         {#each playList as song, index}
-            <OblongSong theSong={song} myIndex={index} />
+            <OblongSong theSong={song} theID={index} />
         {/each}
     </div>
 </div>

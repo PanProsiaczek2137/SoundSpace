@@ -1,294 +1,210 @@
 <script lang="ts">
-    import { formatDuration } from '../audioSys.svelte';
-    import { playLocal } from '../+layout.svelte';
-    import { setPlayedSong, playList } from '../audioSys.svelte';
-    import { getDataOfFile, readTheImgFile } from '../saveSongData.svelte';
     import { onMount } from 'svelte';
-    import { reload } from '../ts/store.svelte';
-    import { platform } from '@tauri-apps/plugin-os';    
-
-    export let myIndex = 0;
-    export let theSong: any;
-    let songData: any = null;
+    import { setPlayedSong, playList, returnSongMetadata } from '../audioSys.svelte';
+    import { getDataOfFile, readTheImgFile } from '../saveSongData.svelte';
+    import { areWeMoveingTheSong, oblongSongLoading, mousePosY, reload } from '../ts/store.svelte'
+    import { platform } from '@tauri-apps/plugin-os';
+    export let theSong: any
+    export let theID: number
+    let songData: any;
+    let thisElement: HTMLElement 
     let isLoading = true;
-    let img: any;
-    let container: HTMLElement;
-
-    let isClick = true;
-    let holdTimeout: any;
-    const holdDuration = 200;
-    let moving = false;
-    let initialMouseY = 0;
-    let initialContainerY = 0;
-    let isMoved = false; // Zmienna, która śledzi, czy użytkownik ruszył palcem (lub kursorem)
-
-    
-    let test: any;
-    let test2: any;
+    let imageUrl: any;
+    let areWeMoveingTheSongLocal: boolean
     const currentPlatform = platform();
 
+    let holdTime: any
+    const holdDuration = 200; 
+    let container: HTMLElement
+
     onMount(() => {
-        let ok: HTMLElement;
-
-        if (currentPlatform !== 'android' && currentPlatform !== 'ios') {
-            ok = document.getElementById('play-list') as HTMLElement;
-
-            // Obsługa myszki dla komputerów
-            ok.addEventListener('mousemove', (event) => {
-                test = event.clientY;
-                console.log(test);
-
-                // Przypisanie aktualnej wartości scrollTop do zmiennej test2
-                test2 = ok.scrollTop;
-                console.log('ScrollTop:', test2);
-            });
-        } else {
-            ok = document.getElementById('next') as HTMLElement;
-
-            // Obsługa dotyku dla urządzeń mobilnych
-            ok.addEventListener('touchmove', (event) => {
-                // Użyj pierwszego punktu dotyku (palca) z listy `touches`
-                const touch = event.touches[0];
-                test = touch.clientY;
-                console.log(test);
-
-                // Przypisanie aktualnej wartości scrollTop do zmiennej test2
-                test2 = ok.scrollTop;
-                console.log('ScrollTop:', test2);
-            });
-        }
-    });
-    
-
-    // Pobranie danych asynchronicznie
-    reload.subscribe(value => {
-        if (value === true) {
-            console.log('Reload zmieniło się na true!');
-            reloadLocal();
-            reload.set(false);
-        }
-    });
-
-    reloadLocal();
-    export async function reloadLocal() {
-        console.log(container);
-        songData = await getDataOfFile();
-        img = await readTheImgFile(songData[theSong.src].picture);
-        if (img == null) {
-            img = 'default.png';
-        }
-        console.log('name: ', songData[theSong.src].title, "id: ", myIndex);
-        isLoading = false;
-    }
-
-    function handleHoldStart(event: PointerEvent | TouchEvent) {
-        // Resetujemy zmienną isMoved oraz isClick przy rozpoczęciu przytrzymania
-        isMoved = false;
-        isClick = true;  // Resetujemy isClick przed rozpoczęciem przytrzymania
-
-        // Nasłuchujemy na ruch w czasie przytrzymania
-        const moveListener = (moveEvent: PointerEvent | TouchEvent) => {
-            if (
-                (moveEvent instanceof PointerEvent && Math.abs(moveEvent.clientY - initialMouseY) > 10) ||
-                (moveEvent instanceof TouchEvent && Math.abs(moveEvent.touches[0].clientY - initialMouseY) > 10)
-            ) {
-                isMoved = true; // Wykryto ruch, anulujemy odliczanie
-                isClick = false;  // Zmiana na false, ponieważ było przesunięcie
-                clearTimeout(holdTimeout); // Anulujemy odliczanie
-                document.removeEventListener('pointermove', moveListener); // Usuwamy nasłuchiwacz
-                document.removeEventListener('touchmove', moveListener); // Usuwamy nasłuchiwacz
-            }
-        };
-
-        // Nasłuchiwanie na ruch podczas przytrzymania
-        document.addEventListener('pointermove', moveListener);
-        document.addEventListener('touchmove', moveListener);
-
-        // Rozpoczynamy odliczanie
-        holdTimeout = setTimeout(() => {
-            if (!isMoved) {
-                moving = true; // Ustawiamy moving na true, jeśli nie było ruchu
-                console.log('Element przesuwany!');
-                disableScroll();
-
-                // Przechowujemy pozycję startową
-                if (event instanceof PointerEvent) {
-                    initialMouseY = event.clientY;
-                } else if (event instanceof TouchEvent) {
-                    initialMouseY = event.touches[0].clientY;
-                }
-
-                initialContainerY = container.offsetTop;
-                container.style.position = "absolute";
-                container.style.zIndex = "1000"; // Zwiększamy z-index, aby element był nad innymi
-            }
-        }, holdDuration); // Po 0.2 sekundy ustawiamy moving na true, jeśli nie było ruchu
-    }
-
-    document.addEventListener('wheel', (event) => {
-        if(isMoved){
-            const elment = document.getElementById('play-list') as HTMLElement;
-            elment.scrollBy({ top: event.deltaY })
-            console.log(event, isMoved)
-            //test2 = event.offsetY
+        if(currentPlatform == "android" || currentPlatform == "ios"){
+            container = document.getElementById('next') as HTMLElement;
         }else{
-            console.log(isMoved)
+            container = document.getElementById('play-list') as HTMLElement;
         }
-    });
 
-    document.addEventListener('touchmove', (event) => {
-        //console.log('Touchmove event detected:', event);
-    });
-
-    function handleMouseMove(event: PointerEvent | TouchEvent) {
-        if (moving) {
-            let deltaY = 0;
-            if (event instanceof PointerEvent) {
-                deltaY = event.clientY - initialMouseY;
-            } else if (event instanceof TouchEvent) {
-                deltaY = event.touches[0].clientY - initialMouseY;
+        thisElement.addEventListener('pointerdown', () => {
+            //scrolling(false)
+            if (areWeMoveingTheSongLocal === false) {
+                holdTime = setInterval(() => {
+                    console.log('trzymamy');
+                    thisElement.style.backgroundColor = '#161616'
+                    thisElement.style.position = 'absolute'
+                    thisElement.style.zIndex = "999"
+                    areWeMoveingTheSong.set(true);
+                }, holdDuration);
             }
+        });
 
-            if(currentPlatform !== 'android' && currentPlatform !== 'ios'){
-                container.style.top = `${(test-25)+test2}px`;
-
+        // Zdarzenie upuszczenia
+        thisElement.addEventListener('pointerup', () => {
+            if (areWeMoveingTheSongLocal === false) {
+                console.log('play');
             }else{
-                container.style.top = `${(window.innerHeight)+(test+40)+test2}px`;
-                console.log(test, test2)
+
+
+
+                //playList.push({type: 'musicFolder', src: 'I Want It All.mp3'})
+
+
+                //const closestIndex = findClosestElement();
+                //console.log('closestIndex:', closestIndex);
+
+                //if (closestIndex !== null) {
+                //    playList.splice(0, 0, {type: 'musicFolder', src: 'I Want It All.mp3'})
+                //    console.log('Updated playList:', playList);
+                //}
+
+
+
+
+
+
+                container.style.zIndex = "1";
+                thisElement.style.backgroundColor = 'black'
+
+                //const closestID = findClosestElement();
+                //if(closestID){
+                //playList.splice(closestID, 0, songData);
+                //}
+
+                thisElement.style.position = 'static'
             }
-        }
-    }
-
-    function handlePointerUp() {
-        moving = false;
-        isMoved = false; // Resetujemy zmienną
-        console.log('przestajemy przesuwać!');
-        enableScroll();
-
-        container.style.zIndex = "1";
-        setTimeout(() => {
-            container.style.position = "";
-        }, 10);
-
-        if (isClick) {
-            console.log('Kliknięto element!');
-            // Tutaj obsługujesz kliknięcie
-        } else {
-            console.log('Element został przytrzymany!');
-            // Tutaj obsługujesz przytrzymanie
-        }
-
-        const closestIndex = findClosestElement();
-        if (closestIndex !== null) {
-            console.log('Najbliższy element ma indeks:', closestIndex);
-
-            const movedSong = playList.splice(myIndex, 1)[0];
-            const targetIndex = closestIndex > myIndex ? closestIndex - 1 : closestIndex;
-            playList.splice(targetIndex, 0, movedSong);
-
-            console.log('Zaktualizowana playlista:', playList);
-            reload.set(true);
-        }
-    }
-
-
-    function setupHoldEvents() {
-        container.addEventListener('pointerdown', (event) => {
-            handleHoldStart(event);
+            clearTimeout(holdTime);
         });
 
-        container.addEventListener('touchstart', (event) => {
-            handleHoldStart(event);
+        // Nasłuchiwanie na upuszczenie na całym dokumencie
+        document.addEventListener('pointerup', () => {
+            //scrolling(true)
+            if (areWeMoveingTheSongLocal === true) {
+                console.log('upuszczono piosenkę!');
+                areWeMoveingTheSong.set(false);
+            }
+            clearTimeout(holdTime);
         });
 
-        container.addEventListener('pointerup', () => {
-            clearTimeout(holdTimeout); // Anulujemy odliczanie przy zwolnieniu przycisku
-            if (moving) {
-                handlePointerUp();
-            } else {
-                setPlayedSong(myIndex).then(() => {
-                    playLocal(true);
-                });
+        // Nasłuchiwanie na ruch
+        document.addEventListener('pointermove', (event) => {
+            if (areWeMoveingTheSongLocal === false) {
+                clearTimeout(holdTime);
             }
         });
 
-        container.addEventListener('touchend', () => {
-            clearTimeout(holdTimeout); // Anulujemy odliczanie przy zwolnieniu przycisku
-            if (moving) {
-                handlePointerUp();
-            } else {
-                setPlayedSong(myIndex).then(() => {
-                    playLocal(true);
-                });
+        // Nasłuchiwanie na touchmove w kontenerze
+        container.addEventListener('touchmove', (event) => {
+            if (areWeMoveingTheSongLocal === true) {
+                event.preventDefault();  
+                //console.log('anulujemy!');
             }
-        });
+        }, { passive: false });
 
-        // Nasłuchiwanie na ruch myszy
-        document.addEventListener('pointermove', handleMouseMove);
-        document.addEventListener('touchmove', handleMouseMove);
-    }
-
-    function findClosestElement() {
-        const allElements = Array.from(document.querySelectorAll('.oblong-song')) as HTMLElement[];
-        const draggedRect = container.getBoundingClientRect();
-        let closestElement: HTMLElement | null = null;
-        let closestDistance = Infinity;
-
-        allElements.forEach((element) => {
-            if (element === container) return;
-            const rect = element.getBoundingClientRect();
-            const distance = Math.abs(rect.top - draggedRect.top);
-
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closestElement = element;
-            }
-        });
-
-        if (closestElement) {
-            const closestIndex = (closestElement as HTMLElement).dataset.index;
-            return closestIndex !== undefined ? parseInt(closestIndex, 10) : null;
-        }
-
-        return null;
-    }
-
-    onMount(() => {
-        setupHoldEvents();
-
-        return () => {
-            document.removeEventListener('pointermove', handleMouseMove);
-        };
     });
 
-    
-    function disableScroll() {
-        document.body.style.overflow = "hidden";
-        document.body.style.touchAction = "none";
-    }
+    areWeMoveingTheSong.subscribe( value =>{
+        areWeMoveingTheSongLocal = value
+    });
 
-    function enableScroll() {
-        document.body.style.overflow = "";
-        document.body.style.touchAction = "";
-    }
+    oblongSongLoading.subscribe( value =>{
+        if(value == theID){
+            reloadLocal();
+        }
+    });
+    
+    mousePosY.subscribe( value =>{
+        if(areWeMoveingTheSongLocal == true){
+            console.log(value)
+            if(currentPlatform == "android" || currentPlatform == "ios"){
+                thisElement.style.top = (Number(value)+window.innerHeight+50)+container.scrollTop+"px"
+            }else{
+                thisElement.style.top = (Number(value)-25)+container.scrollTop+"px"
+            }
+        }
+    });
+    
+    
+    //reloadLocal();
+    export async function reloadLocal() {
+            songData = await returnSongMetadata(theSong.src);
+            let picture;
+
+            if (songData.common.picture?.[0]?.data) {
+                picture = songData.common.picture[0].data
+                const uint8Array: Uint8Array = new Uint8Array(picture);
+                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
+                imageUrl = URL.createObjectURL(blob);
+            } else {
+                imageUrl = 'default.png';
+            }
+
+
+            console.log('---------------------')
+            console.log(songData)
+            console.log(imageUrl)
+            console.log('---------------------')
+            isLoading = false
+
+            oblongSongLoading.set(theID+1)
+        };
+
+
+        function findClosestElement(): number | null {
+            // Pobranie wszystkich elementów z klasą "oblong-song"
+            const allElements = Array.from(document.querySelectorAll('.oblong-song')) as HTMLElement[];
+
+            // Pobranie prostokąta dla elementu przeciąganego
+            const draggedRect = thisElement.getBoundingClientRect();
+
+            let closestElement: HTMLElement | null = null;
+            let closestDistance = Infinity;
+
+            // Iteracja po wszystkich elementach
+            allElements.forEach((element) => {
+                // Pomijanie elementu, który jest aktualnie przeciągany
+                if (element === thisElement) return;
+
+                // Pobranie prostokąta dla danego elementu
+                const rect = element.getBoundingClientRect();
+
+                // Obliczenie odległości w pionie
+                const distance = Math.abs(rect.top - draggedRect.top);
+
+                // Aktualizacja najbliższego elementu, jeśli odległość jest mniejsza
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestElement = element;
+                }
+            });
+
+            // Zwracanie wartości `theID` z najbliższego elementu, jeśli istnieje
+            if (closestElement) {
+                // @ts-ignore
+                return parseInt(closestElement.dataset.index, 10); // Pobranie ID z atrybutu data-index
+            }
+
+            // Jeśli nie znaleziono żadnego elementu, zwracamy null
+            return null;
+        }
+
+
 </script>
 
 
 
 
-<div bind:this={container} data-index={myIndex} class="oblong-song" id="container" tabindex="-1" role="button">
+<div bind:this={thisElement} data-index={theID} class="oblong-song" id="container" tabindex="-1" role="button" >
     {#if isLoading}
         <p>Ładowanie...</p>
     {:else}
         <div id="img-container">
-            <img src={img} alt="">
+            <img src={imageUrl} alt="" draggable="false">
         </div>
         <div id="name-artists">
-            <p id="name">{songData[theSong.src].title}</p>
-            <p id="artist">{songData[theSong.src].artist}</p>
+            <p id="name">{songData.common.title}</p>
+            <p id="artist">{songData.common.artist}</p>
         </div>
         <div id="time">
-            <p>{formatDuration(songData[theSong.src].duration)}</p>
+            <p>{theID}</p>
         </div>
     {/if}
 </div>

@@ -339,7 +339,7 @@ const currentPlatform = platform();
         }
     }
 
-    mainLogic()
+    //mainLogic()
 
     export async function readTheImgFile(named: any){
         try {
@@ -363,7 +363,7 @@ const currentPlatform = platform();
         console.log('Ścieżka do folderu:', path);
         
         const debouncedMainLogic = debounce(() => {
-            mainLogic().catch(console.error);
+            //mainLogic().catch(console.error);
         }, 2000); // 2 sekundy cooldown
     
         try {

@@ -7,21 +7,7 @@ export let playList = $state([
     {type: 'musicFolder', src: 'I Want It All.mp3'},
     {type: 'musicFolder', src: 'Gossip.mp3'},
     {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'}
+    
 
 ]);
 export let playedSong = 0;
