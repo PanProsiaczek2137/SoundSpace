@@ -1,0 +1,11 @@
+#bottom{
+    width: 100%;
+    height: calc(100% - 75px);
+    background-color: var(--black);
+}
+
+#play-list-phone {
+    scroll-snap-type: none; /* Wyłącza efekt snapowania */
+    overflow-y: auto; /* Pozwala na normalne przewijanie */
+    max-height: 100%;
+}

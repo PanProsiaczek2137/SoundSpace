@@ -1,0 +1,138 @@
+#top{
+    width: 100%;
+    height: 100%;
+}
+
+#top-container{
+    width: 100%;
+    height: calc(100% - 75px);
+    display: flex;
+}
+
+
+#audio-play{
+    width: 100%;
+    height: 75px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--black);
+    position: relative;
+    z-index: 500;
+}
+
+#album-picture{
+    width: 65px;
+    height: 65px;
+}
+
+#album-picture img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#picture-and-info{
+    display: flex;
+    z-index: 500;
+}
+
+#time{
+    position: absolute;
+    bottom: 75px;
+    width: 100%;
+    z-index: 500;
+}
+
+#album-picture{
+    margin-left: 10px;
+    margin-right: 15px;
+}
+
+#info{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+#info h1{
+    font-family: var(--font);
+    color: var(--white);
+    font-family: 1rem;
+    white-space: nowrap;
+}
+
+#info h2{
+    font-family: var(--font);
+    color: var(--dark-white);
+    font-size: .8rem;
+    white-space: nowrap;
+}
+
+#controls{
+    z-index: 500;
+}
+
+#others-settings{
+    z-index: 500;
+    display: flex;
+    align-items: center;
+}
+
+#play-pause{
+    width: 75px;
+    height: 75px;
+}
+#play-pause img{
+    width: 30px;
+    height: 30px;
+}
+
+
+#play-previus{
+    width: 75px;
+    height: 75px;
+}
+#play-previus img{
+    width: 35px;
+    height: 35px;
+}
+
+
+#play-next{
+    width: 75px;
+    height: 75px;
+}
+#play-next img{
+    width: 35px;
+    height: 35px;
+}
+
+
+
+#others-settings button{
+    width: 75px;
+    height: 75px;
+}
+
+#others-settings button img{
+    width: 40px;
+    height: 40px;
+}
+
+
+@media (width <= 960px) {
+    #others-settings{
+        display: none;
+    }
+}
+
+@media (width <= 480px) {
+    #play-previus{
+        display: none;   
+    }
+    #play-next{
+        display: none;
+    }
+}

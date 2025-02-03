@@ -3,7 +3,8 @@ import { platform } from '@tauri-apps/plugin-os';
 import { BaseDirectory, create, readTextFile, readFile, writeTextFile, exists, readDir, watchImmediate, mkdir, remove  } from '@tauri-apps/plugin-fs';
 import * as mm from 'music-metadata';
 import { audioDir, join, appLocalDataDir } from '@tauri-apps/api/path';
-import { showLoadingFiles } from './+layout.svelte';
+//import { showLoadingFiles } from './+layout.svelte';
+//import { metaDataFolderContent } from './ts/store.svelte';
 export let songsProgress = $state({value: 0});
 export let songsToProcess = $state({value: 0});
 
@@ -31,14 +32,13 @@ const currentPlatform = platform();
             const file = await create('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
             await file.close()
             console.log('plik storzono!')
-            alert('stworzono')
         } catch (error) {
             console.error(error);
             alert(error);
         }
     }
 
-    async function createBinaryFile(data: Uint8Array, name: string){ //Only main
+    export async function createBinaryFile(data: Uint8Array, name: string){ //Only main
         try {
             const imageData = new Uint8Array([...data]);
 
@@ -55,7 +55,7 @@ const currentPlatform = platform();
         }
     }
 
-    async function readTheFile(main: boolean, name: string){ //main or music
+    export async function readTheFile(main: boolean, name: string){ //main or music
         try {
             if(main){
                 const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
@@ -84,7 +84,7 @@ const currentPlatform = platform();
         }
     }
 
-    async function writeTheFile(what: string) {  // Only main
+    export async function writeTheFile(what: string) {  // Only main
         try {
             await writeTextFile("songsMetaData.json", what, { 
                 baseDir: BaseDirectory.AppLocalData 
@@ -132,7 +132,7 @@ const currentPlatform = platform();
         }
     }
     
-    async function returnSongMetadata(name: string) {
+    export async function returnSongMetadata(name: string) {
         try {
             const fileContent = await readTheFile(false, name);
             if (fileContent) {
@@ -201,12 +201,9 @@ const currentPlatform = platform();
     
         return count;
     }
-    
-    async function mainLogic() {
 
-        //Delete Files
-        songsProgress.value = 0;
-        songsToProcess.value = 0;
+    mainLogic()
+    async function mainLogic() {
 
         if (!(await existsTheFile(true, ""))) {
             await createTextFile();
@@ -218,16 +215,11 @@ const currentPlatform = platform();
 
         if (!(await existsTheFolder('albumCovers'))) {
             await createFolder('albumCovers');
-            /*
-            let path = await appLocalDataDir()
-            path = await join(path, 'albumCovers')
-            const file = await create(path);
-            const contents = new Uint8Array(); 
-            await file.write(contents);
-            await file.close();
-            */
         }
-   
+
+
+
+        
         const keys = Object.keys(mainFile);
         for (let i = 0; i < keys.length; i++) {
             const filePath = keys[i];
@@ -246,81 +238,6 @@ const currentPlatform = platform();
         console.log('Zaktualizowano plik!!!');
         await writeTheFile(JSON.stringify(mainFile, null, 2));
 
-
-        //Add Files
-        
-        const musicFiles = await getContentOfMusicFolder();
-        console.log(musicFiles)
-        if(musicFiles){
-        
-            const mainFolder = await readTheFile(true, '')
-            if(mainFolder)
-            if(musicFiles.length !== mainFolder.length){
-                showLoadingFiles(true);
-            }
-            songsToProcess.value = musicFiles.filter(file => !file.isDirectory && file.isFile).length;
-            for (const file of musicFiles) {
-                songsProgress.value++;
-                if(file.isDirectory == false){
-                    if (!allowedExtensions.includes(file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase())) {
-                        console.log('wykryto nieobsługiwany format pliku: ' + file.name);
-                    } else {
-                        if (file.name in mainFile) {
-                            console.log(' - zawiera: ' + file.name);
-                        } else {
-                            console.log('nie zawiera: ' + file.name + " ~ Dodajemy!");
-                    
-                            // Zbuduj pełną ścieżkę do pliku
-                            let filePath = "";
-                            if (currentPlatform === "android" || currentPlatform === "ios") {
-                                filePath = '/storage/emulated/0/Music/' + file.name; // Ścieżka do pliku na urządzeniach mobilnych
-                            } else {
-                                const audioDirPath = await audioDir(); // Katalog z muzyką w systemie
-                                filePath = await join(audioDirPath, file.name); // Pełna ścieżka pliku na desktopie
-                            }
-                    
-                            const thisSongMetaData = await returnSongMetadata(file.name); // Przekazujemy pełną ścieżkę do metadanych
-                            if (thisSongMetaData) {
-                                let pathToImg: string | null = null;
-                    
-                                if (thisSongMetaData.common.picture?.[0]?.data) {
-                                    const imageName = thisSongMetaData.common.album
-                                        ? `${thisSongMetaData.common.album}.png`
-                                        : `${thisSongMetaData.format.duration}.png`;
-                    
-                                    // @ts-ignore
-                                    pathToImg = await createBinaryFile(thisSongMetaData.common.picture[0].data, `albumCovers/${imageName}`);
-                                } else {
-                                    console.log('Brak album cover dla: ' + file.name);
-                                }
-                    
-                                // Tworzenie obiektu z metadanymi piosenki
-                                const songMetaData: SongMetaData = {
-                                    title: thisSongMetaData.common.title || file.name,
-                                    artist: thisSongMetaData.common.artist || 'Unknown Artist',
-                                    genre: thisSongMetaData.common.genre?.[0] || null,
-                                    picture: pathToImg, // Ustawiamy `null`, jeśli brak obrazka
-                                    date: thisSongMetaData.common.year || new Date().getFullYear(),
-                                    album: thisSongMetaData.common.album || 'Unknown Album',
-                                    duration: thisSongMetaData.format.duration || 0,
-                                    filePath: filePath, // Używamy zbudowanej ścieżki
-                                    fileName: file.name,
-                                };
-                    
-                                // Dodajemy metadane piosenki do obiektu `mainFile`
-                                mainFile[file.name] = songMetaData;
-                    
-                                // Zapisz zaktualizowane dane do pliku
-                                await writeTheFile(JSON.stringify(mainFile, null, 2));
-                                console.log('Dodano piosenkę: ' + file.name);
-                            }
-                        }
-                    }
-                }
-                //mainFile
-            }
-            showLoadingFiles(false)
-        }
     }
     
     export async function getDataOfFile() {
@@ -338,6 +255,8 @@ const currentPlatform = platform();
             console.error("Error reading the file:", error);
         }
     }
+    //metaDataFolderContent.set(await getDataOfFile())
+
 
     //mainLogic()
 
@@ -362,8 +281,9 @@ const currentPlatform = platform();
         const path = await audioDir();
         console.log('Ścieżka do folderu:', path);
         
-        const debouncedMainLogic = debounce(() => {
-            //mainLogic().catch(console.error);
+        const debouncedMainLogic = debounce(async () => {
+            //reload!
+            //metaDataFolderContent.set(await getDataOfFile())
         }, 2000); // 2 sekundy cooldown
     
         try {

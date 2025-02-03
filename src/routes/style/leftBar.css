@@ -1,0 +1,19 @@
+#left-bar{
+    min-width: 250px;
+    height: 100%;
+    z-index: 500;
+    background-color: var(--black);
+    border-right: 1px solid var(--ligth-black);
+}
+
+
+@media (width <= 960px) {
+    #left-bar{
+        min-width: 100px;
+    }
+}
+@media (width <= 480px) {
+    #left-bar{
+        min-width: 0px;
+    }
+}

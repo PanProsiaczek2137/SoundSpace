@@ -1,0 +1,87 @@
+#full{
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: calc(100% - 250px);
+    height: calc(100% - 75px);
+    background-color: black;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+}
+
+
+@media (width <= 960px) {
+    #full{
+        width: calc(100% - 100px);
+    }
+}
+@media (width <= 480px) {
+    #full{
+        width: 100%;
+    }
+}
+
+
+
+
+#picture-full{
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 75%;
+    height: 100%;
+}
+
+.album-picture {
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    height: 75%;
+    align-items: center;
+}
+
+.tests img {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1;
+    object-fit: cover; /* Wypełnia kontener proporcjonalnie, przycinając obraz */
+}
+
+#blure-picture{
+    width: 90%;
+    height: 90%;
+    position: absolute;
+    z-index: 4;
+    filter: blur(100px);
+    animation: pulsing 20s infinite linear;
+}
+
+@keyframes pulsing {
+    0% {
+        transform: scale(1);
+        filter: blur(100px);
+    }
+    50% {
+        transform: scale(1.05);
+        filter: blur(150px);
+    }
+    100% {
+        transform: scale(1);
+        filter: blur(100px);
+    }
+    
+}
+
+
+#play-list{
+    width: 25%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%;
+    z-index: 400;
+    background-color: var(--black);
+}
+
+

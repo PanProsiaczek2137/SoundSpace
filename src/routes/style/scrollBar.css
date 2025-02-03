@@ -1,0 +1,40 @@
+/* Stylizacja dla elementu z klasą .scrollY */
+.scrollY {
+    overflow-y: auto; /* Pokaż pasek przewijania, gdy zawartość wychodzi poza kontener */
+    scrollbar-width: thin; /* Ustawia cienki pasek przewijania w Firefox */
+    scrollbar-color: var(--dark-white) var(--black); /* Kolor suwaka (#888) i tła (#ccc) w Firefox */
+}
+
+/* Stylizacja suwaka w przeglądarkach obsługujących ::-webkit-scrollbar */
+.scrollY::-webkit-scrollbar {
+    width: 8px; /* Szerokość suwaka */
+}
+
+.scrollY::-webkit-scrollbar-track {
+    background: #ccc; /* Kolor tła paska przewijania */
+    border-radius: 0; /* Usuwa zaokrąglenie rogów toru */
+}
+
+.scrollY::-webkit-scrollbar-thumb {
+    background-color: #888; /* Kolor suwaka */
+    border-radius: 0; /* Usuwa zaokrąglenie rogów suwaka */
+}
+
+/* Usunięcie strzałek */
+.scrollY::-webkit-scrollbar-button {
+    display: none !important; /* Zignoruj wszelkie próby wyświetlenia strzałek */
+}
+
+/* Alternatywne podejście do usunięcia strzałek w WebKit */
+.scrollY::-webkit-scrollbar-button:start {
+    display: none !important; /* Usunięcie strzałek startowych */
+}
+
+.scrollY::-webkit-scrollbar-button:end {
+    display: none !important; /* Usunięcie strzałek końcowych */
+}
+
+/* Stylizacja dla starych wersji przeglądarek (np. Internet Explorer) */
+.scrollY {
+    -ms-overflow-style: none; /* Usunięcie strzałek w IE */
+}

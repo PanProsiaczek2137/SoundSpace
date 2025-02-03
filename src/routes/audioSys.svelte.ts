@@ -1,30 +1,32 @@
-import { songChanged } from './+layout.svelte';
-import { platform } from '@tauri-apps/plugin-os';
+//import { songChanged } from './+layout.svelte';
 import { BaseDirectory, readFile } from '@tauri-apps/plugin-fs';
+import { writable, get } from "svelte/store";
+import { currentPlatform } from "./ts/store.svelte"
 import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
-export let playList = $state([
+export let playList = writable([
     {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: 'Gossip.mp3'},
-    {type: 'musicFolder', src: 'youtube_sBEfo73lOvk_audio.mp3'},
-    
-
+    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
+    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
 ]);
-export let playedSong = 0;
-export let song = new Audio();
-export let songMetaData = {};
-export let isPlaying = false;
-const currentPlatform = platform();
+export let playedSong = writable(0);
+export let isPlaying = writable(false);
+let song = new Audio();
+let songMetaData = {};
+let platfrom = get(currentPlatform)
 
-export function play(play: boolean) {
-    if (play) {
+
+isPlaying.subscribe( value =>{
+    if (value) {
         song.play();
-        isPlaying = true;
+        isPlaying.set(true);
     } else {
         song.pause();
-        isPlaying = false;
+        isPlaying.set(false);
     }
-}
+})
+
 
 export function formatDuration(seconds: number): string {
     const wholeSeconds = Math.floor(seconds);
@@ -42,44 +44,26 @@ export function formatDuration(seconds: number): string {
     }
 }
 
-
-setPlayedSong(0)
-
-export async function setPlayedSong(to: number) {
-    if (to < 0 || to >= playList.length) {
-        console.error('Nieprawidłowy indeks utworu');
-        return 'Nieprawidłowy indeks utworu';
-    }
-    song.pause();
-    playedSong = to;
-    song = new Audio();
+playedSong.subscribe( async (value) =>{
     
-    if (playList[playedSong].type === 'musicFolder') {
-        const filePath = await readTheFile(playList[playedSong].src);
-        
-        if (filePath) {
-            song = new Audio(filePath);
-            await loadSongMetadata(filePath);
-        } else {
-            console.error('Plik nie jest poprawny');
+    isPlaying.set(false);
+    if (get(playList)[value].type === 'musicFolder') {
+        const filePath = await readTheFile(get(playList)[value].src);
+        if(filePath){
+            song = new Audio(filePath)
         }
-    } else {
-        console.error('Nieznany typ pliku muzycznego');
-    }
-    console.log('ready!');
-    return 'ready!';
-}
 
-export function setPlayList() {
-    // Funkcjonalność listy odtwarzania
-}
+    }
+    
+});
+
 
 async function readTheFile(named: string) {
     try {
         let filePath = "";
 
         // For mobile (Android/iOS)
-        if (currentPlatform === "android" || currentPlatform === "ios") {
+        if (platfrom() === "android" || platfrom() === "ios") {
             filePath = '/storage/emulated/0/Music/' + named; // Mobile device storage
         } else {
             // For desktop (adjust as necessary)
@@ -98,6 +82,9 @@ async function readTheFile(named: string) {
     }
 }
 
+
+
+
 // Nowa funkcja do ładowania metadanych
 async function loadSongMetadata(filePath: string) {
     try {
@@ -112,12 +99,12 @@ async function loadSongMetadata(filePath: string) {
         
         songMetaData = metadata; // Przechowujemy metadane w zmiennej globalnej
         console.log('Metadane utworu:', songMetaData); // Wyświetlamy metadane w konsoli
-        songChanged(); // Wywołujemy funkcję songChanged
+        //songChanged(); // Wywołujemy funkcję songChanged
     } catch (error) {
         console.error('Błąd podczas ładowania metadanych:', error);
     }
 }
-
+/*
 export async function returnSongMetadata(filePath: string) {
     try {
 
@@ -140,3 +127,4 @@ export async function returnSongMetadata(filePath: string) {
         return null
     }
 }
+*/

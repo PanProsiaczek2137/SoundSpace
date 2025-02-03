@@ -1,34 +1,38 @@
 <script lang="ts">
+    import { playedSong, playList } from '../audioSys.svelte'
+    import { currentPlatform, areWeMoveingTheSong, mousePosY } from '../ts/store.svelte'
+    import { get } from 'svelte/store';
     import { onMount } from 'svelte';
-    import { setPlayedSong, playList, returnSongMetadata } from '../audioSys.svelte';
-    import { getDataOfFile, readTheImgFile } from '../saveSongData.svelte';
-    import { areWeMoveingTheSong, oblongSongLoading, mousePosY, reload } from '../ts/store.svelte'
-    import { platform } from '@tauri-apps/plugin-os';
-    export let theSong: any
-    export let theID: number
-    let songData: any;
-    let thisElement: HTMLElement 
-    let isLoading = true;
-    let imageUrl: any;
-    let areWeMoveingTheSongLocal: boolean
-    const currentPlatform = platform();
-
+    const platform = get(currentPlatform)
+    let thisElement: HTMLElement;
+    let container:HTMLElement;
+    let SongCover = 'default.png';
+    export let songTitle = 'Loading...';
+    export let index:number
+    let songArtist = 'Loading...'
+    let songDuration = '...' 
+    let heldTtem: HTMLElement | null;
     let holdTime: any
     const holdDuration = 200; 
-    let container: HTMLElement
+    let mouseY: number = 0
 
-    onMount(() => {
-        if(currentPlatform == "android" || currentPlatform == "ios"){
-            container = document.getElementById('next') as HTMLElement;
+
+
+    onMount(()=>{
+        if(platform() == "android" || platform() == "ios"){
+            container = document.getElementById('play-list-phone') as HTMLElement;
         }else{
             container = document.getElementById('play-list') as HTMLElement;
         }
 
+
+
         thisElement.addEventListener('pointerdown', () => {
             //scrolling(false)
-            if (areWeMoveingTheSongLocal === false) {
+            if (get(areWeMoveingTheSong) === false) {
                 holdTime = setInterval(() => {
                     console.log('trzymamy');
+                    heldTtem = thisElement;
                     thisElement.style.backgroundColor = '#161616'
                     thisElement.style.position = 'absolute'
                     thisElement.style.zIndex = "999"
@@ -37,181 +41,147 @@
             }
         });
 
+
+
         // Zdarzenie upuszczenia
         thisElement.addEventListener('pointerup', () => {
-            if (areWeMoveingTheSongLocal === false) {
+            if (get(areWeMoveingTheSong) === false) {
                 console.log('play');
-            }else{
-
-
-
-                //playList.push({type: 'musicFolder', src: 'I Want It All.mp3'})
-
-
-                //const closestIndex = findClosestElement();
-                //console.log('closestIndex:', closestIndex);
-
-                //if (closestIndex !== null) {
-                //    playList.splice(0, 0, {type: 'musicFolder', src: 'I Want It All.mp3'})
-                //    console.log('Updated playList:', playList);
-                //}
-
-
-
-
-
-
-                container.style.zIndex = "1";
-                thisElement.style.backgroundColor = 'black'
-
-                //const closestID = findClosestElement();
-                //if(closestID){
-                //playList.splice(closestID, 0, songData);
-                //}
-
-                thisElement.style.position = 'static'
             }
             clearTimeout(holdTime);
         });
+
+
 
         // Nasłuchiwanie na upuszczenie na całym dokumencie
         document.addEventListener('pointerup', () => {
-            //scrolling(true)
-            if (areWeMoveingTheSongLocal === true) {
+            if (get(areWeMoveingTheSong)) {
                 console.log('upuszczono piosenkę!');
-                areWeMoveingTheSong.set(false);
+                if (heldTtem) {
+                    const draggedIndex = parseInt(heldTtem.dataset.index || "-1", 10);
+                    const targetIndex = findClosestElement();
+
+                    console.log('---------------------------');
+                    console.log(`przesuwamy: ${draggedIndex}`);
+                    console.log(`do elementu: ${targetIndex}`);
+                    console.log('---------------------------');
+
+                    if (draggedIndex !== targetIndex && draggedIndex !== -1 && targetIndex !== -1) {
+                        playList.update((list) => {
+                            const updatedList = [...list];
+                            const [movedItem] = updatedList.splice(draggedIndex, 1); // Usuń piosenkę z jej starej pozycji
+                            updatedList.splice(targetIndex, 0, movedItem); // Wstaw na nową pozycję
+                            return updatedList;
+                        });
+                    }
+
+                    heldTtem.style.zIndex = "1";
+                    heldTtem.style.backgroundColor = 'black';
+                    heldTtem.style.position = 'static';
+
+                    areWeMoveingTheSong.set(false);
+                }
+                heldTtem = null;
             }
             clearTimeout(holdTime);
         });
 
+
+
+
         // Nasłuchiwanie na ruch
         document.addEventListener('pointermove', (event) => {
-            if (areWeMoveingTheSongLocal === false) {
+            if (get(areWeMoveingTheSong)) {
+                if(heldTtem){
+                    if(platform() == "android" || platform() == "ios"){
+                        thisElement.style.top = (Number(mouseY)+window.innerHeight-900)+"px"
+                    }else{
+                        thisElement.style.top = (Number(mouseY)-25)+"px"
+                    }
+                }
+            }else{
                 clearTimeout(holdTime);
             }
         });
 
-        // Nasłuchiwanie na touchmove w kontenerze
+        //setInterval(() => {
+            //console.log(mouseY)
+            //console.log((Number(mouseY)-25)+container.scrollTop)
+        //}, 1000);
+
+
         container.addEventListener('touchmove', (event) => {
-            if (areWeMoveingTheSongLocal === true) {
+            if (get(areWeMoveingTheSong)) {
                 event.preventDefault();  
-                //console.log('anulujemy!');
+                console.log('anulujemy!');
             }
         }, { passive: false });
-
-    });
-
-    areWeMoveingTheSong.subscribe( value =>{
-        areWeMoveingTheSongLocal = value
-    });
-
-    oblongSongLoading.subscribe( value =>{
-        if(value == theID){
-            reloadLocal();
-        }
-    });
+    
+    })
     
     mousePosY.subscribe( value =>{
-        if(areWeMoveingTheSongLocal == true){
-            console.log(value)
-            if(currentPlatform == "android" || currentPlatform == "ios"){
-                thisElement.style.top = (Number(value)+window.innerHeight+50)+container.scrollTop+"px"
-            }else{
-                thisElement.style.top = (Number(value)-25)+container.scrollTop+"px"
-            }
-        }
+        //if(get(areWeMoveingTheSong)){
+            mouseY = value
+        //}
     });
     
-    
-    //reloadLocal();
-    export async function reloadLocal() {
-            songData = await returnSongMetadata(theSong.src);
-            let picture;
+    function findClosestElement(): number {
+    // Pobranie wszystkich elementów z klasą "oblong-song"
+    const allElements = Array.from(document.querySelectorAll('.oblong-song')) as HTMLElement[];
 
-            if (songData.common.picture?.[0]?.data) {
-                picture = songData.common.picture[0].data
-                const uint8Array: Uint8Array = new Uint8Array(picture);
-                const blob = new Blob([uint8Array], { type: 'image/jpeg' });
-                imageUrl = URL.createObjectURL(blob);
-            } else {
-                imageUrl = 'default.png';
-            }
+    // Pobranie prostokąta dla elementu przeciąganego
+    const draggedRect = thisElement.getBoundingClientRect();
 
+    let closestElement: HTMLElement | null = null;
+    let closestDistance = Infinity;
 
-            console.log('---------------------')
-            console.log(songData)
-            console.log(imageUrl)
-            console.log('---------------------')
-            isLoading = false
+    // Iteracja po wszystkich elementach
+    allElements.forEach((element) => {
+        // Pomijanie elementu, który jest aktualnie przeciągany
+        if (element === thisElement) return;
 
-            oblongSongLoading.set(theID+1)
-        };
+        // Pobranie prostokąta dla danego elementu
+        const rect = element.getBoundingClientRect();
 
+        // Obliczenie odległości w pionie
+        const distance = Math.abs(rect.top - draggedRect.top);
 
-        function findClosestElement(): number | null {
-            // Pobranie wszystkich elementów z klasą "oblong-song"
-            const allElements = Array.from(document.querySelectorAll('.oblong-song')) as HTMLElement[];
-
-            // Pobranie prostokąta dla elementu przeciąganego
-            const draggedRect = thisElement.getBoundingClientRect();
-
-            let closestElement: HTMLElement | null = null;
-            let closestDistance = Infinity;
-
-            // Iteracja po wszystkich elementach
-            allElements.forEach((element) => {
-                // Pomijanie elementu, który jest aktualnie przeciągany
-                if (element === thisElement) return;
-
-                // Pobranie prostokąta dla danego elementu
-                const rect = element.getBoundingClientRect();
-
-                // Obliczenie odległości w pionie
-                const distance = Math.abs(rect.top - draggedRect.top);
-
-                // Aktualizacja najbliższego elementu, jeśli odległość jest mniejsza
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestElement = element;
-                }
-            });
-
-            // Zwracanie wartości `theID` z najbliższego elementu, jeśli istnieje
-            if (closestElement) {
-                // @ts-ignore
-                return parseInt(closestElement.dataset.index, 10); // Pobranie ID z atrybutu data-index
-            }
-
-            // Jeśli nie znaleziono żadnego elementu, zwracamy null
-            return null;
+        // Aktualizacja najbliższego elementu, jeśli odległość jest mniejsza
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestElement = element;
         }
+    });
 
+    // Zwracanie wartości `theID` z najbliższego elementu, jeśli istnieje
+    // @ts-ignore
+    if (closestElement && closestElement.dataset.index) {
+        // @ts-ignore
+        return parseInt(closestElement.dataset.index, 10); // Pobranie ID z atrybutu data-index
+    }
+
+    // Jeśli nie znaleziono żadnego elementu, zwracamy null
+    // @ts-ignore
+    return thisElement.dataset.index;
+}
 
 </script>
 
 
-
-
-<div bind:this={thisElement} data-index={theID} class="oblong-song" id="container" tabindex="-1" role="button" >
-    {#if isLoading}
-        <p>Ładowanie...</p>
-    {:else}
+<div bind:this={thisElement} data-index={index} class="oblong-song" id="container" tabindex="-1" role="button"  onclick={()=>{
+    playedSong.set(index);
+    }} onkeydown={(e) => { if (e.key === 'Enter') console.log('OK')}}>
         <div id="img-container">
-            <img src={imageUrl} alt="" draggable="false">
+            <img src={SongCover} alt="" draggable="false">
         </div>
         <div id="name-artists">
-            <p id="name">{songData.common.title}</p>
-            <p id="artist">{songData.common.artist}</p>
+            <p id="name">{songTitle}</p>
+            <p id="artist">{songArtist}</p>
         </div>
-        <div id="time">
-            <p>{theID}</p>
+        <div id="duration">
+            <p>{songDuration}</p>
         </div>
-    {/if}
 </div>
-
-
-
-
 
 
 <style>
@@ -221,7 +191,8 @@
         height: 60px;
         background-color: var(--black);
         display: flex;   
-        border-bottom: solid 1px var(--light-black);
+        border-bottom: solid 1px var(--black);
+        z-index: 20;
     }
 
     #img-container {
@@ -263,10 +234,10 @@
     }
 
     #artist {
-        color: var(--grey);
+        color: var(--dark-white);
     }
 
-    #time {
+    #duration {
         display: flex;
         align-items: center;
         position: relative;
