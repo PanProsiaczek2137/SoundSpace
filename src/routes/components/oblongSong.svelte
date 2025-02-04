@@ -15,7 +15,7 @@
     let holdTime: any
     const holdDuration = 200; 
     let mouseY: number = 0
-
+    let playedSongLocal: number
 
 
     onMount(()=>{
@@ -43,17 +43,14 @@
 
 
 
-        // Zdarzenie upuszczenia
         thisElement.addEventListener('pointerup', () => {
             if (get(areWeMoveingTheSong) === false) {
-                console.log('play');
+                playedSong.set(index);
             }
             clearTimeout(holdTime);
         });
 
 
-
-        // Nasłuchiwanie na upuszczenie na całym dokumencie
         document.addEventListener('pointerup', () => {
             if (get(areWeMoveingTheSong)) {
                 console.log('upuszczono piosenkę!');
@@ -71,6 +68,19 @@
                             const updatedList = [...list];
                             const [movedItem] = updatedList.splice(draggedIndex, 1); // Usuń piosenkę z jej starej pozycji
                             updatedList.splice(targetIndex, 0, movedItem); // Wstaw na nową pozycję
+
+                            const currentPlayedSongIndex = get(playedSong);
+                            
+                            if (currentPlayedSongIndex === draggedIndex) {
+                                playedSong.set(targetIndex); 
+                            }
+                            else if (currentPlayedSongIndex > draggedIndex && currentPlayedSongIndex <= targetIndex) {
+                                playedSong.set(currentPlayedSongIndex - 1);
+                            }
+                            else if (currentPlayedSongIndex < draggedIndex && currentPlayedSongIndex >= targetIndex) {
+                                playedSong.set(currentPlayedSongIndex + 1);
+                            }
+
                             return updatedList;
                         });
                     }
@@ -83,13 +93,17 @@
                 }
                 heldTtem = null;
             }
+            
             clearTimeout(holdTime);
         });
 
 
 
+        setInterval(() => {
+            console.log(get(playedSong))
+        }, 1000);
 
-        // Nasłuchiwanie na ruch
+
         document.addEventListener('pointermove', (event) => {
             if (get(areWeMoveingTheSong)) {
                 if(heldTtem){
@@ -104,10 +118,6 @@
             }
         });
 
-        //setInterval(() => {
-            //console.log(mouseY)
-            //console.log((Number(mouseY)-25)+container.scrollTop)
-        //}, 1000);
 
 
         container.addEventListener('touchmove', (event) => {
@@ -116,14 +126,33 @@
                 console.log('anulujemy!');
             }
         }, { passive: false });
-    
+
+        
+        /* !!!!!!!!!! TODO !!!!!!!!!!
+        setInterval(() => {
+            //playedSong.set(2)
+            if(get(playedSong) == Number(thisElement.dataset.index)){
+                thisElement.style.backgroundColor = "var(--ligth-black)"
+            }else{
+                thisElement.style.backgroundColor = "var(--black)"
+            }
+        }, 200);
+        */
+
+        if(thisElement.dataset.index == "0"){
+            container.addEventListener('wheel', value =>{
+                if(get(areWeMoveingTheSong)){
+                    container.scrollBy(0, value.deltaY)
+                }
+            })
+        }
+
     })
     
     mousePosY.subscribe( value =>{
-        //if(get(areWeMoveingTheSong)){
-            mouseY = value
-        //}
+        mouseY = value;
     });
+
     
     function findClosestElement(): number {
     // Pobranie wszystkich elementów z klasą "oblong-song"
@@ -168,9 +197,7 @@
 </script>
 
 
-<div bind:this={thisElement} data-index={index} class="oblong-song" id="container" tabindex="-1" role="button"  onclick={()=>{
-    playedSong.set(index);
-    }} onkeydown={(e) => { if (e.key === 'Enter') console.log('OK')}}>
+<div bind:this={thisElement} data-index={index} class="oblong-song" id="container" tabindex="-1" role="button">
         <div id="img-container">
             <img src={SongCover} alt="" draggable="false">
         </div>

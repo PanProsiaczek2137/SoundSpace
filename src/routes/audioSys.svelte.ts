@@ -44,16 +44,18 @@ export function formatDuration(seconds: number): string {
     }
 }
 
-playedSong.subscribe( async (value) =>{
-    
+playedSong.subscribe( (value) =>{
     isPlaying.set(false);
-    if (get(playList)[value].type === 'musicFolder') {
-        const filePath = await readTheFile(get(playList)[value].src);
-        if(filePath){
-            song = new Audio(filePath)
-        }
 
-    }
+    setTimeout(async() => {
+        if (get(playList)[value].type === 'musicFolder') {
+            const filePath = await readTheFile(get(playList)[value].src);
+            if(filePath){
+                song = new Audio(filePath)
+            }
+    
+        }
+    }, 0);
     
 });
 
