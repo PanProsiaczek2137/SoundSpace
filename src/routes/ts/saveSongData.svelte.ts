@@ -25,7 +25,28 @@ interface SongMetaData {
 type SongsMetaData = Record<string, SongMetaData>;
 
 
-const currentPlatform = platform();
+export async function readSongsMetaDataFile(songName: string) {
+    try {
+        const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
+        const jsonData = JSON.parse(file); // Parsowanie całego pliku do JSON
+
+        if (jsonData[songName]) {
+            return jsonData[songName]; // Zwracamy bez ponownego parsowania
+        }
+
+        return null; // Jeśli nie znaleziono utworu
+    } catch (error) {
+        console.error('Błąd przy odczycie pliku:', error);
+        alert('Błąd przy odczycie pliku: ' + error);
+        return null;
+    }
+}
+
+
+
+//const currentPlatform = platform();
+
+    /*
 
     async function createTextFile(){ //Only main
         try {
@@ -38,7 +59,7 @@ const currentPlatform = platform();
         }
     }
 
-    export async function createBinaryFile(data: Uint8Array, name: string){ //Only main
+    async function createBinaryFile(data: Uint8Array, name: string){ //Only main
         try {
             const imageData = new Uint8Array([...data]);
 
@@ -55,36 +76,7 @@ const currentPlatform = platform();
         }
     }
 
-    export async function readTheFile(main: boolean, name: string){ //main or music
-        try {
-            if(main){
-                const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
-                return file
-            }else{
-                let filePath = "";
-
-                // For mobile (Android/iOS)
-                if (currentPlatform === "android" || currentPlatform === "ios") {
-                    filePath = '/storage/emulated/0/Music/' + name; // Mobile device storage
-                } else {
-                    // For desktop (adjust as necessary)
-                    const audio = await audioDir();
-                    filePath = await join(audio, name);  // Adjust this path to where you store assets on desktop
-                }
-        
-                // Ensure that the file exists and can be read
-                const content = await readFile(filePath, { baseDir: BaseDirectory.Audio });
-                const blob = new Blob([content], { type: 'audio/mpeg' });
-        
-                return URL.createObjectURL(blob); // Return a valid URL for the audio source
-            }
-        } catch (error) {
-            console.error('Błąd przy odczycie pliku1:', error);  
-            alert(error)
-        }
-    }
-
-    export async function writeTheFile(what: string) {  // Only main
+    async function writeTheFile(what: string) {  // Only main
         try {
             await writeTextFile("songsMetaData.json", what, { 
                 baseDir: BaseDirectory.AppLocalData 
@@ -132,7 +124,7 @@ const currentPlatform = platform();
         }
     }
     
-    export async function returnSongMetadata(name: string) {
+    async function returnSongMetadata(name: string) {
         try {
             const fileContent = await readTheFile(false, name);
             if (fileContent) {
@@ -240,7 +232,7 @@ const currentPlatform = platform();
 
     }
     
-    export async function getDataOfFile() {
+    async function getDataOfFile() {
         try {
             const fileContent = await readTheFile(true, "");
             if (fileContent) {
@@ -260,7 +252,7 @@ const currentPlatform = platform();
 
     //mainLogic()
 
-    export async function readTheImgFile(named: any){
+    async function readTheImgFile(named: any){
         try {
             if(named !== null){
             const fileBuffer = await readFile(named);
@@ -315,3 +307,5 @@ const currentPlatform = platform();
     }
     
     watchDirectoryImmediate();
+
+*/

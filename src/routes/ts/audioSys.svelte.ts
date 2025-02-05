@@ -1,7 +1,7 @@
 //import { songChanged } from './+layout.svelte';
 import { BaseDirectory, readFile } from '@tauri-apps/plugin-fs';
 import { writable, get } from "svelte/store";
-import { currentPlatform } from "./ts/store.svelte"
+import { currentPlatform } from "./store.svelte"
 import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
 export let playList = writable([

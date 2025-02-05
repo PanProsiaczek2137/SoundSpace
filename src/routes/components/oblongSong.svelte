@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { playedSong, playList } from '../audioSys.svelte'
+    import { playedSong, playList } from '../ts/audioSys.svelte'
     import { currentPlatform, areWeMoveingTheSong, mousePosY } from '../ts/store.svelte'
     import { get } from 'svelte/store';
     import { onMount } from 'svelte';
+    import { readSongsMetaDataFile } from '../ts/saveSongData.svelte'
     const platform = get(currentPlatform)
     let thisElement: HTMLElement;
     let container:HTMLElement;
@@ -19,6 +20,37 @@
 
 
     onMount(()=>{
+
+        // tutaj będzie sprawdział czy jest na liście metadancy piosenek, jeśli nie to dodaje się do kolejki.
+        (async ()=>{
+            
+            const test = await readSongsMetaDataFile("Gossip.mp3");
+            console.log(test); 
+
+        })()
+
+
+        setInterval(updateBackgroundColor, 50);
+        function updateBackgroundColor() {
+            const isPlaying = get(playedSong) === index;
+            let newColor = 'var(--black)';
+
+            if (heldTtem === thisElement) {
+                newColor = '#161616';
+            } else if (isPlaying) {
+                newColor = 'var(--ligth-black)';
+            }
+
+            thisElement.style.backgroundColor = newColor;
+            
+            // Pobieramy element #duration i upewniamy się, że to HTMLElement
+            const durationElement = thisElement.querySelector('#duration') as HTMLElement | null;
+            if (durationElement) {
+                durationElement.style.backgroundColor = newColor;
+            }
+        }
+
+
         if(platform() == "android" || platform() == "ios"){
             container = document.getElementById('play-list-phone') as HTMLElement;
         }else{
@@ -48,6 +80,7 @@
                 playedSong.set(index);
             }
             clearTimeout(holdTime);
+            updateBackgroundColor();
         });
 
 
@@ -95,6 +128,7 @@
             }
             
             clearTimeout(holdTime);
+            updateBackgroundColor();
         });
 
 
@@ -128,17 +162,6 @@
         }, { passive: false });
 
         
-        /* !!!!!!!!!! TODO !!!!!!!!!!
-        setInterval(() => {
-            //playedSong.set(2)
-            if(get(playedSong) == Number(thisElement.dataset.index)){
-                thisElement.style.backgroundColor = "var(--ligth-black)"
-            }else{
-                thisElement.style.backgroundColor = "var(--black)"
-            }
-        }, 200);
-        */
-
         if(thisElement.dataset.index == "0"){
             container.addEventListener('wheel', value =>{
                 if(get(areWeMoveingTheSong)){

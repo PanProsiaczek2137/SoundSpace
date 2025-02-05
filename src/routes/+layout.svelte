@@ -11,7 +11,7 @@
     import {} from './style/timeline.css'
     import {} from './style/leftBar.css'
 
-    import { playList, playedSong, isPlaying } from './audioSys.svelte.ts'
+    import { playList, playedSong, isPlaying } from './ts/audioSys.svelte.ts'
     import { currentPlatform } from './ts/store.svelte.ts'
     //import {} from './ts/timeline.ts'
 

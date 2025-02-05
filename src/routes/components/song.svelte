@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { playList } from '../audioSys.svelte'
+    import { playList } from '../ts/audioSys.svelte'
     export let image = "default.png";
     export let name = "Unknown Song"; // Domyślny tytuł utworu
     export let album = "Album"
