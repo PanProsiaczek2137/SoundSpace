@@ -25,13 +25,13 @@ interface SongMetaData {
 type SongsMetaData = Record<string, SongMetaData>;
 
 
-export async function readSongsMetaDataFile(songName: string) {
+export async function readSongsMetaDataFile(/*songName: string*/) {
     try {
         const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
         const jsonData = JSON.parse(file); // Parsowanie całego pliku do JSON
 
-        if (jsonData[songName]) {
-            return jsonData[songName]; // Zwracamy bez ponownego parsowania
+        if (jsonData) {
+            return jsonData; // Zwracamy bez ponownego parsowania
         }
 
         return null; // Jeśli nie znaleziono utworu
@@ -42,6 +42,23 @@ export async function readSongsMetaDataFile(songName: string) {
     }
 }
 
+
+export async function readTheImgFile(named: any){
+    try {
+        if(named !== null){
+        const fileBuffer = await readFile(named);
+
+        // Tworzenie Blob
+        const blob = new Blob([fileBuffer], { type: 'image/png' }); // Zmień typ MIME, jeśli to inny format obrazka
+        const blobUrl = URL.createObjectURL(blob);
+        
+        return blobUrl;
+        }
+    } catch (error) {
+        console.error('Błąd przy odczycie pliku:', error);  
+        alert(error)
+    }
+}
 
 
 //const currentPlatform = platform();

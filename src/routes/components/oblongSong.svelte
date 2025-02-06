@@ -1,37 +1,78 @@
 <script lang="ts">
-    import { playedSong, playList } from '../ts/audioSys.svelte'
-    import { currentPlatform, areWeMoveingTheSong, mousePosY } from '../ts/store.svelte'
+    import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte'
+    import { currentPlatform, areWeMoveingTheSong, mousePosY, playlistMetaData } from '../ts/store.svelte'
     import { get } from 'svelte/store';
-    import { onMount } from 'svelte';
-    import { readSongsMetaDataFile } from '../ts/saveSongData.svelte'
+    import { onMount, onDestroy } from 'svelte';
+    import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte'
+
     const platform = get(currentPlatform)
-    let thisElement: HTMLElement;
-    let container:HTMLElement;
-    let SongCover = 'default.png';
-    export let songTitle = 'Loading...';
-    export let index:number
-    let songArtist = 'Loading...'
-    let songDuration = '...' 
+
+    export let songFile:string | null = null;
+    export let index: number;
+
+    let SongCover:any = 'default.png';
+    let songTitle = 'Loading...';
+    let songArtist = 'Loading...';
+    let songDuration = '...';
+
     let heldTtem: HTMLElement | null;
-    let holdTime: any
-    const holdDuration = 200; 
-    let mouseY: number = 0
-    let playedSongLocal: number
+    let holdTime: any;
+    const holdDuration = 200;
+    let mouseY: number = 0;
+    let updateBgInterval: any;
+    let thisElement: HTMLElement;
+    let container: HTMLElement;
+
+    let handlePointerUp: any;
+    let handlePointerMove: any;
 
 
     onMount(()=>{
 
         // tutaj będzie sprawdział czy jest na liście metadancy piosenek, jeśli nie to dodaje się do kolejki.
-        (async ()=>{
-            
-            const test = await readSongsMetaDataFile("Gossip.mp3");
-            console.log(test); 
 
-        })()
+        if(thisElement.dataset.index == "0"){
+            (async ()=>{
+                const metaData = await readSongsMetaDataFile()
+                playlistMetaData.set(metaData)
+            })()
+
+        }
+
+        playlistMetaData.subscribe( () => {
+            reloadMetaDataOnSongs()
+        });
 
 
-        setInterval(updateBackgroundColor, 50);
+        playList.subscribe(()=>{
+            setTimeout(reloadMetaDataOnSongs, 0);
+        })
+
+        function reloadMetaDataOnSongs(){
+            const test = get(playList)
+            const data:any = get(playlistMetaData)
+            if (songFile && data[songFile]) {
+                songTitle = data[songFile].title;
+                songArtist = data[songFile].artist;                
+                songDuration = formatDuration(data[songFile].duration); 
+                (async ()=>{
+                    const songImg = await readTheImgFile(data[songFile].picture)
+                    SongCover = songImg
+                })()
+
+                
+            } else {
+                console.log('Błąd w metadanych!');
+            }
+
+        }
+
+
+        updateBgInterval = setInterval(updateBackgroundColor, 50);
+
         function updateBackgroundColor() {
+            if (!thisElement) return; // Jeśli thisElement nie jest jeszcze dostępne, pomijamy aktualizację
+
             const isPlaying = get(playedSong) === index;
             let newColor = 'var(--black)';
 
@@ -84,7 +125,7 @@
         });
 
 
-        document.addEventListener('pointerup', () => {
+        handlePointerUp = () => {
             if (get(areWeMoveingTheSong)) {
                 console.log('upuszczono piosenkę!');
                 if (heldTtem) {
@@ -103,14 +144,12 @@
                             updatedList.splice(targetIndex, 0, movedItem); // Wstaw na nową pozycję
 
                             const currentPlayedSongIndex = get(playedSong);
-                            
+
                             if (currentPlayedSongIndex === draggedIndex) {
-                                playedSong.set(targetIndex); 
-                            }
-                            else if (currentPlayedSongIndex > draggedIndex && currentPlayedSongIndex <= targetIndex) {
+                                playedSong.set(targetIndex);
+                            } else if (currentPlayedSongIndex > draggedIndex && currentPlayedSongIndex <= targetIndex) {
                                 playedSong.set(currentPlayedSongIndex - 1);
-                            }
-                            else if (currentPlayedSongIndex < draggedIndex && currentPlayedSongIndex >= targetIndex) {
+                            } else if (currentPlayedSongIndex < draggedIndex && currentPlayedSongIndex >= targetIndex) {
                                 playedSong.set(currentPlayedSongIndex + 1);
                             }
 
@@ -126,32 +165,26 @@
                 }
                 heldTtem = null;
             }
-            
+
             clearTimeout(holdTime);
             updateBackgroundColor();
-        });
+        };
+        document.addEventListener('pointerup', handlePointerUp);
 
-
-
-        setInterval(() => {
-            console.log(get(playedSong))
-        }, 1000);
-
-
-        document.addEventListener('pointermove', (event) => {
+        handlePointerMove = () => {
             if (get(areWeMoveingTheSong)) {
-                if(heldTtem){
-                    if(platform() == "android" || platform() == "ios"){
-                        thisElement.style.top = (Number(mouseY)+window.innerHeight-900)+"px"
-                    }else{
-                        thisElement.style.top = (Number(mouseY)-25)+"px"
+                if (heldTtem) {
+                    if (platform() == "android" || platform() == "ios") {
+                        thisElement.style.top = (Number(mouseY) + window.innerHeight - 900) + "px";
+                    } else {
+                        thisElement.style.top = (Number(mouseY) - 25) + "px";
                     }
                 }
-            }else{
+            } else {
                 clearTimeout(holdTime);
             }
-        });
-
+        };
+        document.addEventListener('pointermove', handlePointerMove);
 
 
         container.addEventListener('touchmove', (event) => {
@@ -216,6 +249,12 @@
     // @ts-ignore
     return thisElement.dataset.index;
 }
+
+    onDestroy(()=>{
+        clearInterval(updateBgInterval);
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
+    })
 
 </script>
 

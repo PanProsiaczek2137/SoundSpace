@@ -7,8 +7,8 @@ SoundSpace to open-source'owy odtwarzacz muzyki na **Androida** i **Desktop**. P
 3. Uruchom i ciesz się muzyką!
 
 ## Do zrobienia
- - odtwarzane metadane
- - podświetlenie się granego utworu i możliwość scrolowania z trzymaniem utworu
+ - odczytywanie i zapizywanie metadanych plików
+ ✔ podświetlenie się granego utworu i możliwość scrolowania z trzymaniem utworu
  - opcje typy: podgłośnienie/przyciszenie, oś czasu, tworzenie i dodawanie do playlist, który klawiszowe itp
  - lewe menu wysuwa się po najechaniu bądź na telefonie po przejechaniu palcem
  - dodanie przycisków do menu po lewej stronie jak i ich funkcjonowanie

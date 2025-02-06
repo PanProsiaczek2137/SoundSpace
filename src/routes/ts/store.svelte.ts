@@ -4,6 +4,8 @@ import { writable } from "svelte/store";
 export const currentPlatform = writable(platform);
 export let areWeMoveingTheSong = writable(false)
 export let mousePosY = writable(0);
+export let playlistMetaData:any = writable({})
+//export let updateAllSongs = writable(false)
 document.addEventListener('pointermove', (event)=>{
     mousePosY.set(event.clientY)
 });

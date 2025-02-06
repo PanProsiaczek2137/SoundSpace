@@ -75,7 +75,7 @@
                 d1List = document.querySelectorAll('.album-picture');
                 d2List = document.querySelectorAll('.tests');
                 renewAlbumCover();
-                console.log(d1List, d2List);
+                //console.log(d1List, d2List);
             }, 0);
         }
     })
@@ -86,7 +86,7 @@
     function renewAlbumCover(){
         d1List = document.querySelectorAll('.album-picture');
         d2List = document.querySelectorAll('.tests');
-        console.log(d1List, d2List);
+        //console.log(d1List, d2List);
         d1List.forEach((d1Element, index) => {
             const d1 = d1Element as HTMLElement; // Rzutowanie na HTMLElement
             const d2 = d2List[index] as HTMLElement; // Rzutowanie na HTMLElement
@@ -219,7 +219,7 @@
 
             <div id="play-list-phone">
                 {#each $playList as songs, myIndex}
-                    <OblongSong songTitle={songs.src} index={myIndex}></OblongSong>
+                    <OblongSong songFile={songs.src} index={myIndex}></OblongSong>
                 {/each}
             </div>
 
@@ -247,7 +247,7 @@
                     <div id="play-list" class="scrollY">
 
                         {#each $playList as songs, myIndex}
-                            <OblongSong songTitle={songs.src} index={myIndex}></OblongSong>
+                            <OblongSong songFile={songs.src} index={myIndex}></OblongSong>
                         {/each}
     
                     </div>
