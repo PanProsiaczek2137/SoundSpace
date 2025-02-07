@@ -1,6 +1,6 @@
 <script lang="ts">
     import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte'
-    import { currentPlatform, areWeMoveingTheSong, mousePosY, playlistMetaData } from '../ts/store.svelte'
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData } from '../ts/store.svelte'
     import { get } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte'
@@ -18,7 +18,6 @@
     let heldTtem: HTMLElement | null;
     let holdTime: any;
     const holdDuration = 200;
-    let mouseY: number = 0;
     let updateBgInterval: any;
     let thisElement: HTMLElement;
     let container: HTMLElement;
@@ -28,8 +27,6 @@
 
 
     onMount(()=>{
-
-        // tutaj będzie sprawdział czy jest na liście metadancy piosenek, jeśli nie to dodaje się do kolejki.
 
         if(thisElement.dataset.index == "0"){
             (async ()=>{
@@ -171,13 +168,13 @@
         };
         document.addEventListener('pointerup', handlePointerUp);
 
-        handlePointerMove = () => {
+        handlePointerMove = (event:any) => {
             if (get(areWeMoveingTheSong)) {
                 if (heldTtem) {
                     if (platform() == "android" || platform() == "ios") {
-                        thisElement.style.top = (Number(mouseY) + window.innerHeight - 900) + "px";
+                        thisElement.style.top = (Number(event.clientY) + window.innerHeight - 900) + "px";
                     } else {
-                        thisElement.style.top = (Number(mouseY) - 25) + "px";
+                        thisElement.style.top = (Number(event.clientY) - 25) + "px";
                     }
                 }
             } else {
@@ -190,7 +187,6 @@
         container.addEventListener('touchmove', (event) => {
             if (get(areWeMoveingTheSong)) {
                 event.preventDefault();  
-                console.log('anulujemy!');
             }
         }, { passive: false });
 
@@ -204,10 +200,6 @@
         }
 
     })
-    
-    mousePosY.subscribe( value =>{
-        mouseY = value;
-    });
 
     
     function findClosestElement(): number {
