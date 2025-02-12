@@ -44,20 +44,23 @@ export function formatDuration(seconds: number): string {
     }
 }
 
-playedSong.subscribe( (value) =>{
+playedSong.subscribe(async (value) => {
     isPlaying.set(false);
 
-    setTimeout(async() => {
+    setTimeout(async () => {
         if (get(playList)[value].type === 'musicFolder') {
             const filePath = await readTheFile(get(playList)[value].src);
-            if(filePath){
-                song = new Audio(filePath)
+            if (filePath) {
+                song.pause();      // Zatrzymaj obecną piosenkę
+                song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
+                song = new Audio(filePath); // Załaduj nową piosenkę
+                //song.play();       // Automatycznie odtwórz nowy utwór
+                //isPlaying.set(true);
             }
-    
         }
     }, 0);
-    
 });
+
 
 
 async function readTheFile(named: string) {

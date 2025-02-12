@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte'
+    import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte.ts'
     import { currentPlatform, areWeMoveingTheSong, playlistMetaData } from '../ts/store.svelte'
     import { get } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
-    import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte'
+    import { readSongsMetaDataFile, readTheImgFile, addSongMetadata } from '../ts/saveSongData.svelte.ts'
 
     const platform = get(currentPlatform)
 
@@ -24,6 +24,9 @@
 
     let handlePointerUp: any;
     let handlePointerMove: any;
+
+    let loading = true
+
 
 
     onMount(()=>{
@@ -46,7 +49,6 @@
         })
 
         function reloadMetaDataOnSongs(){
-            const test = get(playList)
             const data:any = get(playlistMetaData)
             if (songFile && data[songFile]) {
                 songTitle = data[songFile].title;
@@ -55,11 +57,25 @@
                 (async ()=>{
                     const songImg = await readTheImgFile(data[songFile].picture)
                     SongCover = songImg
+                    loading = false
                 })()
-
                 
             } else {
-                console.log('Błąd w metadanych!');
+                setTimeout(() => {
+                    (async ()=>{
+                        if(songFile){
+                            const mateData = await addSongMetadata(songFile);
+                            songTitle = mateData?.title;
+                            songArtist = mateData?.artist;
+                            songDuration = formatDuration(mateData?.duration);
+                            setTimeout(async () => {
+                                SongCover = await readTheImgFile(mateData?.picture);
+                            }, 1);
+                            loading = false
+                        }
+                    })()
+                    console.log('Błąd w metadanych!');
+                }, index * 1000);
             }
 
         }
@@ -252,6 +268,18 @@
 
 
 <div bind:this={thisElement} data-index={index} class="oblong-song" id="container" tabindex="-1" role="button">
+    {#if loading}
+        <div id="img-container">
+            <img src={"default.svg"} alt="" draggable="false">
+        </div>
+        <div id="name-artists">
+            <p id="name">{songFile}</p>
+            <p id="artist">{"Loaging..."}</p>
+        </div>
+        <div id="duration">
+            <p>{"..."}</p>
+        </div>
+    {:else}
         <div id="img-container">
             <img src={SongCover} alt="" draggable="false">
         </div>
@@ -262,6 +290,7 @@
         <div id="duration">
             <p>{songDuration}</p>
         </div>
+    {/if}
 </div>
 
 

@@ -13,7 +13,7 @@
 
 @media (width <= 960px) {
     #full{
-        width: calc(100% - 100px);
+        width: calc(100% - 65px);
     }
 }
 @media (width <= 480px) {

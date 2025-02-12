@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { playList } from '../ts/audioSys.svelte'
+    import { playList } from '../ts/audioSys.svelte.ts'
     export let image = "default.png";
     export let name = "Unknown Song"; // Domyślny tytuł utworu
     export let album = "Album"
@@ -8,6 +8,7 @@
 
 <div id="container">
     <div id="img-container" onclick={(()=>{
+        console.log('aiopsdfujioasdju')
     playList.set([])
 
         playList.set([
@@ -31,6 +32,9 @@
             {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
             {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
             {type: 'musicFolder', src: 'I Want It All.mp3'},
+            {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+            {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+            {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
         ])
 
     })} tabindex="0" role="button" onkeydown={(e) => { if (e.key === 'Enter') console.log('OK')}} >

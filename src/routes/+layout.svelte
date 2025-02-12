@@ -1,7 +1,11 @@
+
 <script lang="ts">
-    let { children } = $props();
+    //let { children } = $props();
 
-
+    import HomePage from './home/+page.svelte'
+    import LibraryPage from './library/+page.svelte'
+    import SettingsPage from './settings/+page.svelte';
+    
 
     import {} from './style/global.css'
     import {} from './style/audioControlBar.css'
@@ -12,7 +16,7 @@
     import {} from './style/leftBar.css'
 
     import { playList, playedSong, isPlaying } from './ts/audioSys.svelte.ts'
-    import { currentPlatform } from './ts/store.svelte.ts'
+    import { currentPlatform, selectedPanel } from './ts/store.svelte.ts'
     //import {} from './ts/timeline.ts'
 
     import OblongSong, {} from './components/oblongSong.svelte'
@@ -20,7 +24,7 @@
     import { onMount, onDestroy } from "svelte";
     import { writable, get } from 'svelte/store';
 	import { fly } from 'svelte/transition';
-    import Page from './+page.svelte';
+    //import Page from './+page.svelte';
 
 
 
@@ -124,6 +128,7 @@
     let imageUrl = $state('default.svg');
     let artistAndAlbum = $state('Artist • Album');
     let songDuration = $state('0:00');
+
     //let songCurrentTime = $state(song.currentTime);
 
     let playPasueButtonCircleSrc = $state('play_circle.svg');
@@ -157,10 +162,41 @@
         <div id="top-container">
 
             <div id="left-bar">
+                <button  id="left-bar-home" class="left-bar-buttons button" onclick={()=>{selectedPanel.set('home')}} style="background-color: {$selectedPanel === 'home' ? 'var(--ligth-black)' : 'transparent'}">
+                    {#if $selectedPanel == "home"}
+                        <img src="left-bar/home-filld.svg" alt="" draggable="false">
+                    {:else}
+                        <img src="left-bar/home.svg" alt="" draggable="false">
+                    {/if}
+                    <p>Home</p>
+                </button>
 
+                <button id="left-bar-library" class="left-bar-buttons button" onclick={()=>{selectedPanel.set('library')}} style="background-color: {$selectedPanel === 'library' ? 'var(--ligth-black)' : 'transparent'}">
+                    {#if $selectedPanel == "library"}
+                        <img src="left-bar/library-filld.svg" alt="" draggable="false">
+                    {:else}
+                        <img src="left-bar/library.svg" alt="" draggable="false">
+                    {/if}
+                    <p>Library</p>
+                </button>
+
+                <button id="left-bar-settings" class="left-bar-buttons button" onclick={()=>{selectedPanel.set('settings')}} style="background-color: {$selectedPanel === 'settings' ? 'var(--ligth-black)' : 'transparent'}">
+                    {#if $selectedPanel == "settings"}
+                        <img src="left-bar/settings-filld.svg" alt="" draggable="false">
+                    {:else}
+                        <img src="left-bar/settings.svg" alt="" draggable="false">
+                    {/if}
+                    <p>Settings</p>
+                </button>
             </div>
             <main id="content">
-                {@render children()}
+                {#if $selectedPanel == "home"}
+                    <HomePage></HomePage>
+                {:else if $selectedPanel == "library"}
+                    <LibraryPage></LibraryPage>
+                {:else}
+                    <SettingsPage></SettingsPage>
+                {/if}
             </main>
 
         </div>

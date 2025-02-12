@@ -4,3 +4,4 @@ import { writable } from "svelte/store";
 export const currentPlatform = writable(platform);
 export let areWeMoveingTheSong = writable(false)
 export let playlistMetaData:any = writable({})
+export let selectedPanel = writable('home')
