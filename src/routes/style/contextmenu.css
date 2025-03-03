@@ -1,0 +1,20 @@
+#contextmenu{
+    width: 200px;
+    height: 375px;
+    position: absolute;
+    display: none;
+    background-color: var(--black);
+    border: solid 1px var(--ligth-black);
+    z-index: 9999999999999999;
+}
+
+#contextmenu button{
+    color: var(--white);
+    width: 100%;
+    height: 75px;
+    font-size: 1rem;
+}
+
+#contextmenu button:hover{
+    background-color: var(--ligth-black);
+}

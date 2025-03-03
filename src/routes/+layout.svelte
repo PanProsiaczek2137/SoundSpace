@@ -1,6 +1,9 @@
 
 <script lang="ts">
+
     //let { children } = $props();
+
+    //import { invoke } from '@tauri-apps/api/core';
 
     import HomePage from './home/+page.svelte'
     import LibraryPage from './library/+page.svelte'
@@ -14,9 +17,13 @@
     import {} from './style/scrollBar.css'
     import {} from './style/timeline.css'
     import {} from './style/leftBar.css'
+    import {} from './style/changePageBar.css'
+    import {} from './style/contextmenu.css'
 
-    import { playList, playedSong, isPlaying } from './ts/audioSys.svelte.ts'
+    import { playList, playedSong, isPlaying, updateFullImg } from './ts/audioSys.svelte.ts'
     import { currentPlatform, selectedPanel } from './ts/store.svelte.ts'
+    import { main } from './ts/contextMenu.svelte.ts';
+    main()
     //import {} from './ts/timeline.ts'
 
     import OblongSong, {} from './components/oblongSong.svelte'
@@ -27,8 +34,27 @@
     //import Page from './+page.svelte';
 
 
+    
+    onMount(()=>{
+        document.querySelectorAll("button, input, a, textarea, select").forEach(el => {
+            el.setAttribute("tabindex", "-1");
+        });
+    })
+
+    
+
+
+    selectedPanel.subscribe(value => {
+        console.log(value);
+        setTimeout(() => {
+            visible = false
+        }, 10);
+        //visible = false;
+    });
+
 
     onMount(() => {
+
     const rangeInput = document.querySelector('.timeline') as HTMLInputElement;
 
     rangeInput.addEventListener('input', (event) => {
@@ -54,6 +80,7 @@
 
         if (target.id === "audio-play") {
             visible = !visible;
+            updateFullImg()
         }
     });
 
@@ -72,6 +99,7 @@
     let visible = $state(false);
     $effect(() => {
         if (visible) {
+            updateFullImg()
             console.log('new')
             
             // Opóźnienie, aby dać Svelte czas na wyrenderowanie elementów
@@ -149,11 +177,45 @@
     onDestroy(() => {
         document.body.style.overflow = "auto"; // Przywrócenie domyślnej wartości
     });
+
+
+    onMount(()=>{
+        const topContainer = document.getElementById('top-container') as HTMLElement;
+        const audioPlay = document.getElementById('audio-play') as HTMLElement;
+        if(platform() === "android" || platform() === "ios"){
+            topContainer.style.height = "calc(100% - 135px)";
+            audioPlay.style.height = "135px";
+        }
+    });
+
 </script>
 
-
-
-
+<div id="contextmenu">
+    <button id="contextmenu-add-as-next" class="button">
+        add-as-next
+    </button>
+    <button id="contextmenu-add-to-playlist" class="button">
+        add-to-playlist
+    </button>
+    <button id="contextmenu-show-author" class="button">
+        show-author
+    </button>
+    <button id="contextmenu-show-album" class="button">
+        show-album
+    </button>
+    <button id="contextmenu-share" class="button" onclick={ ()=>{
+        if(navigator.share){
+            navigator.share({
+                text: "test",
+                title: "to jest test"
+            })
+        }else{
+            console.log('nie jest wspierany!');
+        }
+    }}>
+        share
+    </button>
+</div>
 
 
 <div id="container">
@@ -200,56 +262,96 @@
             </main>
 
         </div>
-        <div id="audio-play">
 
-            <input type="range" class="timeline" id="time" min="0" maxlength={100} value={50}>
-
-            <div id="picture-and-info">
-                <div id="album-picture">
-                    <img src={imageUrl} alt="" draggable="false">
-                </div>
-    
-                <div id="info">
-                    <h1>{songName}</h1>
-                    <h2>{artistAndAlbum}</h2>
-                </div>
-            </div>
-    
-            
-            <div id="controls">
-
-                    <button class="button" id="play-previus" onclick={()=>{
-                            let local = get(playedSong);
-                            local--;
-                            playedSong.set(local);
-                        }}><img src="skip_previous.svg" alt="">
-                    </button>
-
-                    <button class="button" id="play-pause" onclick={()=>{get(isPlaying) ? isPlaying.set(false) : isPlaying.set(true)}}>
-                        <img src={playPasueButtonCircleSrc} alt="" style="transform:scale(1.8)">
-                    </button>
+        <!--
+        {#if platform() === "android" || platform() === "ios"}
+            <div id="bottom-bar">
                     
-                    <button class="button" id="play-next" onclick={()=>{
-                            let local = get(playedSong);
-                            local++;
-                            playedSong.set(local);
-                    }}><img src="skip_next.svg" alt="">
-                    </button>
-
             </div>
+        {/if}
+        -->
 
-            <div id="others-settings">
-                <input type="range">
-                <button class="button"><img src="volume/volume2.svg" alt=""></button>
-                <button class="button"><img src="add_playlist.svg" alt=""></button>
-                <button class="button"><img src="more_options.svg" alt=""></button>
-                <button class="button" onclick={() => visible = !visible}><img src="full_screen.svg" alt=""></button>
+        <div id="audio-play">
+            
+            {#if platform() === "android" || platform() === "ios"}
+                <div id="change-page">
+                    <button class="button" onclick={()=>{selectedPanel.set('home')}}>
+                        {#if $selectedPanel == "home"}
+                            <img src="left-bar/home-filld.svg" class="change-page-button" alt="" draggable="false">
+                        {:else}
+                            <img src="left-bar/home.svg" class="change-page-button" alt="" draggable="false">
+                        {/if}
+                    </button>
+    
+                    <button class="button" onclick={()=>{selectedPanel.set('library')}}>
+                        {#if $selectedPanel == "library"}
+                            <img src="left-bar/library-filld.svg" class="change-page-button" alt="" draggable="false">
+                        {:else}
+                            <img src="left-bar/library.svg" class="change-page-button" alt="" draggable="false">
+                        {/if}
+                    </button>
+    
+                    <button class="button" onclick={()=>{selectedPanel.set('settings')}}>
+                        {#if $selectedPanel == "settings"}
+                            <img src="left-bar/settings-filld.svg" class="change-page-button" alt="" draggable="false">
+                        {:else}
+                            <img src="left-bar/settings.svg" class="change-page-button" alt="" draggable="false">
+                        {/if}
+                    </button>
+                </div>
+            {/if}
+
+            <div id="audio-control-bar">
+
+                <input type="range" class="timeline" id="time" min="0" maxlength={100} value={50}>
+
+                <div id="picture-and-info">
+                    <div id="album-picture">
+                        <img id="album-pucture-on-bar" src={imageUrl} alt="" draggable="false">
+                    </div>
+        
+                    <div id="info">
+                        <h1>{songName}</h1>
+                        <h2>{artistAndAlbum}</h2>
+                    </div>
+                </div>
+            
+                <div id="controls">
+
+                        <button class="button" id="play-previus" onclick={()=>{
+                                let local = get(playedSong);
+                                local--;
+                                playedSong.set(local);
+                            }}><img src="skip_previous.svg" alt="">
+                        </button>
+
+                        <button class="button" id="play-pause" onclick={()=>{get(isPlaying) ? isPlaying.set(false) : isPlaying.set(true)}}>
+                            <img src={playPasueButtonCircleSrc} alt="" style="transform:scale(1.8)">
+                        </button>
+                        
+                        <button class="button" id="play-next" onclick={()=>{
+                                let local = get(playedSong);
+                                local++;
+                                playedSong.set(local);
+                        }}><img src="skip_next.svg" alt="">
+                        </button>
+
+                </div>
+
+                <div id="others-settings">
+                    <input type="range">
+                    <button class="button"><img src="volume/volume2.svg" alt=""></button>
+                    <button class="button"><img src="add_playlist.svg" alt=""></button>
+                    <button class="button"><img src="more_options.svg" alt=""></button>
+                    <button class="button" onclick={() => {visible = !visible; updateFullImg()}}><img src="full_screen.svg" alt=""></button>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+        </div>
     <div id="bottom" class="scroll-snap-section">
         {#if platform() === "android" || platform() === "ios"}
 
@@ -267,12 +369,12 @@
                     <div id="picture-full">
                         <div class="album-picture" style="width: 80%; height: 80%; z-index: 5;">
                             <div class="tests">
-                                <img src={imageUrl} alt="" draggable="false">
+                                <img id="full-picture" src={imageUrl} alt="" draggable="false">
                             </div>
                         </div>
                         <div class="album-picture" id="blure-picture">
                             <div class="tests">
-                                <img src={imageUrl} alt="" draggable="false">
+                                <img id="full-picture-blure" src={imageUrl} alt="" draggable="false">
                             </div>
                         </div>
                     </div>

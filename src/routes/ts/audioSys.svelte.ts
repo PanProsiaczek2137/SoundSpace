@@ -4,11 +4,27 @@ import { writable, get } from "svelte/store";
 import { currentPlatform } from "./store.svelte"
 import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
+import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
+import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
+import { onMount } from 'svelte';
 export let playList = writable([
     {type: 'musicFolder', src: 'I Want It All.mp3'},
     {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
     {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
     {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
+    {type: 'musicFolder', src: 'I Want It All.mp3'},
+    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
+    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
+    {type: 'musicFolder', src: 'I Want It All.mp3'},
+    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
+    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
+    {type: 'musicFolder', src: 'I Want It All.mp3'},
+    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
+    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
+    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
+    
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
@@ -16,6 +32,22 @@ let song = new Audio();
 let songMetaData = {};
 let platfrom = get(currentPlatform)
 
+playList.subscribe(()=>{
+    readyToLoadMetaData.set(false);
+    (async ()=>{
+        const metaData = await readSongsMetaDataFile()
+        playlistMetaData.set(metaData)
+        console.log("playlistMetaData się zmieniło!")
+        setTimeout(() => {
+            readyToLoadMetaData.set(true);
+        }, 100);
+    })()
+})
+/*
+onMount( ()=>{
+    
+})
+*/
 
 isPlaying.subscribe( value =>{
     if (value) {
@@ -54,6 +86,19 @@ playedSong.subscribe(async (value) => {
                 song.pause();      // Zatrzymaj obecną piosenkę
                 song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
                 song = new Audio(filePath); // Załaduj nową piosenkę
+                const albumPuctureOnBar = document.getElementById('album-pucture-on-bar') as HTMLImageElement;
+                const allSongsMetaData = await readSongsMetaDataFile()
+                
+                const img = await readTheImgFile(allSongsMetaData[get(playList)[value].src].picture)
+                //@ts-ignore
+                albumPuctureOnBar.src = img;
+
+                if(!(platfrom() === "android" || platfrom() === "ios")){
+                    //@ts-ignore
+                    fullPictureBlure.src = img;
+                    //@ts-ignore
+                    fullPicture.src = img;
+                }
                 //song.play();       // Automatycznie odtwórz nowy utwór
                 //isPlaying.set(true);
             }
@@ -61,6 +106,21 @@ playedSong.subscribe(async (value) => {
     }, 0);
 });
 
+    export async function updateFullImg() {
+
+        const fullPicture = document.getElementById('full-picture') as HTMLImageElement;
+        const fullPictureBlure = document.getElementById('full-picture-blure') as HTMLImageElement;
+        const allSongsMetaData = await readSongsMetaDataFile()
+        const img = await readTheImgFile(allSongsMetaData[get(playList)[get(playedSong)].src].picture)
+
+        if(!(platfrom() === "android" || platfrom() === "ios")){
+            //@ts-ignore
+            //fullPictureBlure.src = img;
+            //@ts-ignore
+            //fullPicture.src = img;
+        }
+        
+    }
 
 
 async function readTheFile(named: string) {
@@ -108,6 +168,104 @@ async function loadSongMetadata(filePath: string) {
     } catch (error) {
         console.error('Błąd podczas ładowania metadanych:', error);
     }
+}
+
+
+export function printSelectedData(searchField: string, searchValue: string, data: any) {
+        
+   
+    if (data && typeof data === "object") {
+
+        let list = [];
+
+
+
+        const songs:any = Object.values(data);
+        console.log("-----=-=-=-----------=====-=-")
+        console.log(songs);
+        console.log("-----=-=-=-----------=====-=-")
+
+        for(let i = 0; i < songs.length; i++) {
+
+            if(searchField == "artist") {
+                if(songs[i].artist == searchValue) {
+                    list.push(songs[i]);
+                }
+            }
+
+            if(searchField == "album") {
+                if(songs[i].album == searchValue) {
+                    list.push(songs[i]);
+                }
+            }
+
+            if(searchField == "genre") {
+                if(songs[i].genre == searchValue) {
+                    list.push(songs[i]);
+                }
+            }
+
+            if(searchField == "duration") {
+                if(searchValue == "1min" && songs[i].duration < 60) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "2min" && songs[i].duration >= 60 && songs[i].duration <= 120) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "3min" && songs[i].duration >= 120 && songs[i].duration <= 180) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "4min" && songs[i].duration >= 180 && songs[i].duration <= 240) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "5min" && songs[i].duration >= 240 && songs[i].duration <= 300) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "10min" && songs[i].duration >= 300 && songs[i].duration <= 600) {
+                    list.push(songs[i]);
+                }
+                if(searchValue == "20min" && songs[i].duration >= 600 && songs[i].duration <= 1200) {
+                    list.push(songs[i]);
+                }
+                
+            }
+
+
+
+            if (searchField == "year") {
+                const year = parseInt(searchValue); // Konwersja "2020s", "1800" na liczbę
+
+                for (let i = 0; i < songs.length; i++) {
+                    const songYear = songs[i].year;
+                    let shouldAddSong = false;
+
+                    if (searchValue.endsWith("s")) {
+                        // Jeśli to dekada (np. "2020s"), sprawdzamy czy rok mieści się w zakresie
+                        if (songYear >= year && songYear < year + 10) {
+                            shouldAddSong = true;
+                        }
+                    } else {
+                        // Jeśli to setka (np. "1800"), sprawdzamy czy rok mieści się w przedziale
+                        if (songYear >= year && songYear < year + 100) {
+                            shouldAddSong = true;
+                        }
+                    }
+
+                    // Dodajemy piosenkę, jeśli spełnia warunki i nie ma jej jeszcze w liście
+                    if (shouldAddSong && !list.includes(songs[i])) {
+                        list.push(songs[i]);
+                    }
+                }
+            }
+
+
+
+
+        };
+
+        return list;
+    
+    } 
 }
 /*
 export async function returnSongMetadata(filePath: string) {

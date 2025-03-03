@@ -15,7 +15,7 @@ interface SongMetaData {
     artist: string;
     genre: string | null;
     picture: string | null;
-    date: number;
+    year: number;
     album: string;
     duration: number;
     filePath: string;
@@ -26,20 +26,23 @@ type SongsMetaData = Record<string, SongMetaData>;
 
 
 export async function readSongsMetaDataFile(/*songName: string*/) {
-    try {
-        const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
-        const jsonData = JSON.parse(file); // Parsowanie całego pliku do JSON
-
-        if (jsonData) {
-            return jsonData; // Zwracamy bez ponownego parsowania
+    await existsTheFile(true, "");
+        
+        try {
+            const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
+            const jsonData = JSON.parse(file); // Parsowanie całego pliku do JSON
+    
+            if (jsonData) {
+                return jsonData; // Zwracamy bez ponownego parsowania
+            }
+    
+            return null; // Jeśli nie znaleziono utworu
+        } catch (error) {
+            console.error('Błąd przy odczycie pliku:', error);
+            alert('Błąd przy odczycie pliku: ' + error);
+            return null;
         }
 
-        return null; // Jeśli nie znaleziono utworu
-    } catch (error) {
-        console.error('Błąd przy odczycie pliku:', error);
-        alert('Błąd przy odczycie pliku: ' + error);
-        return null;
-    }
 }
 
 export async function readTheImgFile(named: any){
@@ -97,7 +100,7 @@ export async function addSongMetadata(name: string) {
 
         // Obsługa okładki albumu
         let picturePath: string | null = null;
-        if (data.common.picture && data.common.picture[0]) {
+        if (data.common.picture && Array.isArray(data.common.picture) && data.common.picture.length > 0) {
             const pictureData = new Uint8Array(data.common.picture[0].data);
             const pictureFileName = `${fileName}_cover.jpg`; // Możesz dostosować rozszerzenie do formatu obrazka
             picturePath = await createBinaryFile(pictureData, pictureFileName);
@@ -106,9 +109,9 @@ export async function addSongMetadata(name: string) {
         let songData = {
             title: data.common.title || fileName, // Jeśli brak tytułu, użyj nazwy pliku
             artist: data.common.artist || null,
-            genre: data.common.genre || null,
+            genre: (Array.isArray(data.common.genre) && data.common.genre.length > 0) ? data.common.genre[0] : null,
             picture: picturePath, // Ścieżka do okładki, jeśli istnieje
-            date: data.common.year || null,
+            year: data.common.year || null,
             album: data.common.album || null,
             duration: data.format.duration || null,
             filePath: path, // Pełna ścieżka do pliku
@@ -121,17 +124,7 @@ export async function addSongMetadata(name: string) {
         // **🔹 Zapisujemy zaktualizowane metadane do pliku**
         await writeTheFile(JSON.stringify(parsedContent, null, 2));
 
-        return songData = {
-            title: data.common.title || fileName, // Jeśli brak tytułu, użyj nazwy pliku
-            artist: data.common.artist || null,
-            genre: data.common.genre || null,
-            picture: picturePath, // Ścieżka do okładki, jeśli istnieje
-            date: data.common.year || null,
-            album: data.common.album || null,
-            duration: data.format.duration || null,
-            filePath: path, // Pełna ścieżka do pliku
-            fileName: fileName // Nazwa pliku bez ścieżki
-        };
+        return songData;
 
     } catch (error) {
         console.error(error);
@@ -279,6 +272,32 @@ async function returnSongMetadata(name: string) {
         return null;
     }
 }
+
+export async function getContentOfMusicFolder() {
+    try {
+        let theAudioDir;
+        if (platform() === "android" || platform() === "ios") {
+            const customPath = '/storage/emulated/0/Music/';
+            theAudioDir = await readDir(customPath);
+        } else {
+            const audioDirPath = await audioDir();
+            theAudioDir = await readDir(audioDirPath);
+        }
+
+        // Filtrowanie folderów oraz niechcianych plików
+        theAudioDir = theAudioDir.filter(item => 
+            !item.isDirectory && 
+            item.name !== "desktop.ini" && 
+            item.name !== ".thumbnails"
+        );
+
+        return theAudioDir;
+    } catch (error) {
+        console.error('Błąd przy odczycie pliku3:', error);
+        alert(error);
+    }
+}
+
 
 mainLogic()
 async function mainLogic() {

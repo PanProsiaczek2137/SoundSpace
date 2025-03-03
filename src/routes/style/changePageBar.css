@@ -1,0 +1,13 @@
+#change-page{
+    width: 100%;
+    height: 75px;
+    background-color: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.change-page-button{
+    width: 40px;
+    height: 40px;
+}

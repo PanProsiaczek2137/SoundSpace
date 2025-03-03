@@ -1,7 +1,7 @@
 <script lang="ts">
     import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte.ts'
-    import { currentPlatform, areWeMoveingTheSong, playlistMetaData } from '../ts/store.svelte'
-    import { get } from 'svelte/store';
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData } from '../ts/store.svelte'
+    import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile, addSongMetadata } from '../ts/saveSongData.svelte.ts'
 
@@ -28,9 +28,9 @@
     let loading = true
 
 
-
     onMount(()=>{
 
+        /*
         if(thisElement.dataset.index == "0"){
             (async ()=>{
                 const metaData = await readSongsMetaDataFile()
@@ -40,27 +40,80 @@
         }
 
         playlistMetaData.subscribe( () => {
-            reloadMetaDataOnSongs()
+            //reloadMetaDataOnSongs()
         });
+        */
 
 
+
+
+
+        /*
         playList.subscribe(()=>{
-            setTimeout(reloadMetaDataOnSongs, 0);
+            if(thisElement.dataset.index == "0"){
+                readyToLoadMetaData.set(false);
+                (async ()=>{
+                    const metaData = await readSongsMetaDataFile()
+                    playlistMetaData.set(metaData)
+                    setTimeout(() => {
+                        readyToLoadMetaData.set(true);
+                    }, 100);
+                })()
+            }
         })
+        */
 
-        function reloadMetaDataOnSongs(){
+        readyToLoadMetaData.subscribe( event => {
+            if(event){
+                reloadMetaDataOnSongs()
+            }
+        });
+        
+
+        async function reloadMetaDataOnSongs(){
             const data:any = get(playlistMetaData)
-            if (songFile && data[songFile]) {
+            //const data = await readSongsMetaDataFile()
+            console.log('------------------------');
+            console.log(songFile);
+            console.log(data);
+            //@ts-ignore
+            console.log(data[songFile]);
+            console.log('------------------------');
+
+            //songFile && data[songFile]
+            if(songFile != null)
+            if (data[songFile]) {
+
+                console.log('MAMY!!!!!!!!!!!');
+                console.log(data[songFile])
+                
                 songTitle = data[songFile].title;
                 songArtist = data[songFile].artist;                
                 songDuration = formatDuration(data[songFile].duration); 
-                (async ()=>{
-                    const songImg = await readTheImgFile(data[songFile].picture)
-                    SongCover = songImg
-                    loading = false
-                })()
+                setTimeout(() => {
+                    (async () => {
+                        // Sprawdzamy, czy element jest nadal w DOM przed kontynuowaniem
+                        if (!thisElement || !document.body.contains(thisElement)) {
+                            //console.log('Element został usunięty, wczytywanie obrazu zatrzymane');
+                            return;
+                        }
+
+                        const songImg = await readTheImgFile(data[songFile].picture);
+                        if(songImg == null){
+                            SongCover = "default.png";
+                        }else
+                        SongCover = songImg;
+                        loading = false;
+                        console.log('wczytano obraz numer: ' + index);
+                    })();
+                }, index * 1);
+                //loading = false
                 
             } else {
+                
+                console.log('NIE!!!!!!!!!!!!!! NIEMAMY!!!!!!!!!!!');
+                console.log(data[songFile])
+                
                 setTimeout(() => {
                     (async ()=>{
                         if(songFile){
@@ -75,7 +128,8 @@
                         }
                     })()
                     console.log('Błąd w metadanych!');
-                }, index * 1000);
+                }, index * 500);
+                
             }
 
         }
@@ -84,7 +138,7 @@
         updateBgInterval = setInterval(updateBackgroundColor, 50);
 
         function updateBackgroundColor() {
-            if (!thisElement) return; // Jeśli thisElement nie jest jeszcze dostępne, pomijamy aktualizację
+            if (!thisElement || !document.body.contains(thisElement)) return; // Sprawdzenie, czy element jest nadal w DOM
 
             const isPlaying = get(playedSong) === index;
             let newColor = 'var(--black)';
@@ -186,7 +240,7 @@
 
         handlePointerMove = (event:any) => {
             if (get(areWeMoveingTheSong)) {
-                if (heldTtem) {
+                if (heldTtem && thisElement && document.body.contains(thisElement)) { // Dodanie sprawdzenia
                     if (platform() == "android" || platform() == "ios") {
                         thisElement.style.top = (Number(event.clientY) + window.innerHeight - 900) + "px";
                     } else {
@@ -259,10 +313,15 @@
 }
 
     onDestroy(()=>{
-        clearInterval(updateBgInterval);
-        document.removeEventListener('pointermove', handlePointerMove);
-        document.removeEventListener('pointerup', handlePointerUp);
+        console.log("usuwamy"+thisElement);
+        // Upewniamy się, że element istnieje, zanim usuniemy eventy
+        if (thisElement && document.body.contains(thisElement)) {
+            clearInterval(updateBgInterval);
+            document.removeEventListener('pointermove', handlePointerMove);
+            document.removeEventListener('pointerup', handlePointerUp);
+        }
     })
+
 
 </script>
 
