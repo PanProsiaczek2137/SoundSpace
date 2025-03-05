@@ -4,6 +4,7 @@
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile, addSongMetadata } from '../ts/saveSongData.svelte.ts'
+    import { loadAllMetaData } from '../ts/loadingMetaData.svelte.ts'
 
     const platform = get(currentPlatform)
 
@@ -72,13 +73,6 @@
 
         async function reloadMetaDataOnSongs(){
             const data:any = get(playlistMetaData)
-            //const data = await readSongsMetaDataFile()
-            console.log('------------------------');
-            console.log(songFile);
-            console.log(data);
-            //@ts-ignore
-            console.log(data[songFile]);
-            console.log('------------------------');
 
             //songFile && data[songFile]
             if(songFile != null)
@@ -110,7 +104,10 @@
                 //loading = false
                 
             } else {
-                
+
+                window.location.reload();
+
+                /*
                 console.log('NIE!!!!!!!!!!!!!! NIEMAMY!!!!!!!!!!!');
                 console.log(data[songFile])
                 
@@ -124,12 +121,15 @@
                             setTimeout(async () => {
                                 SongCover = await readTheImgFile(mateData?.picture);
                             }, 1);
+
+                            const metaData = await readSongsMetaDataFile()
+                            playlistMetaData.set(metaData)
                             loading = false
                         }
                     })()
                     console.log('Błąd w metadanych!');
-                }, index * 500);
-                
+                }, index * 1000);
+                */
             }
 
         }

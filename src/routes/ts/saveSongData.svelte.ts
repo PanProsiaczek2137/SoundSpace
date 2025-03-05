@@ -3,6 +3,7 @@ import { currentPlatform } from './store.svelte'
 import { get } from 'svelte/store';
 import * as mm from 'music-metadata';
 import { audioDir, join, appLocalDataDir } from '@tauri-apps/api/path';
+import { progres } from '../ts/loadingMetaData.svelte'
 //import { showLoadingFiles } from './+layout.svelte';
 //import { metaDataFolderContent } from './ts/store.svelte';
 export let songsProgress = $state({value: 0});
@@ -337,6 +338,8 @@ async function mainLogic() {
     }
     console.log('Zaktualizowano plik!!!');
     await writeTheFile(JSON.stringify(mainFile, null, 2));
+
+    progres.set(-2)
 
 }
 

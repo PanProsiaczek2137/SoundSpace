@@ -1,4 +1,3 @@
-//import { songChanged } from './+layout.svelte';
 import { BaseDirectory, readFile } from '@tauri-apps/plugin-fs';
 import { writable, get } from "svelte/store";
 import { currentPlatform } from "./store.svelte"
@@ -6,28 +5,12 @@ import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
 import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
-import { onMount } from 'svelte';
 export let playList = writable([
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
     {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
-    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
-    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
-    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
-    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
-    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
-    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
-    {type: 'musicFolder', src: 'I Want It All.mp3'},
-    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
-    {type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'},
-    {type: 'musicFolder', src: "Don't Talk To Strangers.mp3"},
-    
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
+export let visible = writable(false);
 let song = new Audio();
 let songMetaData = {};
 let platfrom = get(currentPlatform)
@@ -37,7 +20,6 @@ playList.subscribe(()=>{
     (async ()=>{
         const metaData = await readSongsMetaDataFile()
         playlistMetaData.set(metaData)
-        console.log("playlistMetaData się zmieniło!")
         setTimeout(() => {
             readyToLoadMetaData.set(true);
         }, 100);
@@ -87,11 +69,17 @@ playedSong.subscribe(async (value) => {
                 song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
                 song = new Audio(filePath); // Załaduj nową piosenkę
                 const albumPuctureOnBar = document.getElementById('album-pucture-on-bar') as HTMLImageElement;
+                const pictureAndInfoSongName = document.getElementById('picture-and-info-song-name') as HTMLElement;
+                const pictureAndInfoArtistAlbum = document.getElementById('picture-and-info-artist-album') as HTMLElement;
+
                 const allSongsMetaData = await readSongsMetaDataFile()
                 
+                pictureAndInfoSongName.innerText = allSongsMetaData[get(playList)[value].src].title
+                pictureAndInfoArtistAlbum.innerText = `${allSongsMetaData[get(playList)[value].src].artist} • ${allSongsMetaData[get(playList)[value].src].album}`
                 const img = await readTheImgFile(allSongsMetaData[get(playList)[value].src].picture)
                 //@ts-ignore
                 albumPuctureOnBar.src = img;
+                updateFullImgs()
 
                 if(!(platfrom() === "android" || platfrom() === "ios")){
                     //@ts-ignore
@@ -106,21 +94,27 @@ playedSong.subscribe(async (value) => {
     }, 0);
 });
 
-    export async function updateFullImg() {
+visible.subscribe(()=>{
+    setTimeout(() => {
+        updateFullImgs();
+    }, 0);
+})
 
-        const fullPicture = document.getElementById('full-picture') as HTMLImageElement;
-        const fullPictureBlure = document.getElementById('full-picture-blure') as HTMLImageElement;
-        const allSongsMetaData = await readSongsMetaDataFile()
-        const img = await readTheImgFile(allSongsMetaData[get(playList)[get(playedSong)].src].picture)
+async function updateFullImgs(){
+    const albumPuctureOnBar = document.getElementById('album-pucture-on-bar') as HTMLImageElement;
+    const fullPicture = document.getElementById('full-picture') as HTMLImageElement;
+    const fullPictureBlure = document.getElementById('full-picture-blure') as HTMLImageElement;
 
-        if(!(platfrom() === "android" || platfrom() === "ios")){
-            //@ts-ignore
-            //fullPictureBlure.src = img;
-            //@ts-ignore
-            //fullPicture.src = img;
-        }
-        
+    if(!(platfrom() === "android" || platfrom() === "ios")){
+        //@ts-ignore
+        fullPictureBlure.src = albumPuctureOnBar.src;
+        //@ts-ignore
+        fullPicture.src = albumPuctureOnBar.src;
     }
+}
+
+        
+    
 
 
 async function readTheFile(named: string) {

@@ -5,6 +5,7 @@
 
     //import { invoke } from '@tauri-apps/api/core';
 
+    import Page from './+page.svelte';
     import HomePage from './home/+page.svelte'
     import LibraryPage from './library/+page.svelte'
     import SettingsPage from './settings/+page.svelte';
@@ -19,10 +20,18 @@
     import {} from './style/leftBar.css'
     import {} from './style/changePageBar.css'
     import {} from './style/contextmenu.css'
+    import {} from './style/loadingData.css'
 
-    import { playList, playedSong, isPlaying, updateFullImg } from './ts/audioSys.svelte.ts'
+    import { playList, playedSong, isPlaying, visible } from './ts/audioSys.svelte.ts'
     import { currentPlatform, selectedPanel } from './ts/store.svelte.ts'
     import { main } from './ts/contextMenu.svelte.ts';
+    import { loadAllMetaData, toLoad, progres } from './ts/loadingMetaData.svelte.ts'
+    progres.subscribe(value=>{
+        if(value == -2){
+            loadAllMetaData()
+        }
+    })
+  
     main()
     //import {} from './ts/timeline.ts'
 
@@ -33,21 +42,17 @@
 	import { fly } from 'svelte/transition';
     //import Page from './+page.svelte';
 
-
-    
     onMount(()=>{
         document.querySelectorAll("button, input, a, textarea, select").forEach(el => {
             el.setAttribute("tabindex", "-1");
         });
     })
 
-    
-
 
     selectedPanel.subscribe(value => {
         console.log(value);
         setTimeout(() => {
-            visible = false
+            visible.set(false);
         }, 10);
         //visible = false;
     });
@@ -79,8 +84,7 @@
         const target = event.target as HTMLElement; // Rzutowanie na HTML element
 
         if (target.id === "audio-play") {
-            visible = !visible;
-            updateFullImg()
+            visible.set(!get(visible));
         }
     });
 
@@ -95,22 +99,21 @@
 
     let d1List;
     let d2List:any;
-
-    let visible = $state(false);
-    $effect(() => {
-        if (visible) {
-            updateFullImg()
-            console.log('new')
+    
+    visible.subscribe(()=>{
+        console.log('new')
             
-            // Opóźnienie, aby dać Svelte czas na wyrenderowanie elementów
-            setTimeout(() => {
-                d1List = document.querySelectorAll('.album-picture');
-                d2List = document.querySelectorAll('.tests');
-                renewAlbumCover();
-                //console.log(d1List, d2List);
-            }, 0);
-        }
+        // Opóźnienie, aby dać Svelte czas na wyrenderowanie elementów
+        setTimeout(() => {
+            d1List = document.querySelectorAll('.album-picture');
+            d2List = document.querySelectorAll('.tests');
+            renewAlbumCover();
+            //console.log(d1List, d2List);
+        }, 0);
     })
+
+
+
 
     const platform = get(currentPlatform);
 
@@ -151,12 +154,6 @@
 
 
 
-
-    let songName = $state('Song');
-    let imageUrl = $state('default.svg');
-    let artistAndAlbum = $state('Artist • Album');
-    let songDuration = $state('0:00');
-
     //let songCurrentTime = $state(song.currentTime);
 
     let playPasueButtonCircleSrc = $state('play_circle.svg');
@@ -189,6 +186,27 @@
     });
 
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+{#if $progres != -1}
+    <div id="loading-data">
+        <progress value={$progres} max={$toLoad}></progress>
+    </div>
+{/if}
+
+
+
+
 
 <div id="contextmenu">
     <button id="contextmenu-add-as-next" class="button">
@@ -307,12 +325,12 @@
 
                 <div id="picture-and-info">
                     <div id="album-picture">
-                        <img id="album-pucture-on-bar" src={imageUrl} alt="" draggable="false">
+                        <img id="album-pucture-on-bar" src={"default.png"} alt="" draggable="false">
                     </div>
         
                     <div id="info">
-                        <h1>{songName}</h1>
-                        <h2>{artistAndAlbum}</h2>
+                        <h1 id="picture-and-info-song-name">{"songName"}</h1><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                        <h2 id="picture-and-info-artist-album">{"artistAndAlbum"}</h2><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                     </div>
                 </div>
             
@@ -322,28 +340,28 @@
                                 let local = get(playedSong);
                                 local--;
                                 playedSong.set(local);
-                            }}><img src="skip_previous.svg" alt="">
+                            }}><img src="skip_previous.svg" alt="" draggable="false">
                         </button>
 
                         <button class="button" id="play-pause" onclick={()=>{get(isPlaying) ? isPlaying.set(false) : isPlaying.set(true)}}>
-                            <img src={playPasueButtonCircleSrc} alt="" style="transform:scale(1.8)">
+                            <img src={$isPlaying ? "pause_circle.svg" : "play_circle.svg"} alt="" style="transform:scale(1.8)" draggable="false">
                         </button>
                         
                         <button class="button" id="play-next" onclick={()=>{
                                 let local = get(playedSong);
                                 local++;
                                 playedSong.set(local);
-                        }}><img src="skip_next.svg" alt="">
+                        }}><img src="skip_next.svg" alt="" draggable="false">
                         </button>
 
                 </div>
 
                 <div id="others-settings">
                     <input type="range">
-                    <button class="button"><img src="volume/volume2.svg" alt=""></button>
-                    <button class="button"><img src="add_playlist.svg" alt=""></button>
-                    <button class="button"><img src="more_options.svg" alt=""></button>
-                    <button class="button" onclick={() => {visible = !visible; updateFullImg()}}><img src="full_screen.svg" alt=""></button>
+                    <button class="button"><img src="volume/volume2.svg" alt="" draggable="false"></button>
+                    <button class="button"><img src="add_playlist.svg" alt="" draggable="false"></button>
+                    <button class="button"><img src="more_options.svg" alt="" draggable="false"></button>
+                    <button class="button" onclick={() => {visible.set(!get(visible))}}><img src="full_screen.svg" alt="" draggable="false"></button>
 
                 </div>
 
@@ -362,19 +380,19 @@
             </div>
 
         {:else}
-            {#if visible}
+            {#if $visible}
                 <div id="full" transition:fly={{ y: window.innerHeight, duration: 500 }}>
 
 
                     <div id="picture-full">
                         <div class="album-picture" style="width: 80%; height: 80%; z-index: 5;">
                             <div class="tests">
-                                <img id="full-picture" src={imageUrl} alt="" draggable="false">
+                                <img id="full-picture" src={"default.png"} alt="" draggable="false"><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                             </div>
                         </div>
                         <div class="album-picture" id="blure-picture">
                             <div class="tests">
-                                <img id="full-picture-blure" src={imageUrl} alt="" draggable="false">
+                                <img id="full-picture-blure" src={"default.png"} alt="" draggable="false"><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                             </div>
                         </div>
                     </div>
