@@ -1,13 +1,34 @@
 <script lang="ts">
+    import { get } from 'svelte/store';
     import { playList } from '../ts/audioSys.svelte.ts'
     export let image = "default.png";
     export let name = "Unknown Song"; // Domyślny tytuł utworu
     export let album = "Album"
     export let artist = "Unknown Artist"
     import { getContentOfMusicFolder } from '../ts/saveSongData.svelte'
+    import { canShowContextMenu } from '../ts/store.svelte.ts'
+    import { onMount } from 'svelte';
+    
+    onMount(()=>{
+        const containers = Array.from(document.getElementsByClassName("container-song")) as HTMLElement[];
+
+        containers.forEach( element =>{
+            element.addEventListener("pointerenter", ()=>{
+                canShowContextMenu.set(true)
+                console.log("enter")
+            })
+            element.addEventListener("pointerleave", ()=>{
+                canShowContextMenu.set(false)
+                console.log("leave")
+            })
+        })
+
+    })
+
+
 </script>
 
-<div id="container">
+<div class="container-song">
     <div id="img-container" onclick={(()=>{
         //console.log('aiopsdfujioasdju')
         // playList.set([])
@@ -40,7 +61,7 @@
         overflow: hidden;
         display: flex;
     }
-    #container{
+    .container-song{
         margin: 5px;
         margin-left: 7px;
         margin-right: 7px;

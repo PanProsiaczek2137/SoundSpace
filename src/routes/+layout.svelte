@@ -22,9 +22,9 @@
     import {} from './style/contextmenu.css'
     import {} from './style/loadingData.css'
 
-    import { playList, playedSong, isPlaying, visible } from './ts/audioSys.svelte.ts'
-    import { currentPlatform, selectedPanel } from './ts/store.svelte.ts'
-    import { main } from './ts/contextMenu.svelte.ts';
+    import { playList, playedSong, isPlaying, visible, duration, currentTime, formatDuration, song, loadVolumeRange } from './ts/audioSys.svelte.ts'
+    import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter } from './ts/store.svelte.ts'
+    import { contextMenu } from './ts/contextMenu.svelte.ts';
     import { loadAllMetaData, toLoad, progres } from './ts/loadingMetaData.svelte.ts'
     progres.subscribe(value=>{
         if(value == -2){
@@ -32,17 +32,17 @@
         }
     })
   
-    main()
+    contextMenu()
     //import {} from './ts/timeline.ts'
 
     import OblongSong, {} from './components/oblongSong.svelte'
-    
     import { onMount, onDestroy } from "svelte";
     import { writable, get } from 'svelte/store';
 	import { fly } from 'svelte/transition';
     //import Page from './+page.svelte';
 
     onMount(()=>{
+        loadVolumeRange()
         document.querySelectorAll("button, input, a, textarea, select").forEach(el => {
             el.setAttribute("tabindex", "-1");
         });
@@ -60,22 +60,64 @@
 
     onMount(() => {
 
-    const rangeInput = document.querySelector('.timeline') as HTMLInputElement;
+        const rangeInput = document.querySelector('.timeline') as HTMLInputElement;
+        rangeInput.style.setProperty('--progress-width', 0 + '%');
 
-    rangeInput.addEventListener('input', (event) => {
-        const target = event.target as HTMLInputElement;
-        
-        // Pobieramy wartości min, max, value i zamieniamy na liczby
-        const min = Number(target.min) || 0;
-        const max = Number(target.max) || 100; // Jeśli max nie jest ustawione, domyślnie 100
-        const value = Number(target.value) || 0;
+        const updateRange = () => {
+            const min = Number(rangeInput.min) || 0;
+            const max = Number(rangeInput.max) || 100;
+            const value = Number(rangeInput.value) || 0;
+            const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
 
-        // Sprawdzamy, czy max > min, aby uniknąć dzielenia przez 0
-        const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
-        
-        console.log(percent);
-        target.style.setProperty('--progress-width', percent + '%');
-    });
+            console.log(percent);
+            rangeInput.style.setProperty('--progress-width', percent + '%');
+
+            if(percent == 100){
+                console.log("next Song!")
+                const nextSongButton = document.getElementById("play-next") as HTMLButtonElement;
+                nextSongButton.click();
+                
+            }
+        };
+
+        // Nadpisujemy setter `value`, aby wykrywać zmiany ustawiane przez kod
+        const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+
+        Object.defineProperty(rangeInput, 'value', {
+            get() {
+                return descriptor?.get?.call(rangeInput);
+            },
+            set(newValue) {
+                descriptor?.set?.call(rangeInput, newValue);
+                updateRange(); // Aktualizujemy stan suwaka
+            }
+        });
+
+        // Obsługa zdarzenia `input` (zmiany przez użytkownika)
+        rangeInput.addEventListener('input', updateRange);
+
+
+        let timeValue = 0;
+
+        rangeInput.addEventListener('input', (event) => {
+            if (get(isPlaying)) {
+                song.pause();
+            }
+            //@ts-ignore
+            timeValue = event.target.value;
+        });
+
+        // Obsługa podniesienia palca/myszy
+        const resumePlayback = () => {
+            song.currentTime = timeValue;
+            if (get(isPlaying)) {
+                song.play();
+            }
+        };
+
+        rangeInput.addEventListener('pointerup', resumePlayback);
+        rangeInput.addEventListener('touchend', resumePlayback); // Dodaj obsługę dotyku
+
 
 
 
@@ -156,9 +198,6 @@
 
     //let songCurrentTime = $state(song.currentTime);
 
-    let playPasueButtonCircleSrc = $state('play_circle.svg');
-
-
     onMount(() => {
             const containerElement = document.getElementById('container') as HTMLElement;
             if (platform() === "android" || platform() === "ios") {
@@ -209,19 +248,51 @@
 
 
 <div id="contextmenu">
-    <button id="contextmenu-add-as-next" class="button">
-        add-as-next
-    </button>
-    <button id="contextmenu-add-to-playlist" class="button">
+    <button id="contextmenu-add-as-next" class="button" onclick={() => {
+            // Stwórz nową playlistę, zaczynając od aktualnego stanu
+            let newPlaylist = [...get(playList)]; // Skopiuj oryginalną playlistę
+        
+            // Dodaj element do nowej playlisty, zaraz po utworze "playedSong"
+
+            if(get(selectedFilter) == "all"){
+                //@ts-ignore
+                newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
+            }else{
+                //@ts-ignore
+                newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).fileName });
+            }
+
+            console.log(newPlaylist);
+            playList.set(newPlaylist); // Zaktualizuj playList
+
+
+            const playPrevius = document.getElementById("play-previus") as HTMLButtonElement;
+            if(get(playedSong) == 0){
+                playPrevius.disabled = true;
+            }else{
+                playPrevius.disabled = false;
+            }
+
+                const playNext = document.getElementById("play-next") as HTMLButtonElement;
+            if(get(playedSong) == get(playList).length-1){
+                playNext.disabled = true;
+            }else{
+                playNext.disabled = false;
+            }
+
+        }}>
+        dodaj jako następne
+    </button>    
+    <button id="contextmenu-add-to-playlist" class="button" disabled>
         add-to-playlist
     </button>
-    <button id="contextmenu-show-author" class="button">
+    <button id="contextmenu-show-author" class="button" disabled>
         show-author
     </button>
-    <button id="contextmenu-show-album" class="button">
+    <button id="contextmenu-show-album" class="button" disabled>
         show-album
     </button>
-    <button id="contextmenu-share" class="button" onclick={ ()=>{
+    <button id="contextmenu-share" class="button" disabled onclick={ ()=>{
         if(navigator.share){
             navigator.share({
                 text: "test",
@@ -321,7 +392,8 @@
 
             <div id="audio-control-bar">
 
-                <input type="range" class="timeline" id="time" min="0" maxlength={100} value={50}>
+                <!--console.log(formatDuration(get(currentTime)), formatDuration(get(duration)));!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                <input type="range" class="timeline" id="time" min="0" max={Math.floor($duration)} value={Math.floor($currentTime)}>
 
                 <div id="picture-and-info">
                     <div id="album-picture">
@@ -329,8 +401,8 @@
                     </div>
         
                     <div id="info">
-                        <h1 id="picture-and-info-song-name">{"songName"}</h1><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
-                        <h2 id="picture-and-info-artist-album">{"artistAndAlbum"}</h2><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                        <h1 id="picture-and-info-song-name">{"songName"}</h1>
+                        <h2 id="picture-and-info-artist-album">{"artistAndAlbum"}</h2>
                     </div>
                 </div>
             
@@ -340,6 +412,9 @@
                                 let local = get(playedSong);
                                 local--;
                                 playedSong.set(local);
+                                setTimeout(() => {
+                                    isPlaying.set(true);
+                                }, 150);
                             }}><img src="skip_previous.svg" alt="" draggable="false">
                         </button>
 
@@ -351,18 +426,20 @@
                                 let local = get(playedSong);
                                 local++;
                                 playedSong.set(local);
+                                setTimeout(() => {
+                                    isPlaying.set(true);
+                                }, 150);
                         }}><img src="skip_next.svg" alt="" draggable="false">
                         </button>
 
                 </div>
 
                 <div id="others-settings">
-                    <input type="range">
-                    <button class="button"><img src="volume/volume2.svg" alt="" draggable="false"></button>
-                    <button class="button"><img src="add_playlist.svg" alt="" draggable="false"></button>
-                    <button class="button"><img src="more_options.svg" alt="" draggable="false"></button>
                     <button class="button" onclick={() => {visible.set(!get(visible))}}><img src="full_screen.svg" alt="" draggable="false"></button>
-
+                    <button class="button"><img src="more_options.svg" alt="" draggable="false"></button>
+                    <button class="button"><img src="add_playlist.svg" alt="" draggable="false"></button>
+                    <button class="button" id="volume-button"><img src="volume/volume2.svg" id="volume-button-img" alt="" draggable="false"></button>
+                    <input type="range" id="volume-range">
                 </div>
 
             </div>
@@ -387,12 +464,12 @@
                     <div id="picture-full">
                         <div class="album-picture" style="width: 80%; height: 80%; z-index: 5;">
                             <div class="tests">
-                                <img id="full-picture" src={"default.png"} alt="" draggable="false"><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                                <img id="full-picture" src={"default.png"} alt="" draggable="false">
                             </div>
                         </div>
                         <div class="album-picture" id="blure-picture">
                             <div class="tests">
-                                <img id="full-picture-blure" src={"default.png"} alt="" draggable="false"><!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                                <img id="full-picture-blure" src={"default.png"} alt="" draggable="false">
                             </div>
                         </div>
                     </div>

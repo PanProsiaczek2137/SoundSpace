@@ -4,7 +4,7 @@
     import LibrarySong from '../components/librarySong.svelte';
     import {} from '../style/library.css';
     import { getContentOfMusicFolder, readSongsMetaDataFile } from '../ts/saveSongData.svelte'
-    import { selectedFilter, selectedValue } from '../ts/store.svelte';
+    import { selectedFilter, selectedValue, currentPlatform } from '../ts/store.svelte';
     import { printSelectedData } from '../ts/audioSys.svelte'
     import { onMount } from 'svelte';
 
@@ -13,6 +13,7 @@
     let ready = false;
 
     onMount(()=>{
+        addDesktopStyles()
         document.querySelectorAll("button, input, a, textarea, select").forEach(el => {
             el.setAttribute("tabindex", "-1");
         });
@@ -69,6 +70,54 @@
 
     })
 
+    const platform = get(currentPlatform);
+    function addDesktopStyles() {
+        if (platform() === "android" || platform() === "ios") { // Sprawdza, czy użytkownik jest na desktopie
+            const style = document.createElement("style");
+            style.innerHTML = `
+                #playlist-button-container { min-width: 33%; }
+                #artist-button-container { min-width: 33%; }
+                #genre-button-container { min-width: 33%; }
+                #year-button-container { min-width: 33%; }
+                #album-button-container { min-width: 33%; }
+                #duration-button-container { min-width: 33%; }
+                #top-library{ width: 100%; overflow-x: scroll; }
+            `;
+            document.head.appendChild(style);
+        }else{
+            const style = document.createElement("style");
+            style.innerHTML = `
+
+                #top-library{
+                    width: calc(100% - 10px);
+                    justify-content: space-between;
+                    align-items: center;
+                }
+
+                @media (width <= 1120px) {
+                    #genre-button-container { display: none; }
+                    #year-button-container { display: none; }
+                    #artist-button-container { width: 25%; }
+                    #album-button-container { width: 20%; }
+                    #playlist-button-container { width: 50%; }
+                }
+
+                @media (width <= 650px) {
+                    #album-button-container { display: none; }
+                    #duration-button-container { display: none; }
+                    #artist-button-container { width: 35%; }
+                    #playlist-button-container { width: 65%; }
+                }
+
+                @media (width <= 500px) {
+                    #artist-button-container { display: none; }
+                    #playlist-button-container { width: 100%; }
+                    #add-playlist-button-library { display: none; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+}
 
 
 </script>
@@ -76,6 +125,7 @@
 <div id="container-library">
     <div id="top-library">
         {#if ready}
+            
             <div id="playlist-button-container">
                 <DropDownButton type="playlist"></DropDownButton>
                 <button class="button" id="add-playlist-button-library">+</button>
@@ -95,7 +145,9 @@
             <div id="duration-button-container">
                 <DropDownButton type="duration" data={metadate}></DropDownButton>
             </div>
+        
         {/if}
+        
         <!--
         <DropDownButton type="playlist"></DropDownButton>
         <DropDownButton type="artist"></DropDownButton>

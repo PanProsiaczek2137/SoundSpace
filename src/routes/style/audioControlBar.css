@@ -30,8 +30,10 @@
 }
 
 #album-picture{
-    width: 65px;
-    height: 65px;
+    min-width: 65px;
+    min-height: 65px;
+    max-width: 65px;
+    max-height: 65px;
 }
 
 #album-picture img{
@@ -43,6 +45,9 @@
 #picture-and-info{
     display: flex;
     z-index: 500;
+    width: 40%;
+    height: 65px;
+    overflow: hidden;
 }
 
 #time{
@@ -79,17 +84,25 @@
 
 #controls{
     z-index: 500;
+    width: 20%;
+    height: 65px;
+    min-width: 250px;
+    display: flex;
+    justify-content: space-evenly
 }
 
 #others-settings{
     z-index: 500;
     display: flex;
     align-items: center;
+    flex-direction: row-reverse;
+    width: 40%;
+
 }
 
 #play-pause{
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
 }
 #play-pause img{
     width: 30px;
@@ -98,8 +111,8 @@
 
 
 #play-previus{
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
 }
 #play-previus img{
     width: 35px;
@@ -108,8 +121,8 @@
 
 
 #play-next{
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
 }
 #play-next img{
     width: 35px;
@@ -119,8 +132,8 @@
 
 
 #others-settings button{
-    width: 75px;
-    height: 75px;
+    width: 65px;
+    height: 65px;
 }
 
 #others-settings button img{
@@ -133,6 +146,9 @@
     #others-settings{
         display: none;
     }
+    #picture-and-info{
+        width: calc(100% - 250px);
+    }
 }
 
 @media (width <= 480px) {
@@ -142,4 +158,31 @@
     #play-next{
         display: none;
     }
+    #controls{
+        min-width: 75px;
+        width: 75px;
+    }
+    #picture-and-info{
+        width: calc(100% - 75px);
+    }
+}
+
+@keyframes show {
+    from { opacity: 0; transform: translateX(65px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hide {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(65px); }
+}
+
+#volume-range {
+    opacity: 0; 
+    visibility: hidden; /* Ukrywamy element, ale nie blokujemy animacji */
+}
+
+#volume-button{
+    background-color: var(--black);
+    z-index: 999999999999999999999;
 }

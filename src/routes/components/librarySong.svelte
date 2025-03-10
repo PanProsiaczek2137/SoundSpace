@@ -1,9 +1,11 @@
 <script lang="ts">
     import { currentPlatform, selectedFilter, selectedValue } from '../ts/store.svelte'
     import { get } from 'svelte/store';
-    import { formatDuration, printSelectedData, playList } from '../ts/audioSys.svelte'
+    import { formatDuration, printSelectedData, playList, playedSong } from '../ts/audioSys.svelte'
     import { readTheImgFile } from '../ts/saveSongData.svelte'
     import { readSongsMetaDataFile } from '../ts/saveSongData.svelte'
+    import { onMount } from 'svelte';
+    import { canShowContextMenu, ContextMenuOn, visibleContextMenu } from '../ts/store.svelte'
 
 
     export let songFile:string | null = null;
@@ -39,11 +41,43 @@
 
     const platform = get(currentPlatform)
 
+    /*
+    onMount(()=>{
+        const containers = Array.from(document.getElementsByClassName("librarySong")) as HTMLElement[];
+
+        containers.forEach( element =>{
+
+        })
+
+    })
+    */
+
 </script>
 
 
-<button bind:this={thisElement} data-index={index} class="button" id="librarySong" tabindex="-1" onclick={async ()=>
+<button bind:this={thisElement} data-index={index} class="button librarySong" id="librarySong" tabindex="-1" onpointerenter={()=>{
+        canShowContextMenu.set(true)
+        if(get(visibleContextMenu) == false){
+            ContextMenuOn.set(songFile)
+        }
+        console.log("--------------")
+
+        console.log(songFile)
+        console.log("--------------")
+        console.log("enter")
+
+    }}
+
+    onpointerleave={()=>{
+        canShowContextMenu.set(false)
+        //ContextMenuOn.set(null)
+        console.log("leave")
+        
+    }}
+    
+    onclick={async ()=>
     {
+        playedSong.set(-1)
         playList.set([]);
         const matadata = await readSongsMetaDataFile(); 
         const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
@@ -52,6 +86,7 @@
         for(let song of songs){
             list.push({type: 'musicFolder', src: song.fileName})
         }
+        playedSong.set(index)
         console.log('--- ustawiamy na ----');
         console.log(list);
         console.log('--------')

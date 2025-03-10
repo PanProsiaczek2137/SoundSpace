@@ -5,13 +5,16 @@ import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
 import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
+import type { event } from '@tauri-apps/api';
 export let playList = writable([
     {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
 export let visible = writable(false);
-let song = new Audio();
+export let duration = writable(0);
+export let currentTime = writable(0);
+export let song = new Audio();
 let songMetaData = {};
 let platfrom = get(currentPlatform)
 
@@ -34,12 +37,19 @@ onMount( ()=>{
 isPlaying.subscribe( value =>{
     if (value) {
         song.play();
-        isPlaying.set(true);
+        //isPlaying.set(true);
+        console.log('TRUE!!!!!!!!!!!!!!')
     } else {
         song.pause();
-        isPlaying.set(false);
+        //isPlaying.set(false);
+        console.log('FALSE!!!!!!!!!!!!!!!!!!!!!!!!')
     }
 })
+
+setInterval(() => {
+    duration.set(song.duration);
+    currentTime.set(song.currentTime);
+}, 100);
 
 
 export function formatDuration(seconds: number): string {
@@ -65,6 +75,7 @@ playedSong.subscribe(async (value) => {
         if (get(playList)[value].type === 'musicFolder') {
             const filePath = await readTheFile(get(playList)[value].src);
             if (filePath) {
+
                 song.pause();      // Zatrzymaj obecną piosenkę
                 song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
                 song = new Audio(filePath); // Załaduj nową piosenkę
@@ -78,23 +89,39 @@ playedSong.subscribe(async (value) => {
                 pictureAndInfoArtistAlbum.innerText = `${allSongsMetaData[get(playList)[value].src].artist} • ${allSongsMetaData[get(playList)[value].src].album}`
                 const img = await readTheImgFile(allSongsMetaData[get(playList)[value].src].picture)
                 //@ts-ignore
-                albumPuctureOnBar.src = img;
+                if(img){
+                    albumPuctureOnBar.src = img;
+                }else{
+                    albumPuctureOnBar.src = "default.svg";
+                }
+                if(get(visible))
                 updateFullImgs()
 
-                if(!(platfrom() === "android" || platfrom() === "ios")){
-                    //@ts-ignore
-                    fullPictureBlure.src = img;
-                    //@ts-ignore
-                    fullPicture.src = img;
+                const playPrevius = document.getElementById("play-previus") as HTMLButtonElement;
+                if(value == 0){
+                    playPrevius.disabled = true;
+                }else{
+                    playPrevius.disabled = false;
                 }
-                //song.play();       // Automatycznie odtwórz nowy utwór
-                //isPlaying.set(true);
+
+                const playNext = document.getElementById("play-next") as HTMLButtonElement;
+                if(value == get(playList).length-1){
+                    playNext.disabled = true;
+                }else{
+                    playNext.disabled = false;
+                }
+
+                console.log(value, get(playList).length-1)
+
+                return 1;
+            
             }
         }
     }, 0);
 });
 
-visible.subscribe(()=>{
+visible.subscribe(value=>{
+    if(value)
     setTimeout(() => {
         updateFullImgs();
     }, 0);
@@ -113,7 +140,83 @@ async function updateFullImgs(){
     }
 }
 
+      
+export function loadVolumeRange(){
+    const volumeRange = document.getElementById("volume-range") as HTMLInputElement;
+    const volumeButton = document.getElementById("volume-button") as HTMLButtonElement;
+    const volumeButtonImg = document.getElementById("volume-button-img") as HTMLImageElement;
+    const audioControlBar = document.getElementById("audio-control-bar") as HTMLElement;
+
+    let mute = false;
+    let volume = 0.5; 
+    volumeButton.addEventListener("click", ()=>{
+        mute = !mute;
+        console.log("mute: "+mute);
+        UpdateImg()
+    })
+
+    volumeRange.addEventListener('input', event=>{
+        //@ts-ignore
+        volume = Number(event.target.value) / 100
+        mute = false;
+        UpdateImg()
+    })
+
+    function UpdateImg(){
+        if(!mute){
+            song.volume = volume;
+        }else{
+            song.volume = 0;
+        }
+
+        if(mute){
+            if(volume === 0){
+                volumeButtonImg.src = "volume/mute0.svg";
+            }else if(volume > 0 && volume < 0.5){
+                volumeButtonImg.src = "volume/mute1.svg";
+            }else{
+                volumeButtonImg.src = "volume/mute2.svg";
+            }
+        }else{
+            if(volume === 0){
+                volumeButtonImg.src = "volume/volume0.svg";
+            }else if(volume > 0 && volume < 0.5){
+                volumeButtonImg.src = "volume/volume1.svg";
+            }else{
+                volumeButtonImg.src = "volume/volume2.svg";
+            }
+        }
+    }
+
+
+    let hideTimeout:any; // Zmienna do anulowania ukrywania
+
+    volumeButton.addEventListener("pointerenter", () => {
+        console.log("okEJ!");
+        clearTimeout(hideTimeout); // Anulujemy poprzednie ukrywanie
+        volumeRange.style.visibility = "visible"; // Element widoczny od razu
+        volumeRange.style.animation = "show 0.2s forwards"; // Uruchamiamy animację pokazania
+    });
+    
+    audioControlBar.addEventListener("pointerleave", () => {
+        console.log("NOOOO!");
         
+        hideTimeout = setTimeout(() => {
+            if (!audioControlBar.matches(":hover")) { // Sprawdzamy, czy kursor jest poza elementem
+                volumeRange.style.animation = "hide 0.2s forwards"; // Uruchamiamy animację ukrycia
+            }
+        }, 50); // Minimalne opóźnienie, żeby uniknąć błędów
+    });
+    
+    // Ukrywamy element dopiero PO animacji
+    volumeRange.addEventListener("animationend", (event) => {
+        if (event.animationName === "hide") {
+            volumeRange.style.visibility = "hidden"; // Ukrywamy element PO animacji
+        }
+    });
+    
+    
+}
     
 
 

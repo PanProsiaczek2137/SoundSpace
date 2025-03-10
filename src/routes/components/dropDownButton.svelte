@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { get } from "svelte/store";
     import { selectedFilter, selectedValue } from "../ts/store.svelte";
     export let data:any = null;
     export let type = "";
@@ -144,13 +145,54 @@
         });
     })
 
+    selectedFilter.subscribe(value=>{
+        setTimeout(() => {
+            const button = document.getElementById("local-"+type) as HTMLButtonElement;
+            if(value == type){
+                if(button)
+                button.style.backgroundColor = "var(--ligth-black)"
+            }else{
+                if(button)
+                button.style.backgroundColor = "var(--black)"
+            }
+        }, 0);
+    })
+
+    selectedValue.subscribe(value=>{
+        setTimeout(() => {
+            const button = document.getElementById("local-"+type) as HTMLButtonElement;
+            const selectButton = document.getElementById(value) as HTMLButtonElement;
+            if(get(selectedFilter) == type){
+                if(button)
+                button.innerText = value;
+            }else{
+                if(button)
+                type
+                if(selectButton)
+                selectButton.style.backgroundColor = "var(--white)";
+                if(selectButton)
+                selectButton.style.color = "var(--black)";
+            }
+        }, 0);
+    })
+
 </script>
 
 <div class="dropdown">
     <button onclick={toggleDropdown} class="dropbtn" id={"local-"+type}>{type}</button>
-    <div class="dropdown-content" class:show={isOpen}>
+    <div class="dropdown-content scrollY" class:show={isOpen}>
         {#each returnAll(type) as item}
-            <button class="button" onclick={()=>{isOpen = false; selectedFilter.set(type); selectedValue.set(item);} }>{item}</button>
+            <button class="button" id={item} onclick={()=>{
+                isOpen = false;
+                if(get(selectedFilter) == type && get(selectedValue) == item){
+                    selectedFilter.set("all");
+                    selectedValue.set("");
+                }else{
+                    selectedFilter.set(type);
+                    selectedValue.set(item);
+                }
+                
+            }}>{item}</button>
         {/each}
     </div>
 </div>
@@ -185,17 +227,21 @@
         position: absolute;
         background-color: #f1f1f1;
         width: 100%; /* Ustawienie szerokości na 100% */
-        overflow: auto;
+        /*overflow: auto;*/
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 5;
+        max-height: 329px;
     }
 
     .dropdown-content button {
-        color: black;
-        padding: 12px 16px;
+        background-color: var(--black);
+        color: var(--white);
+        border: 1px solid var(--ligth-black);
+        padding: 12px 0px;
         text-decoration: none;
         display: block;
         width: 100%;
+        text-align: center;
     }
 
     .dropdown button:hover { background-color: var(--ligth-black); }

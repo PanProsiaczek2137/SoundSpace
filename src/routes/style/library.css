@@ -3,17 +3,16 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #top-library{
-  width: calc(100% - 10px);
-  height: 50px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  height: 50px;
   background-color: var(--black);
   border-bottom: 1px solid var(--ligth-black);
 }
+
 
 #bottom-library{
   overflow-y: scroll;
@@ -68,6 +67,7 @@
   min-width: 60px;
 }
 
+/*
 @media (width <= 1120px) {
   #genre-button-container { display: none; }
   #year-button-container { display: none; }
@@ -89,3 +89,20 @@
   #playlist-button-container{ width: 100%;}
   #add-playlist-button-library{ display: none; }
 }
+*/
+/*
+
+@media (pointer: coarse) {
+  #genre-button-container { width: 40%; }
+  #year-button-container { width: 20%; }
+  #artist-button-container { width: 80%; }
+  #album-button-container { width: 80%; }
+  #playlist-button-container { width: 160%; }
+  #duration-button-container { width: 20%; }
+  #top-library{
+    overflow-x: scroll;
+    overflow-y: hidden;
+  }
+}
+
+*/

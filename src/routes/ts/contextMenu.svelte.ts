@@ -1,7 +1,9 @@
 import { onMount } from "svelte";
+import { canShowContextMenu, visibleContextMenu, selectedPanel } from './store.svelte'
+import { get } from "svelte/store";
 
 
-export function main(){
+export function contextMenu(){
 
 
   /*
@@ -50,20 +52,45 @@ export function main(){
     
 
 
-
+    let contextmenu:HTMLElement;
     onMount(()=>{
-        const contextmenu = document.getElementById('contextmenu') as HTMLElement;
+        contextmenu = document.getElementById('contextmenu') as HTMLElement;
 
         window.addEventListener("contextmenu", event =>{
-            event.preventDefault();
-            contextmenu.style.top = event.clientY+"px";
-            contextmenu.style.left = event.clientX+"px";
-            contextmenu.style.display = 'block';
+            event.preventDefault(); 
+            if(get(canShowContextMenu)){
+              contextmenu.style.top = event.clientY+"px";
+              contextmenu.style.left = event.clientX+"px";
+              contextmenu.style.display = 'block';
+              visibleContextMenu.set(true);
+            }else{
+              contextmenu.style.display = 'none'
+              visibleContextMenu.set(false);
+            }
         })
         window.addEventListener('click', ()=>{
-            contextmenu.style.display = 'none'
+          contextmenu.style.display = 'none'
+          visibleContextMenu.set(false);
         })
     })
 
+    selectedPanel.subscribe(value=>{
+      setTimeout(() => {
+        if(value == "library"){
+        
+
+          const bottomLibrary = document.getElementById("bottom-library");
+          console.log(bottomLibrary)
+          if(bottomLibrary)
+          bottomLibrary.addEventListener("scroll", ()=>{
+            contextmenu.style.display = 'none'
+            visibleContextMenu.set(false);
+          })
+  
+        }
+      }, 250);
+
+
+    })
 
 }

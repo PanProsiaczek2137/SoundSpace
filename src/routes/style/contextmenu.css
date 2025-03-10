@@ -12,7 +12,14 @@
     color: var(--white);
     width: 100%;
     height: 75px;
-    font-size: 1rem;
+    font-size: 1.2rem;
+}
+
+#contextmenu button:disabled{
+    background-color: #111111;
+}
+#contextmenu button:disabled:hover{
+    background-color: #111111;
 }
 
 #contextmenu button:hover{

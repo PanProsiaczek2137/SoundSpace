@@ -6,6 +6,9 @@ export let areWeMoveingTheSong = writable(false)
 export let playlistMetaData:any = writable({})
 export let selectedPanel = writable('home')
 //export let visibleFull = writable(false)
+export let canShowContextMenu = writable(false)
+export let ContextMenuOn:any = writable({})
+export let visibleContextMenu = writable(false);
 
 export let readyToLoadMetaData = writable(false);
 export let selectedFilter = writable("all");

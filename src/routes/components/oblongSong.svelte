@@ -1,10 +1,11 @@
 <script lang="ts">
-    import { playedSong, playList, formatDuration } from '../ts/audioSys.svelte.ts'
+    import { playedSong, playList, formatDuration, isPlaying } from '../ts/audioSys.svelte.ts'
     import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData } from '../ts/store.svelte'
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile, addSongMetadata } from '../ts/saveSongData.svelte.ts'
     import { loadAllMetaData } from '../ts/loadingMetaData.svelte.ts'
+    import { tick } from 'svelte';
 
     const platform = get(currentPlatform)
 
@@ -186,6 +187,9 @@
         thisElement.addEventListener('pointerup', () => {
             if (get(areWeMoveingTheSong) === false) {
                 playedSong.set(index);
+                setTimeout(() => {
+                    isPlaying.set(true);
+                }, 150);
             }
             clearTimeout(holdTime);
             updateBackgroundColor();
