@@ -223,6 +223,8 @@
     }
 
     .dropdown-content {
+        top: 0px;
+        left: 0px;
         display: none;
         position: absolute;
         background-color: #f1f1f1;

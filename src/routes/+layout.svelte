@@ -412,9 +412,9 @@
                                 let local = get(playedSong);
                                 local--;
                                 playedSong.set(local);
-                                setTimeout(() => {
+                                /*setTimeout(() => {
                                     isPlaying.set(true);
-                                }, 150);
+                                }, 150);*/
                             }}><img src="skip_previous.svg" alt="" draggable="false">
                         </button>
 
@@ -426,9 +426,9 @@
                                 let local = get(playedSong);
                                 local++;
                                 playedSong.set(local);
-                                setTimeout(() => {
+                                /*setTimeout(() => {
                                     isPlaying.set(true);
-                                }, 150);
+                                }, 150);*/
                         }}><img src="skip_next.svg" alt="" draggable="false">
                         </button>
 

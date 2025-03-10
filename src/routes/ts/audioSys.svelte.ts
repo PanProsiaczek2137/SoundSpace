@@ -5,6 +5,7 @@ import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
 import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
+import { progres } from './loadingMetaData.svelte'
 import type { event } from '@tauri-apps/api';
 export let playList = writable([
     {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
@@ -33,6 +34,16 @@ onMount( ()=>{
     
 })
 */
+
+let loading = true;
+progres.subscribe( value =>{
+    if(value == -10){
+        setTimeout(() => {
+            loading = false;
+        }, 250);
+    }
+})
+
 
 isPlaying.subscribe( value =>{
     if (value) {
@@ -69,16 +80,30 @@ export function formatDuration(seconds: number): string {
 }
 
 playedSong.subscribe(async (value) => {
-    isPlaying.set(false);
+    //isPlaying.set(false);
 
     setTimeout(async () => {
         if (get(playList)[value].type === 'musicFolder') {
             const filePath = await readTheFile(get(playList)[value].src);
             if (filePath) {
 
-                song.pause();      // Zatrzymaj obecną piosenkę
+                //isPlaying.set(false);      // Zatrzymaj obecną piosenkę
                 song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
                 song = new Audio(filePath); // Załaduj nową piosenkę
+                if(get(isPlaying)){
+                    song.play()
+                }else{
+                    song.pause()
+                }
+
+                /*
+                song.onloadeddata = (()=>{
+                    setTimeout(() => {
+                        console.log("Ustawiamy na: "+ !loading);
+                        isPlaying.set(loading);
+                    }, 1000);
+                })*/
+
                 const albumPuctureOnBar = document.getElementById('album-pucture-on-bar') as HTMLImageElement;
                 const pictureAndInfoSongName = document.getElementById('picture-and-info-song-name') as HTMLElement;
                 const pictureAndInfoArtistAlbum = document.getElementById('picture-and-info-artist-album') as HTMLElement;
@@ -112,9 +137,6 @@ playedSong.subscribe(async (value) => {
                 }
 
                 console.log(value, get(playList).length-1)
-
-                return 1;
-            
             }
         }
     }, 0);

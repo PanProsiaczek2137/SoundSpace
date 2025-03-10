@@ -50,6 +50,6 @@ export async function loadAllMetaData() {
         }
         console.log("Koniec!");
         progres.set(allSongsToLoad.length);  // Ustawiamy pełny pasek po zakończeniu
-        progres.set(-1);
+        progres.set(-10);
     }
 }

@@ -74,15 +74,25 @@
     function addDesktopStyles() {
         if (platform() === "android" || platform() === "ios") { // Sprawdza, czy użytkownik jest na desktopie
             const style = document.createElement("style");
-            style.innerHTML = `
-                #playlist-button-container { min-width: 33%; }
-                #artist-button-container { min-width: 33%; }
-                #genre-button-container { min-width: 33%; }
-                #year-button-container { min-width: 33%; }
-                #album-button-container { min-width: 33%; }
-                #duration-button-container { min-width: 33%; }
+            style.innerHTML = /*`
+                #playlist-button-container { width: 100px; }
+                #artist-button-container { width: 100px; }
+                #genre-button-container { width: 100px; }
+                #year-button-container { width: 100px; }
+                #album-button-container { width: 100px; }
+                #duration-button-container { width: 100px; }
                 #top-library{ width: 100%; overflow-x: scroll; }
-            `;
+            `;*/
+                `
+                #top-library{
+                    width: 100%;
+                }
+
+                #playlist-button-container { width: 100%; }
+                #artist-button-container { width: 100%; }
+                #genre-button-container { width: 100%; }
+                
+                `
             document.head.appendChild(style);
         }else{
             const style = document.createElement("style");
@@ -90,8 +100,6 @@
 
                 #top-library{
                     width: calc(100% - 10px);
-                    justify-content: space-between;
-                    align-items: center;
                 }
 
                 @media (width <= 1120px) {

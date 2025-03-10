@@ -8,6 +8,8 @@
 
 #top-library{
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   height: 50px;
   background-color: var(--black);
   border-bottom: 1px solid var(--ligth-black);
