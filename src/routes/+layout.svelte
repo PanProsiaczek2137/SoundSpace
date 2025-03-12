@@ -48,6 +48,7 @@
         });
     })
 
+    
 
     selectedPanel.subscribe(value => {
         console.log(value);

@@ -89,10 +89,10 @@ export async function addSongMetadata(name: string) {
         let fileName = name.split('\\').pop() || name.split('/').pop(); // Pobieramy nazwę pliku
         if (!fileName) throw new Error("Nie można uzyskać nazwy pliku.");
 
-        let currentPlatform = platform(); // Pobieramy platformę tylko raz
+        //let currentPlatform = platform(); // Pobieramy platformę tylko raz
         let path: string;
 
-        if (currentPlatform === "android" || currentPlatform === "ios") {
+        if (platform() === "android" || platform() === "ios") {
             path = `/storage/emulated/0/Music/${fileName}`;
         } else {
             const audio = await audioDir();

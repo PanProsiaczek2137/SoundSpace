@@ -82,45 +82,134 @@
                 #album-button-container { width: 100px; }
                 #duration-button-container { width: 100px; }
                 #top-library{ width: 100%; overflow-x: scroll; }
-            `;*/
-                `
-                #top-library{
-                    width: 100%;
-                }
+
+
+
+
+
 
                 #playlist-button-container { width: 100%; }
                 #artist-button-container { width: 100%; }
                 #genre-button-container { width: 100%; }
+            `;*/
+                `
+                #top-library{
+                    width: 100%;
+                    overflow-x: scroll;
+                    overflow-y: hidden;
+                }
+
+                #artist-button-container { width: 100px; }
+                #genre-button-container { width: 100px; }
+                #year-button-container { width: 100px; }
+                #album-button-container { width: 100px; }
+                #duration-button-container { width: 100px; }
                 
+
+                    #local-playlist{
+                        width: 100%;
+                        background-color: red;
+                    }
+
+                    #local-artist{
+                        min-width: 50%;
+                        width: 50%;
+                    }
+
+                    #local-album{
+                        min-width: 50%;
+                        width: 50%;
+                    }
+
+                    #local-year{
+                        min-width: 50%;
+                        width: 50%;
+                    }
+
+                    #local-genre{
+                        min-width: 50%;
+                        width: 50%;
+                    }
+
+                    #local-duration{
+                        min-width: 50%;
+                        width: 50%;
+                    }
+
+                    #playlist-button-container{
+                        width: 50%;
+                        min-width: 50%;
+                    }
+
+                    .dropdown-content{
+                        width: 200%;
+                    }
+
                 `
             document.head.appendChild(style);
         }else{
             const style = document.createElement("style");
             style.innerHTML = `
 
+                #local-playlist{
+                    width: calc( 100% - 50px );
+                    background-color: red;
+                }
+
+                #local-artist{
+                    width: 20%;
+                }
+
+                #local-album{
+                    width: 20%;
+                }
+
+                #local-year{
+                    width: 5%;
+                }
+
+                #local-genre{
+                    width: 10%;
+                }
+
+                #local-duration{
+                    width: 5%;
+                }
+
                 #top-library{
                     width: calc(100% - 10px);
+                    justify-content: space-between;
+
+                }
+
+                #playlist-button-container{
+                    width: 40%;
                 }
 
                 @media (width <= 1120px) {
-                    #genre-button-container { display: none; }
-                    #year-button-container { display: none; }
-                    #artist-button-container { width: 25%; }
-                    #album-button-container { width: 20%; }
-                    #playlist-button-container { width: 50%; }
+                    #local-genre { display: none; }
+                    #local-year { display: none; }
+                    #local-artist { width: 25%; }
+                    #local-album { width: 20%; }
+                    #local-playlist { width: calc( 100% - 50px); }
                 }
 
                 @media (width <= 650px) {
-                    #album-button-container { display: none; }
-                    #duration-button-container { display: none; }
-                    #artist-button-container { width: 35%; }
-                    #playlist-button-container { width: 65%; }
+                    #local-album { display: none; }
+                    #local-duration { display: none; }
+                    #local-artist { width: 35%; }
+                    #local-playlist { width: calc( 100% - 50px); }
+                    #playlist-button-container { width: 65% }
                 }
 
                 @media (width <= 500px) {
-                    #artist-button-container { display: none; }
-                    #playlist-button-container { width: 100%; }
-                    #add-playlist-button-library { display: none; }
+                    #local-artist { display: none; }
+                    #local-playlist { width: 100%; }
+                    #local-add-playlist-button-library { display: none; }
+                }
+
+                .dropdown-content{
+                     width: 100%;
                 }
             `;
             document.head.appendChild(style);
@@ -136,9 +225,12 @@
             
             <div id="playlist-button-container">
                 <DropDownButton type="playlist"></DropDownButton>
-                <button class="button" id="add-playlist-button-library">+</button>
+                {#if !(platform() === "android" || platform() === "ios")}
+                    <button class="button" id="add-playlist-button-library">+</button>
+                {/if}
             </div>
-            <div id="artist-button-container">
+
+            <!--<div id="artist-button-container">
                 <DropDownButton type="artist" data={metadate}></DropDownButton>
             </div>
             <div id="album-button-container">
@@ -152,18 +244,17 @@
             </div>
             <div id="duration-button-container">
                 <DropDownButton type="duration" data={metadate}></DropDownButton>
-            </div>
+            </div>-->
+
+            <DropDownButton type="artist" data={metadate}></DropDownButton>
+            <DropDownButton type="album" data={metadate}></DropDownButton>
+            <DropDownButton type="year" data={metadate}></DropDownButton>
+            <DropDownButton type="genre" data={metadate}></DropDownButton>
+            <DropDownButton type="duration" data={metadate}></DropDownButton>
+
         
         {/if}
-        
-        <!--
-        <DropDownButton type="playlist"></DropDownButton>
-        <DropDownButton type="artist"></DropDownButton>
-        <DropDownButton type="album"></DropDownButton>
-        <DropDownButton type="year"></DropDownButton>
-        <DropDownButton type="genre"></DropDownButton>
-        <DropDownButton type="duration"></DropDownButton>
-        -->
+
 
     </div>
     <div id="bottom-library" class="scrollY">

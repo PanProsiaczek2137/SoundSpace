@@ -1,6 +1,6 @@
 <script lang="ts">
     import { get } from "svelte/store";
-    import { selectedFilter, selectedValue } from "../ts/store.svelte";
+    import { selectedFilter, selectedValue, currentPlatform } from "../ts/store.svelte";
     export let data:any = null;
     export let type = "";
 
@@ -13,6 +13,8 @@
     duration
     */
     import { onMount } from "svelte";
+
+    const platform = get(currentPlatform);
 
     let isOpen = false;
 
@@ -147,7 +149,7 @@
 
     selectedFilter.subscribe(value=>{
         setTimeout(() => {
-            const button = document.getElementById("local-"+type) as HTMLButtonElement;
+            const button = document.getElementById("local-btn-"+type) as HTMLButtonElement;
             if(value == type){
                 if(button)
                 button.style.backgroundColor = "var(--ligth-black)"
@@ -160,7 +162,7 @@
 
     selectedValue.subscribe(value=>{
         setTimeout(() => {
-            const button = document.getElementById("local-"+type) as HTMLButtonElement;
+            const button = document.getElementById("local-btn-"+type) as HTMLButtonElement;
             const selectButton = document.getElementById(value) as HTMLButtonElement;
             if(get(selectedFilter) == type){
                 if(button)
@@ -178,12 +180,14 @@
 
 </script>
 
-<div class="dropdown">
-    <button onclick={toggleDropdown} class="dropbtn" id={"local-"+type}>{type}</button>
+<div class="dropdown" id={"local-"+type} class:absolutePosition={isOpen && (platform() === "android" || platform() === "ios")}>
+    <button onclick={toggleDropdown} id={"local-btn-"+type} class="dropbtn" >{type}</button>
     <div class="dropdown-content scrollY" class:show={isOpen}>
         {#each returnAll(type) as item}
+
             <button class="button" id={item} onclick={()=>{
                 isOpen = false;
+                
                 if(get(selectedFilter) == type && get(selectedValue) == item){
                     selectedFilter.set("all");
                     selectedValue.set("");
@@ -193,6 +197,7 @@
                 }
                 
             }}>{item}</button>
+
         {/each}
     </div>
 </div>
@@ -213,12 +218,16 @@
         text-align: center;
     }
 
+    .dropdown.absolutePosition {
+        position: absolute;
+        top: 0;  /* Dopasowanie w razie potrzeby */
+    }
+
     .dropbtn:hover, .dropbtn:focus {
         background-color: var(--ligth-black);
     } 
 
     .dropdown {
-        width: 100%; /* Dropdown zajmuje całą szerokość */
         position: relative; /* Aby .dropdown-content mogło się ustawić absolutnie względem rodzica */
     }
 
@@ -228,7 +237,6 @@
         display: none;
         position: absolute;
         background-color: #f1f1f1;
-        width: 100%; /* Ustawienie szerokości na 100% */
         /*overflow: auto;*/
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 5;
@@ -252,10 +260,9 @@
         display: block;
     }
 
-    #local-playlist {
-        width: 100%;
-    }
+    /*
     @media (width <= 650px) {
         #local-playlist { width: 100%; }
     }
+    */
 </style>

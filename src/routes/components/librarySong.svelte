@@ -77,20 +77,26 @@
     
     onclick={async ()=>
     {
-        playedSong.set(-1)
-        playList.set([]);
-        const matadata = await readSongsMetaDataFile(); 
-        const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
-        let list = [];
-        if(songs)
-        for(let song of songs){
-            list.push({type: 'musicFolder', src: song.fileName})
+        if(get(selectedFilter) == "all"){
+            playedSong.set(-1);
+            playList.set([{type: 'musicFolder', src: data.fileName}]);
+            playedSong.set(0);
+        }else{
+            playedSong.set(-1)
+            playList.set([]);
+            const matadata = await readSongsMetaDataFile(); 
+            const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
+            let list = [];
+            if(songs)
+            for(let song of songs){
+                list.push({type: 'musicFolder', src: song.fileName})
+            }
+            playedSong.set(index)
+            console.log('--- ustawiamy na ----');
+            console.log(list);
+            console.log('--------')
+            playList.set(list)
         }
-        playedSong.set(index)
-        console.log('--- ustawiamy na ----');
-        console.log(list);
-        console.log('--------')
-        playList.set(list)
     }
 }>
     {#if loading}

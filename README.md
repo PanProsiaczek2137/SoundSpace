@@ -10,11 +10,14 @@ SoundSpace to open-source'owy odtwarzacz muzyki na **Androida** i **Desktop**. P
  ✔ odczytywanie i zapizywanie metadanych plików <br>
  ✔ podświetlenie się granego utworu i możliwość scrolowania z trzymaniem utworu
  - sktóry klawiszowe
- - naprawienie że jak klikasz na utwór w bibliotece i niema filtra to ci go weźmie do odtwarzania
+ ✔ naprawienie że jak klikasz na utwór w bibliotece i niema filtra to ci go weźmie do odtwarzania
  - naprawienie przesuwania piosenek na telefonie
- - naprawienie filtrów na telefonie
+ 🛠 naprawienie filtrów na telefonie
  - dodanie wszystkich działającuch opcji co contextMenu
  - stworzenie i działanie zakładki settings
+ - po kliknięciu przesuwa na górę bądź na dół
+ - nie można wybrać nowej piosenki kiedy dropdown bądź context menu jest włączone
+ - przyśpieszyć przesuwanie sticky scroll
 
 ## Do zrobienia kiedyś
  - dodawanie do playlist
