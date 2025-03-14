@@ -90,6 +90,8 @@ playedSong.subscribe(async (value) => {
                 //isPlaying.set(false);      // Zatrzymaj obecną piosenkę
                 song.src = "";     // Wyczyść poprzedni utwór, by uniknąć nakładania się dźwięków
                 song = new Audio(filePath); // Załaduj nową piosenkę
+                const volumeRange = document.getElementById("volume-range") as HTMLInputElement;
+                song.volume = Number(volumeRange.value) / 100;
                 if(get(isPlaying)){
                     song.play()
                 }else{

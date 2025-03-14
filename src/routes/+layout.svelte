@@ -26,6 +26,10 @@
     import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter } from './ts/store.svelte.ts'
     import { contextMenu } from './ts/contextMenu.svelte.ts';
     import { loadAllMetaData, toLoad, progres } from './ts/loadingMetaData.svelte.ts'
+    import { keyboardShortcuts, spectialButtons } from './ts/keyboardShortcuts.svelte.ts'
+    keyboardShortcuts()
+    onMount(()=>{spectialButtons()})
+
     progres.subscribe(value=>{
         if(value == -2){
             loadAllMetaData()
@@ -448,15 +452,16 @@
         </div>
 
         </div>
-    <div id="bottom" class="scroll-snap-section">
         {#if platform() === "android" || platform() === "ios"}
+            <div id="bottom" class="scroll-snap-section">
 
-            <div id="play-list-phone">
-                {#each $playList as songs, myIndex}
-                    <OblongSong songFile={songs.src} index={myIndex}></OblongSong>
-                {/each}
-            </div>
+                <div id="play-list-phone">
+                    {#each $playList as songs, myIndex}
+                        <OblongSong songFile={songs.src} index={myIndex}></OblongSong>
+                    {/each}
+                </div>
 
+            </div>   
         {:else}
             {#if $visible}
                 <div id="full" transition:fly={{ y: window.innerHeight, duration: 500 }}>
@@ -489,5 +494,4 @@
                 </div>
             {/if}
         {/if}
-    </div>    
 </div>

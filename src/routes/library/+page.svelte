@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { get } from 'svelte/store';
+    import { get, writable } from 'svelte/store';
     import DropDownButton from '../components/dropDownButton.svelte';
     import LibrarySong from '../components/librarySong.svelte';
     import {} from '../style/library.css';
@@ -145,6 +145,10 @@
                         width: 200%;
                     }
 
+                    #local-dropDown-playlist{
+                        max-width: 100%
+                    }
+
                 `
             document.head.appendChild(style);
         }else{
@@ -192,6 +196,7 @@
                     #local-artist { width: 25%; }
                     #local-album { width: 20%; }
                     #local-playlist { width: calc( 100% - 50px); }
+                    #playlist-button-container { width: 50%; min-width: 50% }
                 }
 
                 @media (width <= 650px) {
@@ -206,6 +211,7 @@
                     #local-artist { display: none; }
                     #local-playlist { width: 100%; }
                     #local-add-playlist-button-library { display: none; }
+                    #playlist-button-container{ width: 100%;  }
                 }
 
                 .dropdown-content{

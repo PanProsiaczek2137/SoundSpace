@@ -11,8 +11,12 @@ export let ContextMenuOn:any = writable({})
 export let visibleContextMenu = writable(false);
 
 export let readyToLoadMetaData = writable(false);
+
 export let selectedFilter = writable("all");
 export let selectedValue = writable("");
+
+export let isDropDownOpen = writable(false);
+
 
 
 /*

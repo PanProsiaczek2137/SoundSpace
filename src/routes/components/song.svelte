@@ -6,7 +6,7 @@
     export let album = "Album"
     export let artist = "Unknown Artist"
     import { getContentOfMusicFolder } from '../ts/saveSongData.svelte'
-    import { canShowContextMenu } from '../ts/store.svelte.ts'
+    import { canShowContextMenu, visibleContextMenu } from '../ts/store.svelte.ts'
     import { onMount } from 'svelte';
     
     onMount(()=>{
@@ -32,17 +32,18 @@
     <div id="img-container" onclick={(()=>{
         //console.log('aiopsdfujioasdju')
         // playList.set([])
-
-        (async ()=>{
-            playList.set([])
-            const songs = await getContentOfMusicFolder();
-            let setTo = [];
-            if(songs)
-            for(let song of songs){
-                setTo.push({type: 'musicFolder', src: song.name})
-            }
-            playList.set(setTo)
-        })()
+        if(get(visibleContextMenu) == false){
+            (async ()=>{
+                playList.set([])
+                const songs = await getContentOfMusicFolder();
+                let setTo = [];
+                if(songs)
+                for(let song of songs){
+                    setTo.push({type: 'musicFolder', src: song.name})
+                }
+                playList.set(setTo)
+            })()
+        }
 
         //playList.set([
             //{type: 'musicFolder', src: 'Tame Impala - Intro [Lonerism 2015 Tour] (Oddities II) {Demos｜B-Sides｜Remixes}.mp3'}

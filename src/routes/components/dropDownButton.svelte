@@ -1,6 +1,7 @@
 <script lang="ts">
     import { get } from "svelte/store";
     import { selectedFilter, selectedValue, currentPlatform } from "../ts/store.svelte";
+    import { isDropDownOpen } from '../ts/store.svelte';
     export let data:any = null;
     export let type = "";
 
@@ -21,6 +22,9 @@
     function toggleDropdown() {
         setTimeout(() => {
             isOpen = !isOpen;
+            setTimeout(() => {
+                isDropDownOpen.set(isOpen)
+            }, 200);
         }, 1);
     }
 
@@ -29,6 +33,9 @@
         const target = event.target as HTMLElement;
         if(target.closest(".dropdown-content") === null)
         isOpen = false;
+        setTimeout(() => {
+            isDropDownOpen.set(isOpen)
+        }, 200);
     }
 
     onMount(() => {
@@ -182,23 +189,29 @@
 
 <div class="dropdown" id={"local-"+type} class:absolutePosition={isOpen && (platform() === "android" || platform() === "ios")}>
     <button onclick={toggleDropdown} id={"local-btn-"+type} class="dropbtn" >{type}</button>
-    <div class="dropdown-content scrollY" class:show={isOpen}>
-        {#each returnAll(type) as item}
+    <div class="dropdown-content scrollY" class:show={isOpen} id={"local-dropDown-"+type}>
+        {#if returnAll(type).length == 0}
+            <button class="button" style="height: 50px;" disabled>brak</button>
+        {:else}
 
-            <button class="button" id={item} onclick={()=>{
-                isOpen = false;
-                
-                if(get(selectedFilter) == type && get(selectedValue) == item){
-                    selectedFilter.set("all");
-                    selectedValue.set("");
-                }else{
-                    selectedFilter.set(type);
-                    selectedValue.set(item);
-                }
-                
-            }}>{item}</button>
+            {#each returnAll(type) as item}
+                <button class="button" id={item} onclick={()=>{
+                    isOpen = false;
+                    setTimeout(() => {
+                        isDropDownOpen.set(isOpen)
+                    }, 200);
+                    if(get(selectedFilter) == type && get(selectedValue) == item){
+                        selectedFilter.set("all");
+                        selectedValue.set("");
+                    }else{
+                        selectedFilter.set(type);
+                        selectedValue.set(item);
+                    }
+                }}>{item}</button>
+            {/each}
 
-        {/each}
+        {/if}
+    
     </div>
 </div>
 

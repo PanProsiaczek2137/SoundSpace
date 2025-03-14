@@ -6,6 +6,7 @@
     import { readSongsMetaDataFile } from '../ts/saveSongData.svelte'
     import { onMount } from 'svelte';
     import { canShowContextMenu, ContextMenuOn, visibleContextMenu } from '../ts/store.svelte'
+    import { isDropDownOpen } from '../ts/store.svelte'
 
 
     export let songFile:string | null = null;
@@ -77,37 +78,44 @@
     
     onclick={async ()=>
     {
-        if(get(selectedFilter) == "all"){
-            playedSong.set(-1);
-            playList.set([{type: 'musicFolder', src: data.fileName}]);
-            playedSong.set(0);
-        }else{
-            playedSong.set(-1)
-            playList.set([]);
-            const matadata = await readSongsMetaDataFile(); 
-            const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
-            let list = [];
-            if(songs)
-            for(let song of songs){
-                list.push({type: 'musicFolder', src: song.fileName})
+        if(get(isDropDownOpen) == false && get(visibleContextMenu) == false){
+
+            if(get(selectedFilter) == "all"){
+                playedSong.set(-1);
+                playList.set([{type: 'musicFolder', src: data.fileName}]);
+                playedSong.set(0);
+            }else{
+                playedSong.set(-1)
+                playList.set([]);
+                const matadata = await readSongsMetaDataFile(); 
+                const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
+                let list = [];
+                if(songs)
+                for(let song of songs){
+                    list.push({type: 'musicFolder', src: song.fileName})
+                }
+                playedSong.set(index)
+                console.log('--- ustawiamy na ----');
+                console.log(list);
+                console.log('--------')
+                playList.set(list)
             }
-            playedSong.set(index)
-            console.log('--- ustawiamy na ----');
-            console.log(list);
-            console.log('--------')
-            playList.set(list)
+
         }
     }
 }>
     {#if loading}
         <p>loading...</p>
     {:else}
-        <div id="img-container">
-            <img src={SongCover} alt="" draggable="false">
+        <div id="playList-container-library">
+            <div id="img-container">
+                <img src={SongCover} alt="" draggable="false">
+            </div>
+            <div id="song-name-container">
+                <p>{songTitle}</p>
+            </div>
         </div>
-        <div id="song-name-container">
-            <p>{songTitle}</p>
-        </div>
+
         <div id="name-artists-container">
             <p>{songArtist}</p>
         </div>
@@ -128,6 +136,12 @@
 
 <style>
 
+    #playList-container-library{
+        display: flex;
+        width: 40%;
+        min-width: 40%;
+    }
+
     #librarySong {
         min-width: 250px;
         width: 100%;
@@ -141,15 +155,19 @@
     }
 
     #img-container{
-        width: 60px;
-        height: 60px;
+        width: 50px;
+        height: 50px;
         background-color: var(--black);
+        aspect-ratio: 1;
+        overflow: hidden;
+        display: flex;
+        margin: 5px;
     }
 
     #song-name-container {
         display: flex;
         align-items: center;
-        width: calc(40% - 60px);
+        width: calc(100% - 60px);
         background-color: var(--black);
     }
 
@@ -159,6 +177,7 @@
         align-items: center;      
         text-align: center;
         width: 20%;
+        min-width: 20%;
         background-color: var(--black);
     }
 
@@ -168,6 +187,7 @@
         align-items: center;      
         text-align: center;
         width: 20%;
+        min-width: 20%;
         background-color: var(--black);
     }
 
@@ -177,6 +197,7 @@
         align-items: center;      
         text-align: center;
         width: 5%;
+        min-width: 5%;
         background-color: var(--black);
     }
 
@@ -186,6 +207,7 @@
         align-items: center;      
         text-align: center;
         width: 10%;
+        min-width: 10%;
         background-color: var(--black);
     }
 
@@ -195,19 +217,11 @@
         align-items: center;      
         text-align: center;
         width: 5%;
+        min-width: 5%;
         background-color: var(--black);
         min-width: 60px;
     }
 
-
-
-    #img-container {
-        aspect-ratio: 1;
-        overflow: hidden;
-        display: flex;
-        height: 50px;
-        margin: 5px;
-    }
 
     img {
         aspect-ratio: 1;
@@ -247,20 +261,20 @@
     @media (width <= 1120px) {
         #genre-container{ display: none; }
         #year-container{ display: none; }
-        #name-artists-container{ width: 25%; }
-        #song-name-container{ width: calc(50% - 60px);}
+        #name-artists-container{ width: 25%; min-width: 25%; }
+        #playList-container-library{ width: 50%; min-width: 50%;}
     }
 
     @media (width <= 650px) {
         #duration-container{ display: none; }
         #album-container{ display: none; }
-        #song-name-container{ width: calc(65% - 60px);}
+        #playList-container-library{ width: 65%; min-width: 65%;}
         #name-artists-container{ width: 35%; }
     }
 
     @media (width <= 500px) {
         #name-artists-container{ display: none; }
-        #song-name-container{ width: calc(100% - 60px);}
+        #playList-container-library{ width: 100%; min-width: 100%;}
     }
 
     
