@@ -56,23 +56,17 @@
 </script>
 
 
-<button bind:this={thisElement} data-index={index} class="button librarySong" id="librarySong" tabindex="-1" onpointerenter={()=>{
+<button bind:this={thisElement} data-index={index} class="button librarySong" id="librarySong" tabindex="-1" onpointerenter={(e)=>{
         canShowContextMenu.set(true)
         if(get(visibleContextMenu) == false){
             ContextMenuOn.set(songFile)
         }
-        console.log("--------------")
-
-        console.log(songFile)
-        console.log("--------------")
-        console.log("enter")
 
     }}
 
     onpointerleave={()=>{
         canShowContextMenu.set(false)
         //ContextMenuOn.set(null)
-        console.log("leave")
         
     }}
     

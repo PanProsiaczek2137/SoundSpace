@@ -14,6 +14,7 @@ export let readyToLoadMetaData = writable(false);
 
 export let selectedFilter = writable("all");
 export let selectedValue = writable("");
+export let selectedCategory = writable("")
 
 export let isDropDownOpen = writable(false);
 

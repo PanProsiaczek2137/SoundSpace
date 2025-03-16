@@ -26,6 +26,8 @@ interface SongMetaData {
 type SongsMetaData = Record<string, SongMetaData>;
 
 
+
+
 export async function readSongsMetaDataFile(/*songName: string*/) {
     await existsTheFile(true, "");
         
@@ -257,7 +259,7 @@ async function readTheFile(main: boolean, name: string){ //main or music
     }
 }
 
-async function returnSongMetadata(name: string) {
+export async function returnSongMetadata(name: string) {
     try {
         const fileContent = await readTheFile(false, name);
         if (fileContent) {

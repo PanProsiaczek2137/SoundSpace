@@ -1,0 +1,12 @@
+#settings-container{
+    width: 100%;
+    height: 100%;
+}
+
+#settings-category-container{
+    width: 100%;
+    height: 50px;
+    border-bottom: 1px solid var(--ligth-black);
+    display: flex;
+    overflow-x: auto;
+}

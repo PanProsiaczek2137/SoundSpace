@@ -21,12 +21,14 @@
     import {} from './style/changePageBar.css'
     import {} from './style/contextmenu.css'
     import {} from './style/loadingData.css'
+    import {} from './style/description.css'
 
     import { playList, playedSong, isPlaying, visible, duration, currentTime, formatDuration, song, loadVolumeRange } from './ts/audioSys.svelte.ts'
     import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter } from './ts/store.svelte.ts'
     import { contextMenu } from './ts/contextMenu.svelte.ts';
     import { loadAllMetaData, toLoad, progres } from './ts/loadingMetaData.svelte.ts'
     import { keyboardShortcuts, spectialButtons } from './ts/keyboardShortcuts.svelte.ts'
+    import { returnSongMetadata } from './ts/saveSongData.svelte.ts'
     keyboardShortcuts()
     onMount(()=>{spectialButtons()})
 
@@ -35,7 +37,9 @@
             loadAllMetaData()
         }
     })
-  
+
+
+
     contextMenu()
     //import {} from './ts/timeline.ts'
 
@@ -229,6 +233,44 @@
         }
     });
 
+
+
+    let showDescription = $state(false);
+    $effect(() => {
+        const descriptionContainer = document.getElementById("description-container") as HTMLButtonElement | null;
+        if (!descriptionContainer) return;
+        const theDescription = document.getElementById("the-description") as HTMLParagraphElement | null;
+        if(theDescription)
+        theDescription.innerText = "Loading..."
+
+        if (showDescription) {
+            descriptionContainer.style.display = "flex";
+            (async () => {
+                try {
+                    // @ts-ignore
+                    const metadata = await returnSongMetadata(get(ContextMenuOn).name);
+                    if (!metadata?.native?.["ID3v2.3"]) return;
+
+                    const descriptionTags = metadata.native["ID3v2.3"]
+                        .filter(tag => tag.id === "TXXX:description")
+                        .map(tag => tag.value)
+                        .filter(value => value); // Usuwa puste wartości
+
+                    if (!descriptionTags.length) return;
+
+                    if (!theDescription) return;
+                    console.log(descriptionTags[0]);
+                    theDescription.innerText = descriptionTags[0] as string;
+
+                } catch (err) {
+                    console.error("Błąd pobierania metadanych:", err);
+                }
+            })();
+        } else {
+            descriptionContainer.style.display = "none";
+        }
+    });
+
 </script>
 
 
@@ -251,7 +293,98 @@
 
 
 
+{#if platform() === "android" || platform() === "ios"}
+<div id="contextmenu-phone">
+    <button id="contextmenu-add-as-next" class="button contextmenu-button" onclick={() => {
+        // Stwórz nową playlistę, zaczynając od aktualnego stanu
+        let newPlaylist = [...get(playList)]; // Skopiuj oryginalną playlistę
+    
+        // Dodaj element do nowej playlisty, zaraz po utworze "playedSong"
 
+        if(get(selectedFilter) == "all"){
+            //@ts-ignore
+            newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
+        }else{
+            //@ts-ignore
+            newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).fileName });
+        }
+
+        console.log(newPlaylist);
+        playList.set(newPlaylist); // Zaktualizuj playList
+
+
+        const playPrevius = document.getElementById("play-previus") as HTMLButtonElement;
+        if(get(playedSong) == 0){
+            playPrevius.disabled = true;
+        }else{
+            playPrevius.disabled = false;
+        }
+
+            const playNext = document.getElementById("play-next") as HTMLButtonElement;
+        if(get(playedSong) == get(playList).length-1){
+            playNext.disabled = true;
+        }else{
+            playNext.disabled = false;
+        }
+
+    }}>
+    dodaj jako następne
+    </button>    
+    <!--
+    <button id="contextmenu-add-to-playlist" class="button contextmenu-button" disabled>
+        dodaj do playListy
+    </button>
+    -->
+    <button id="contextmenu-show-author" class="button contextmenu-button" onclick={async ()=>{
+
+        //@ts-ignore
+        const metadata = await returnSongMetadata(get(ContextMenuOn).name);
+        
+        if (metadata && metadata.native && metadata.native["ID3v2.3"]) {
+            const purlTags = metadata.native["ID3v2.3"]
+                .filter(tag => tag.id === "TXXX:purl")
+                .map(tag => tag.value)
+                .filter(value => value); // Usuwa puste wartości
+
+            if (purlTags.length > 0) {
+                let fullUrl = purlTags.join("/"); // Skleja fragmenty URL
+                
+                // Naprawa https: → https://
+                fullUrl = fullUrl.replace(/^https:\//, "https://");
+
+                console.log(fullUrl);
+
+                // Otwiera link w nowej karcie
+                window.open(fullUrl, "_blank");
+            } else {
+                console.log("Nie znaleziono URL");
+            }
+        } else {
+            console.log("Brak danych ID3v2.3");
+        }
+
+    }}>
+        odwiedź wytrynę
+    </button>
+    <button id="contextmenu-show-album" class="button contextmenu-button" onclick={()=>{
+        showDescription = true;
+    }}>
+        pokaż opis
+    </button>
+    <button id="contextmenu-share" class="button contextmenu-button" disabled onclick={ ()=>{
+        if(navigator.share){
+            navigator.share({
+                text: "test",
+                title: "to jest test"
+            })
+        }else{
+            console.log('nie jest wspierany!');
+        }
+    }}>
+        udostępnij
+    </button>
+</div>
+{:else}
 <div id="contextmenu">
     <button id="contextmenu-add-as-next" class="button" onclick={() => {
             // Stwórz nową playlistę, zaczynając od aktualnego stanu
@@ -287,16 +420,49 @@
 
         }}>
         dodaj jako następne
-    </button>    
+    </button>
+    <!--
     <button id="contextmenu-add-to-playlist" class="button" disabled>
-        add-to-playlist
+        dodaj do playListy
     </button>
-    <button id="contextmenu-show-author" class="button" disabled>
-        show-author
+    -->
+    <button id="contextmenu-show-author" class="button" onclick={async ()=>{
+
+        //@ts-ignore
+        const metadata = await returnSongMetadata(get(ContextMenuOn).name);
+        
+        if (metadata && metadata.native && metadata.native["ID3v2.3"]) {
+            const purlTags = metadata.native["ID3v2.3"]
+                .filter(tag => tag.id === "TXXX:purl")
+                .map(tag => tag.value)
+                .filter(value => value); // Usuwa puste wartości
+
+            if (purlTags.length > 0) {
+                let fullUrl = purlTags.join("/"); // Skleja fragmenty URL
+                
+                // Naprawa https: → https://
+                fullUrl = fullUrl.replace(/^https:\//, "https://");
+
+                console.log(fullUrl);
+
+                // Otwiera link w nowej karcie
+                window.open(fullUrl, "_blank");
+            } else {
+                console.log("Nie znaleziono URL");
+            }
+        } else {
+            console.log("Brak danych ID3v2.3");
+        }
+
+    }}>
+        odwiedź wytrynę
     </button>
-    <button id="contextmenu-show-album" class="button" disabled>
-        show-album
+    <button id="contextmenu-show-album" class="button" onclick={()=>{
+        showDescription = true;
+    }}>
+        pokaż opis
     </button>
+    <!--
     <button id="contextmenu-share" class="button" disabled onclick={ ()=>{
         if(navigator.share){
             navigator.share({
@@ -307,9 +473,33 @@
             console.log('nie jest wspierany!');
         }
     }}>
-        share
+        udostępnij
     </button>
+    -->
 </div>
+{/if}
+
+
+
+
+<div id="description-container" 
+    role="button" 
+    tabindex="0" 
+    aria-label="Zamknij opis"
+    onclick={(e) => {
+        // @ts-ignore
+        if (e.target.id == 'description-container') { 
+            showDescription = false; 
+        } 
+    }}
+    onkeydown={(e) => {
+        if (e.key === "Enter" || e.key === " ") showDescription = false;
+    }}>
+    <div id="description" class="scrollY">
+        <p id="the-description"></p>
+    </div>
+</div>
+
 
 
 <div id="container">
@@ -400,7 +590,29 @@
                 <!--console.log(formatDuration(get(currentTime)), formatDuration(get(duration)));!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                 <input type="range" class="timeline" id="time" min="0" max={Math.floor($duration)} value={Math.floor($currentTime)}>
 
-                <div id="picture-and-info">
+                <div id="picture-and-info" 
+                    role="button" 
+                    tabindex="0" 
+                    aria-label="Zamknij opis"
+                    onclick={(e) => {
+                        // @ts-ignore
+                        
+                        const containerElement = document.getElementById("container") as HTMLElement;
+                        if(containerElement.scrollTop > 396){
+                            containerElement.scrollTo({
+                                top: -99999999999999999, // Przewija do 500px w dół
+                                behavior: 'smooth' // Gładkie przewijanie
+                            });
+                        }else{
+                            containerElement.scrollTo({
+                                top: 99999999999999999, // Przewija do 500px w dół
+                                behavior: 'smooth' // Gładkie przewijanie
+                            });
+                        }
+
+                    }}
+                    onkeydown={() => {}}>
+
                     <div id="album-picture">
                         <img id="album-pucture-on-bar" src={"default.png"} alt="" draggable="false">
                     </div>

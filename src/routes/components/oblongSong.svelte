@@ -171,16 +171,36 @@
         thisElement.addEventListener('pointerdown', () => {
             //scrolling(false)
             if (get(areWeMoveingTheSong) === false) {
-                holdTime = setInterval(() => {
-                    console.log('trzymamy');
-                    heldTtem = thisElement;
-                    thisElement.style.backgroundColor = '#161616'
-                    thisElement.style.position = 'absolute'
-                    thisElement.style.zIndex = "999"
-                    areWeMoveingTheSong.set(true);
-                }, holdDuration);
+
+                if(!(platform() == "android" || platform() == "ios")){
+                    holdTime = setInterval(() => {
+                        console.log('trzymamy');
+                        heldTtem = thisElement;
+                        thisElement.style.backgroundColor = '#161616'
+                        thisElement.style.position = 'absolute'
+                        thisElement.style.zIndex = "999"
+                        areWeMoveingTheSong.set(true);
+                    }, holdDuration);
+
+                }
+
             }
         });
+
+
+        // Przysuwanie na telefonie
+        thisElement.addEventListener("contextmenu", event =>{
+            event.preventDefault(); 
+            if(platform() == "android" || platform() == "ios"){
+                console.log("Przesuwamy!");
+                console.log('trzymamy');
+                heldTtem = thisElement;
+                thisElement.style.backgroundColor = '#161616'
+                thisElement.style.position = 'absolute'
+                thisElement.style.zIndex = "999"
+                areWeMoveingTheSong.set(true);
+            }
+        })
 
 
 
