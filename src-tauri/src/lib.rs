@@ -4,9 +4,16 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
+// Import wymaganych rzeczy
+use tauri_plugin_autostart::{MacosLauncher, init as autostart_init};
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(autostart_init(
+            MacosLauncher::LaunchAgent, // Dla macOS (LaunchAgent lub LaunchDaemon)
+            Some(vec!["--hidden"]),     // Opcjonalne argumenty (np. start w ukryciu)
+        ))
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_opener::init())

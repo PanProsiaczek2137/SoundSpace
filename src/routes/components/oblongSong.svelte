@@ -336,15 +336,34 @@
     return thisElement.dataset.index;
 }
 
-    onDestroy(()=>{
-        console.log("usuwamy"+thisElement);
-        // Upewniamy się, że element istnieje, zanim usuniemy eventy
+    onDestroy(() => {
+        console.log("usuwamy event listenery");
+
+        // Sprawdzamy, czy element istnieje przed usunięciem eventów
         if (thisElement && document.body.contains(thisElement)) {
             clearInterval(updateBgInterval);
+
+            // Usuwanie event listenerów
             document.removeEventListener('pointermove', handlePointerMove);
             document.removeEventListener('pointerup', handlePointerUp);
+
+            // Jeśli platforma to Android lub iOS, dodajemy odpowiednią logikę
+            if (platform() == "android" || platform() == "ios") {
+                container.removeEventListener('touchmove', (event) => {
+                    if (get(areWeMoveingTheSong)) {
+                        event.preventDefault();
+                    }
+                });
+            } else {
+                container.removeEventListener('wheel', () => {});
+            }
+
+            // Usuwanie nasłuchiwaczy z thisElement
+            thisElement.removeEventListener('pointerdown', () => {});
+            thisElement.removeEventListener('contextmenu', () => {});
+            thisElement.removeEventListener('pointerup', () => {});
         }
-    })
+    });
 
 
 </script>

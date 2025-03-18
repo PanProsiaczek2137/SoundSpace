@@ -48,3 +48,7 @@ html, body{
 #content{
   overflow: hidden;
 }
+
+.invert-color {
+    filter: invert(1);
+}

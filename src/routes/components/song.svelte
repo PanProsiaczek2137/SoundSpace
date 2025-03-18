@@ -7,26 +7,44 @@
     export let artist = "Unknown Artist"
     import { getContentOfMusicFolder } from '../ts/saveSongData.svelte'
     import { canShowContextMenu, visibleContextMenu } from '../ts/store.svelte.ts'
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     
+    let containers: HTMLElement[] = [];
+
     onMount(()=>{
-        const containers = Array.from(document.getElementsByClassName("container-song")) as HTMLElement[];
+        containers = Array.from(document.getElementsByClassName("container-song")) as HTMLElement[];
 
         containers.forEach( element =>{
-            element.addEventListener("pointerenter", ()=>{
-                canShowContextMenu.set(true)
-                console.log("enter")
-            })
-            element.addEventListener("pointerleave", ()=>{
-                canShowContextMenu.set(false)
-                console.log("leave")
-            })
-        })
+            element.addEventListener("pointerenter", () => {
+                canShowContextMenu.set(true);
+                console.log("enter");
+            });
 
-    })
+            element.addEventListener("pointerleave", () => {
+                canShowContextMenu.set(false);
+                console.log("leave");
+            });
+        });
+    });
 
+    onDestroy(() => {
+        // Usuwamy nasłuchiwacze z wszystkich kontenerów
+        containers.forEach(element => {
+            element.removeEventListener("pointerenter", () => {
+                canShowContextMenu.set(true);
+                console.log("enter");
+            });
+            element.removeEventListener("pointerleave", () => {
+                canShowContextMenu.set(false);
+                console.log("leave");
+            });
+        });
+    });
 
 </script>
+
+
+
 
 <div class="container-song">
     <div id="img-container" onclick={(()=>{

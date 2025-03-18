@@ -49,7 +49,7 @@ export async function loadAllMetaData() {
             progres.set(index + 1);  // Zwiększamy progres
         }
         console.log("Koniec!");
-        window.location.reload();
+        //window.location.reload();
         progres.set(allSongsToLoad.length);  // Ustawiamy pełny pasek po zakończeniu
         progres.set(-10);
     }

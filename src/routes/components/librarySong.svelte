@@ -16,11 +16,12 @@
     let thisElement: HTMLElement;
     let loading = false;
 
+    /*
     (async ()=>{
         const test = await readSongsMetaDataFile();
         const test2 = await printSelectedData("artist", 'tame impala', test);
     })
-
+    */
 
     //console.log(data);
     //console.log('---------');
@@ -72,6 +73,7 @@
     
     onclick={async ()=>
     {
+        console.log(get(isDropDownOpen), get(visibleContextMenu))
         if(get(isDropDownOpen) == false && get(visibleContextMenu) == false){
 
             if(get(selectedFilter) == "all"){
