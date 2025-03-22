@@ -1,4 +1,3 @@
-import { onMount } from 'svelte';
 import { isPlaying, playedSong, playList } from './audioSys.svelte';
 import { readSongsMetaDataFile, readTheImgFile } from './saveSongData.svelte'
 import { get } from 'svelte/store';
@@ -15,7 +14,7 @@ export async function updateMediaSessionMetadata(songData: any) {
         console.error('Błąd: Obrazek nie został załadowany.');
         return;
     }
-
+    
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: songData.title,
@@ -107,13 +106,7 @@ export function keyboardShortcuts() {
 
 
     //! DOMYŚLNE SKRÓTY
-    keyboardShortcuts.addShortcut([" "], () => {
-        isPlaying.set(!get(isPlaying));
-    });
-    
-    keyboardShortcuts.addShortcut(["Ctrl", "Shift", "N"], () => {
-        console.log("Nowy dokument!");
-    });
+
 
     
 }
@@ -121,6 +114,9 @@ export function keyboardShortcuts() {
 
 
 
+
+
+// keyboardShortcuts.svelte.ts
 type KeyCombination = string[];
 type ShortcutAction = () => void;
 
@@ -132,44 +128,61 @@ class KeyboardShortcuts {
         "Ctrl+Shift+I", "Ctrl+Shift+P", "Ctrl+Shift+G", "Ctrl+Shift+C", "Ctrl+Shift+S"
     ]);
 
+    private activeKeys: Set<string> = new Set(); // Zmienna do przechowywania aktywnych klawiszy
+
     constructor() {
         window.addEventListener("keydown", this.handleKeyDown.bind(this));
+        window.addEventListener("keyup", this.handleKeyUp.bind(this)); // Nasłuchujemy również na 'keyup'
     }
 
-    private normalizeCombination(keys: KeyCombination): string {
-        return keys.map(k => k.toLowerCase()).sort().join("+");
+    private normalizeKey(key: string): string {
+        return key.toLowerCase(); // Normalizujemy klawisze, by ignorować wielkość liter
     }
 
     private handleKeyDown(event: KeyboardEvent) {
-        const keys: string[] = [];
-        if (event.ctrlKey) keys.push("Ctrl");
-        if (event.shiftKey) keys.push("Shift");
-        if (event.altKey) keys.push("Alt");
-        if (event.metaKey) keys.push("Meta");
-        keys.push(event.key);
-
-        const combination = this.normalizeCombination(keys);
-
-        if (this.blockedShortcuts.has(combination)) {
-            event.preventDefault();
-            console.log(`${combination} jest zablokowane!`);
-            return;
+        if (this.activeKeys.has(event.key)) {
+            return; // Ignorujemy, jeśli klawisz jest już aktywny
         }
 
-        const action = this.shortcuts.get(combination);
+        this.activeKeys.add(event.key);
+
+        // Normalizujemy naciśnięty klawisz
+        const normalizedKey = this.normalizeKey(event.key);
+
+        // Sprawdzamy, czy dla tego klawisza jest przypisana akcja
+        const action = this.shortcuts.get(normalizedKey);
         if (action) {
             event.preventDefault();
             action();
+            this.clearActiveKeys(); // Resetujemy aktywne klawisze po wywołaniu akcji
         }
     }
 
-    public addShortcut(keys: KeyCombination, action: ShortcutAction) {
-        const combination = this.normalizeCombination(keys);
-        this.shortcuts.set(combination, action);
+    private handleKeyUp(event: KeyboardEvent) {
+        this.activeKeys.delete(event.key); // Usuwamy klawisz z aktywnych, gdy użytkownik go puści
     }
 
-    public removeShortcut(keys: KeyCombination) {
-        const combination = this.normalizeCombination(keys);
-        this.shortcuts.delete(combination);
+    public addShortcut(key: string, action: ShortcutAction) {
+        const normalizedKey = this.normalizeKey(key);
+        
+        // Jeśli klawisz już istnieje, usuwamy poprzednią akcję
+        this.removeShortcut(normalizedKey);
+
+        this.shortcuts.set(normalizedKey, action); // Przypisujemy akcję do klawisza
+    }
+
+    public removeShortcut(key: string) {
+        const normalizedKey = this.normalizeKey(key);
+        this.shortcuts.delete(normalizedKey); // Usuwamy akcję dla danego klawisza
+    }
+
+    private clearActiveKeys() {
+        this.activeKeys.clear(); // Resetujemy aktywne klawisze
     }
 }
+
+// Tworzymy instancję klasy KeyboardShortcuts
+const keyboardShortcutsInstance = new KeyboardShortcuts();
+
+// Eksportujemy instancję, by była dostępna w innych plikach
+export default keyboardShortcutsInstance;

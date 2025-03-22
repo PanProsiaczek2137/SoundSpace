@@ -3,7 +3,9 @@ import { currentPlatform } from './store.svelte'
 import { get } from 'svelte/store';
 import * as mm from 'music-metadata';
 import { audioDir, join, appLocalDataDir } from '@tauri-apps/api/path';
+import { loadAllMetaData } from './loadingMetaData.svelte';
 import { progres } from '../ts/loadingMetaData.svelte'
+import { onMount } from 'svelte';
 //import { showLoadingFiles } from './+layout.svelte';
 //import { metaDataFolderContent } from './ts/store.svelte';
 export let songsProgress = $state({value: 0});
@@ -103,14 +105,14 @@ export async function addSongMetadata(name: string) {
 
         // Obsługa okładki albumu
         let picturePath: string | null = null;
-        if (data.common.picture && Array.isArray(data.common.picture) && data.common.picture.length > 0) {
+        if (data?.common?.picture && Array.isArray(data.common.picture) && data.common.picture.length > 0) {
             const pictureData = new Uint8Array(data.common.picture[0].data);
             const pictureFileName = `${fileName}_cover.jpg`; // Możesz dostosować rozszerzenie do formatu obrazka
             picturePath = await createBinaryFile(pictureData, pictureFileName);
         }
 
         let songData = {
-            title: data.common.title || fileName, // Jeśli brak tytułu, użyj nazwy pliku
+            title: data?.common?.title || fileName, // Jeśli brak tytułu, użyj nazwy pliku
             artist: data.common.artist || null,
             genre: (Array.isArray(data.common.genre) && data.common.genre.length > 0) ? data.common.genre[0] : null,
             picture: picturePath, // Ścieżka do okładki, jeśli istnieje
@@ -238,6 +240,9 @@ async function readTheFile(main: boolean, name: string){ //main or music
             return file
         }else{
             let filePath = "";
+            //console.log("_{}{+_{_+}{")
+            //console.log(name, JSON.stringify(name))
+            //console.log("_{}{+_{_+}{")
             // For mobile (Android/iOS)
             if (platform() === "android" || platform() === "ios") {
                 filePath = '/storage/emulated/0/Music/' + name; // Mobile device storage
@@ -302,9 +307,9 @@ export async function getContentOfMusicFolder() {
 }
 
 
-mainLogic()
-async function mainLogic() {
-    console.log('oczyszczanie!')
+export async function loadingSongsLogic() {
+    console.log('oczyszczanie!');
+    
     if (!(await existsTheFile(true, ""))) {
         await createTextFile();
         await writeTheFile('{}');
@@ -312,15 +317,12 @@ async function mainLogic() {
 
     let mainFileContent = (await readTheFile(true, '')) ?? '{}';
     let mainFile: SongsMetaData = JSON.parse(mainFileContent);
-    console.log(mainFile)
-
+    
     if (!(await existsTheFolder('albumCovers'))) {
         await createFolder('albumCovers');
     }
 
-
-
-    
+    // 1. Usuwanie nieistniejących plików
     const keys = Object.keys(mainFile);
     for (let i = 0; i < keys.length; i++) {
         const filePath = keys[i];
@@ -329,18 +331,14 @@ async function mainLogic() {
 
         if (!exists) {
             console.log(`Plik nie istnieje: ${filePath}. Usuwam z listy.`);
-            console.log(fileData.album +": "+ await countSpecificAlbum(fileData.album));
-            if(await countSpecificAlbum(fileData.album) == 1){
+            if (await countSpecificAlbum(fileData.album) == 1) {
                 removeTheFile(`albumCovers/${fileData.album}.png`);
             }
             delete mainFile[filePath];
-        }else{
-            console.log(`plik ${filePath} istnieje!`)
         }
     }
-    console.log('Zaktualizowano plik!!!');
+
     await writeTheFile(JSON.stringify(mainFile, null, 2));
-
-    progres.set(-2)
-
+    
+    await loadAllMetaData();
 }

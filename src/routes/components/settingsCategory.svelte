@@ -16,7 +16,7 @@
         }else{
             const style = document.createElement("style");
             style.innerHTML = `
-                #settings-category{ width: 16.666666666666%;}
+                #settings-category{ width: 20%;}
                 
                 @media (max-width: 680px){
                     #settings-category{
@@ -55,11 +55,20 @@
 
 </script>
 
-<button bind:this={thisElement} id="settings-category" class="button" onclick={()=>{
-    selectedCategory.set(type)
-}}>
-    <p>{type}</p>
-</button>
+{#if type == "Playback" || type == "Extensions"}
+    <button disabled bind:this={thisElement} id="settings-category" class="button disablet-button-settings" onclick={()=>{
+        selectedCategory.set(type)
+    }}>
+        <p>{type}</p>
+    </button>
+{:else}
+    <button bind:this={thisElement} id="settings-category" class="button" onclick={()=>{
+        selectedCategory.set(type)
+    }}>
+        <p>{type}</p>
+    </button>
+{/if}
+
 
 <style>
     #settings-category{
@@ -73,5 +82,9 @@
 
     #settings-category p{
         font-family: var(--font);
+    }
+
+    .disablet-button-settings{
+        cursor: not-allowed;
     }
 </style>

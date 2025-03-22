@@ -5,19 +5,28 @@ fn greet(name: &str) -> String {
 }
 
 // Import wymaganych rzeczy
-use tauri_plugin_autostart::{MacosLauncher, init as autostart_init};
+#[cfg(not(target_os = "android"))]
+use tauri_plugin_autostart::{init as autostart_init, MacosLauncher};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .plugin(autostart_init(
-            MacosLauncher::LaunchAgent, // Dla macOS (LaunchAgent lub LaunchDaemon)
-            Some(vec!["--hidden"]),     // Opcjonalne argumenty (np. start w ukryciu)
-        ))
+    // Zmienna builder musi być mutowalna
+    let mut builder = tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![greet]);
+
+    #[cfg(not(target_os = "android"))]
+    {
+        builder = builder.plugin(autostart_init(
+            MacosLauncher::LaunchAgent, // Dla macOS (LaunchAgent lub LaunchDaemon)
+            Some(vec!["--hidden"]),     // Opcjonalne argumenty (np. start w ukryciu)
+        ));
+    }
+
+    builder
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -332,6 +332,8 @@
     "core:default",
     "opener:default",
     "os:default",
+    "notification:default",
+    "notification:allow-register-listener",
     "fs:default"
   ]
 }

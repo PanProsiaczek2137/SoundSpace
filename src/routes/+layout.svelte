@@ -26,17 +26,18 @@
     import { playList, playedSong, isPlaying, visible, duration, currentTime, formatDuration, song, loadVolumeRange } from './ts/audioSys.svelte.ts'
     import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter } from './ts/store.svelte.ts'
     import { contextMenu } from './ts/contextMenu.svelte.ts';
-    import { loadAllMetaData, toLoad, progres } from './ts/loadingMetaData.svelte.ts'
+    import { toLoad, progres } from './ts/loadingMetaData.svelte.ts'
     import { keyboardShortcuts, spectialButtons } from './ts/keyboardShortcuts.svelte.ts'
-    import { returnSongMetadata } from './ts/saveSongData.svelte.ts'
+    import { returnSongMetadata, loadingSongsLogic } from './ts/saveSongData.svelte.ts'
+    import { updateColors } from './ts/colorUtils.svelte.ts'
+    onMount(() => {
+        // Przekazanie wartości do updateColors, które muszą być zapisane z localStorage
+        const color = localStorage.getItem('color') || '#000000';
+        const shadeFactor = parseFloat(localStorage.getItem('shadeFactor') || '0.5');
+        updateColors(color, shadeFactor);
+    });
     keyboardShortcuts()
-    onMount(()=>{spectialButtons()})
-
-    progres.subscribe(value=>{
-        if(value == -2){
-            loadAllMetaData()
-        }
-    })
+    onMount(()=>{spectialButtons(); loadingSongsLogic();})
 
 
 
@@ -284,7 +285,7 @@
 
 
 
-{#if $progres != -1}
+{#if $progres != -100}
     <div id="loading-data">
         <progress value={$progres} max={$toLoad}></progress>
     </div>
@@ -298,16 +299,10 @@
     <button id="contextmenu-add-as-next" class="button contextmenu-button" onclick={() => {
         // Stwórz nową playlistę, zaczynając od aktualnego stanu
         let newPlaylist = [...get(playList)]; // Skopiuj oryginalną playlistę
-    
-        // Dodaj element do nowej playlisty, zaraz po utworze "playedSong"
 
-        if(get(selectedFilter) == "all"){
-            //@ts-ignore
-            newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
-        }else{
-            //@ts-ignore
-            newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).fileName });
-        }
+        //@ts-ignore
+        newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
+
 
         console.log(newPlaylist);
         playList.set(newPlaylist); // Zaktualizuj playList
@@ -390,15 +385,9 @@
             // Stwórz nową playlistę, zaczynając od aktualnego stanu
             let newPlaylist = [...get(playList)]; // Skopiuj oryginalną playlistę
         
-            // Dodaj element do nowej playlisty, zaraz po utworze "playedSong"
+            //@ts-ignore
+            newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
 
-            if(get(selectedFilter) == "all"){
-                //@ts-ignore
-                newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
-            }else{
-                //@ts-ignore
-                newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).fileName });
-            }
 
             console.log(newPlaylist);
             playList.set(newPlaylist); // Zaktualizuj playList

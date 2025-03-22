@@ -1,6 +1,8 @@
 <script lang="ts">
     import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart';
     import { onMount } from 'svelte';
+    import { get } from 'svelte/store';
+    import { currentPlatform } from '../../ts/store.svelte';
 
     onMount(async ()=>{
         const autoTurnOnCheckBox = document.getElementById("autoTurnOn") as HTMLInputElement;
@@ -23,12 +25,19 @@
     // const { enable, isEnabled, disable } = window.__TAURI__.autostart;
 
     // Enable autostart
+    const platform = get(currentPlatform);
+
 </script>
 
+
+{#if !(platform() === "android" || platform() === "ios")}
 <label for="autoTurnOn">
     <input id="autoTurnOn" type="checkbox" onchange={handleChange}>
     autoTurnOn
 </label>
+{:else}
+<p style="color: var(--white);">Jeśli masz pomysł na jakieś ustawienia, powiedz :></p>
+{/if}
 
 
 <!--

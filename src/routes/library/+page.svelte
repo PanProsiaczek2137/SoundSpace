@@ -40,7 +40,7 @@
     // Funkcja obsługująca scrollowanie
     function handleScroll(event: Event) {
         const container = event.target as HTMLElement;
-        if (container.scrollHeight - container.scrollTop === container.clientHeight) {
+        if (container.scrollHeight - container.scrollTop <= container.clientHeight + 1) {
             loadMoreSongs();
         }
     }

@@ -8,7 +8,7 @@ import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
 import { progres } from './loadingMetaData.svelte'
 import type { event } from '@tauri-apps/api';
 export let playList = writable([
-    {type: 'musicFolder', src: "Tame Impala - Track 9 (Lonerism 10th Anniversary) [Extended Mix].mp3"},
+    {type: 'musicFolder', src: "'Cause I'm A Man [FGPsQedwR1g].mp3"},
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
@@ -29,11 +29,8 @@ playList.subscribe(()=>{
         }, 100);
     })()
 })
-/*
-onMount( ()=>{
-    
-})
-*/
+
+
 
 let loading = true;
 progres.subscribe( value =>{
@@ -80,7 +77,7 @@ export function formatDuration(seconds: number): string {
 }
 
 playedSong.subscribe(async (value) => {
-    //isPlaying.set(false);
+    isPlaying.set(false);
 
     setTimeout(async () => {
         if (get(playList)[value].type === 'musicFolder') {
@@ -92,11 +89,19 @@ playedSong.subscribe(async (value) => {
                 song = new Audio(filePath); // Załaduj nową piosenkę
                 const volumeRange = document.getElementById("volume-range") as HTMLInputElement;
                 song.volume = Number(volumeRange.value) / 100;
-                if(get(isPlaying)){
-                    song.play()
-                }else{
-                    song.pause()
-                }
+
+
+                setTimeout(() => {
+                    if(get(progres) == -100)
+                    isPlaying.set(true)
+                    if(get(isPlaying)){
+                        console.log("PLAY!!!!!!!!!!!!!!!!!!!!!!")
+                        song.play()
+                    }else{
+                        console.log("PAUSE!!!!!!!!!!!!!!!!!!!!!!")
+                        song.pause()
+                    }
+                }, 0);
 
                 /*
                 song.onloadeddata = (()=>{

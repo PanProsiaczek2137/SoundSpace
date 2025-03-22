@@ -3,15 +3,33 @@
     height: 100%;
 }
 
-#settings-category-container{
+#settings-category-container {
     width: 100%;
     height: 50px;
     border-bottom: 1px solid var(--ligth-black);
     display: flex;
-    overflow-x: auto;
+    overflow-x: auto; /* Pozwala na przewijanie na osi X */
+    overflow-y: hidden; /* Ukrywa przewijanie na osi Y */
 }
-
 #settings-bottom{
     width: 100%;
     height: calc(100% - 50px);
 }
+
+
+#settings-category-container::-webkit-scrollbar {
+    height: 0; /* Ukrywa poziomy pasek przewijania */
+}
+
+#settings-category-container::-webkit-scrollbar-track {
+    background: transparent; /* Pasek przewijania nie ma tła */
+}
+
+#settings-category-container::-webkit-scrollbar-thumb {
+    background: transparent; /* Pasek przewijania nie jest widoczny */
+}
+
+
+
+
+

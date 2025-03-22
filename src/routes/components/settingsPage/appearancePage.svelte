@@ -1,60 +1,146 @@
 <script lang="ts">
-    let shadeFactor = 0.5; // "trochę" - wartość od 0.1 do 1
-    let color: string = "#000000"; // Domyślny kolor
+    import { updateColors } from '../../ts/colorUtils.svelte';
 
-    function adjustBrightness(hex: string, percent: number) {
-        let r = parseInt(hex.substring(1, 3), 16);
-        let g = parseInt(hex.substring(3, 5), 16);
-        let b = parseInt(hex.substring(5, 7), 16);
+    let shadeFactor = 0.5;
+    let color: string = "#000000";
 
-        r = Math.min(255, Math.max(0, r + (255 - r) * percent));
-        g = Math.min(255, Math.max(0, g + (255 - g) * percent));
-        b = Math.min(255, Math.max(0, b + (255 - b) * percent));
-
-        return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+    // Inicjalizacja ustawień przy starcie aplikacji
+    if (localStorage.getItem('color')) {
+        color = localStorage.getItem('color')!;
+    }
+    if (localStorage.getItem('shadeFactor')) {
+        shadeFactor = parseFloat(localStorage.getItem('shadeFactor')!);
     }
 
-    function adjustDarkness(hex: string, percent: number) {
-        let r = parseInt(hex.substring(1, 3), 16);
-        let g = parseInt(hex.substring(3, 5), 16);
-        let b = parseInt(hex.substring(5, 7), 16);
+    updateColors(color, shadeFactor);
 
-        r = Math.min(255, Math.max(0, r - (r * percent)));
-        g = Math.min(255, Math.max(0, g - (g * percent)));
-        b = Math.min(255, Math.max(0, b - (b * percent)));
-
-        return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+    // Funkcja aktualizująca kolory
+    function handleColorChange(event: Event) {
+        color = (event.target as HTMLInputElement).value;
+        updateColors(color, shadeFactor);
     }
 
-    function isDarkColor(hex: string): boolean {
-        let r = parseInt(hex.substring(1, 3), 16);
-        let g = parseInt(hex.substring(3, 5), 16);
-        let b = parseInt(hex.substring(5, 7), 16);
-
-        let brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-        return brightness < 0.5; // Jeśli jasność < 0.5, uznajemy kolor za ciemny
-    }
-
-    function updateColors(event?: Event) {
-        if (event && event.target) {
-            color = (event.target as HTMLInputElement).value;
-        }
-
-        const darkMode = isDarkColor(color);
-
-        const whiteColor = darkMode ? "#FFFFFF" : "#000000";
-        const darkWhiteColor = adjustDarkness(whiteColor, shadeFactor); // Ciemniejszy od white
-        const lightBlackColor = darkMode ? adjustBrightness(color, shadeFactor) : adjustDarkness(color, shadeFactor); // Rozjaśnianie lub ściemnianie
-
-        //!!!!!!!!!!!!console.log(darkMode);
-
-        document.documentElement.style.setProperty("--black", color);
-        document.documentElement.style.setProperty("--ligth-black", lightBlackColor);
-        document.documentElement.style.setProperty("--white", whiteColor);
-        document.documentElement.style.setProperty("--dark-white", darkWhiteColor);
+    function handleShadeFactorChange(event: Event) {
+        shadeFactor = parseFloat((event.target as HTMLInputElement).value);
+        updateColors(color, shadeFactor);
     }
 </script>
 
-<input type="color" oninput={updateColors} bind:value={color}>
-<input type="range" min="0.1" max="0.75" step="0.05" bind:value={shadeFactor} oninput={() => updateColors()}>
-<p>Adjust "trochę" factor: {shadeFactor}</p>
+<div class="color-settings">
+    <div class="setting-item">
+        <label for="colorPicker">kolor:</label>
+        <input
+            id="colorPicker"
+            type="color"
+            oninput={handleColorChange}
+            bind:value={color}
+        />
+    </div>
+
+    <div class="setting-item">
+        <label for="shadeFactor">Kontrast:</label>
+        <input
+            id="shadeFactor"
+            type="range"
+            min="0.1"
+            max="0.5"
+            step="0.05"
+            bind:value={shadeFactor}
+            oninput={handleShadeFactorChange}
+        />
+        <span>{shadeFactor}</span>
+    </div>
+</div>
+
+<style>
+    .color-settings {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Odstęp między elementami */
+        margin: auto; /* Centrowanie na stronie */
+        padding: 20px;
+    }
+
+    .setting-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--white);
+    }
+
+    input[type="color"],
+    input[type="range"] {
+        width: 100%;
+    }
+
+    span {
+        font-size: 1rem;
+        font-weight: 300;
+        color: var(--white);
+    }
+
+
+    
+    input[type="range"] {
+        width: 100%;
+        -webkit-appearance: none; /* Ukrywa domyślne style przeglądarki */
+        appearance: none;
+        height: 10px;
+        background: var(--ligth-black);
+        border-radius: 5px;
+        outline: none;
+        transition: background 0.2s ease-in-out;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+        height: 10px;
+        background: var(--ligth-black);
+        border-radius: 5px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 2px solid var(--ligth-black);
+        cursor: pointer;
+        transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+        margin-top: -5px; /* Podnosi kółko */
+    }
+
+    input[type="range"]:hover::-webkit-slider-thumb {
+        background: var(--ligth-black);
+        transform: scale(1.2);
+    }
+
+    input[type="range"]::-moz-range-track {
+        height: 10px;
+        background: var(--ligth-black);
+        border-radius: 5px;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 2px solid var(--ligth-black);
+        cursor: pointer;
+        transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+        margin-top: -5px; /* Podnosi kółko */
+    }
+
+    input[type="range"]:hover::-moz-range-thumb {
+        background: var(--ligth-black);
+        transform: scale(1.2);
+    }
+
+</style>

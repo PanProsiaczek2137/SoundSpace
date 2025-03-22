@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { getContentOfMusicFolder, readSongsMetaDataFile, addSongMetadata } from './saveSongData.svelte';
 
-export let progres = writable(0);
+export let progres = writable(-1);
 export let toLoad = writable(0);
 
 export async function loadAllMetaData() {
@@ -10,8 +10,8 @@ export async function loadAllMetaData() {
     let allSongsToLoad: any = [];
 
     console.log('|||||||||||||||||||||||||||||||||||');
-    console.log('allSongsList:', allSongsList);
-    console.log('allReadySongs:', allReadySongs);
+    console.log('allSongsList:', JSON.stringify(allSongsList));
+    console.log('allReadySongs:', JSON.stringify(allReadySongs));
     console.log('|||||||||||||||||||||||||||||||||||');
 
     if (typeof allReadySongs !== "object" || allReadySongs === null) {
@@ -39,7 +39,10 @@ export async function loadAllMetaData() {
     if (allSongsToLoad.length > 0) {
         await load();
     } else {
-        progres.set(-1); // Brak nowych plików do dodania
+        //progres.set(-10); // Brak nowych plików do dodania
+        console.log("Koniec!");
+        progres.set(-100);
+
     }
 
     async function load() {
@@ -51,6 +54,6 @@ export async function loadAllMetaData() {
         console.log("Koniec!");
         //window.location.reload();
         progres.set(allSongsToLoad.length);  // Ustawiamy pełny pasek po zakończeniu
-        progres.set(-10);
+        progres.set(-100);
     }
 }

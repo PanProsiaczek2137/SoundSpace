@@ -17,6 +17,7 @@ export let selectedValue = writable("");
 export let selectedCategory = writable("")
 
 export let isDropDownOpen = writable(false);
+export let saveSongDuration = writable(0);
 
 
 

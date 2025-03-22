@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { playedSong, playList, formatDuration, isPlaying } from '../ts/audioSys.svelte.ts'
-    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData } from '../ts/store.svelte'
+    import { playedSong, playList, formatDuration, isPlaying, song } from '../ts/audioSys.svelte.ts'
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData, saveSongDuration } from '../ts/store.svelte'
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
-    import { readSongsMetaDataFile, readTheImgFile, addSongMetadata } from '../ts/saveSongData.svelte.ts'
+    import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte.ts'
     import { loadAllMetaData } from '../ts/loadingMetaData.svelte.ts'
     import { tick } from 'svelte';
 
@@ -28,7 +28,6 @@
     let handlePointerMove: any;
 
     let loading = true
-
 
     onMount(()=>{
 
@@ -104,33 +103,6 @@
                 }, index * 1);
                 //loading = false
                 
-            } else {
-
-                window.location.reload();
-
-                /*
-                console.log('NIE!!!!!!!!!!!!!! NIEMAMY!!!!!!!!!!!');
-                console.log(data[songFile])
-                
-                setTimeout(() => {
-                    (async ()=>{
-                        if(songFile){
-                            const mateData = await addSongMetadata(songFile);
-                            songTitle = mateData?.title;
-                            songArtist = mateData?.artist;
-                            songDuration = formatDuration(mateData?.duration);
-                            setTimeout(async () => {
-                                SongCover = await readTheImgFile(mateData?.picture);
-                            }, 1);
-
-                            const metaData = await readSongsMetaDataFile()
-                            playlistMetaData.set(metaData)
-                            loading = false
-                        }
-                    })()
-                    console.log('Błąd w metadanych!');
-                }, index * 1000);
-                */
             }
 
         }
@@ -259,7 +231,9 @@
 
             clearTimeout(holdTime);
             updateBackgroundColor();
+
         };
+
         document.addEventListener('pointerup', handlePointerUp);
 
         handlePointerMove = (event:any) => {

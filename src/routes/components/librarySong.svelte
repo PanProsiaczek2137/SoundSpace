@@ -7,6 +7,7 @@
     import { onMount } from 'svelte';
     import { canShowContextMenu, ContextMenuOn, visibleContextMenu } from '../ts/store.svelte'
     import { isDropDownOpen } from '../ts/store.svelte'
+    import InformationPage from './settingsPage/informationPage.svelte';
 
 
     export let songFile:string | null = null;
@@ -60,7 +61,12 @@
 <button bind:this={thisElement} data-index={index} class="button librarySong" id="librarySong" tabindex="-1" onpointerenter={(e)=>{
         canShowContextMenu.set(true)
         if(get(visibleContextMenu) == false){
-            ContextMenuOn.set(songFile)
+            if(get(selectedFilter) == "all"){
+                ContextMenuOn.set(songFile)
+            }else{
+                //@ts-ignore
+                ContextMenuOn.set({name: songFile.fileName});
+            }
         }
 
     }}
