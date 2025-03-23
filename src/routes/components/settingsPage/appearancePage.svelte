@@ -71,6 +71,7 @@
         font-size: 1rem;
         font-weight: 500;
         color: var(--white);
+        font-family: var(--font);
     }
 
     input[type="color"],
@@ -82,6 +83,7 @@
         font-size: 1rem;
         font-weight: 300;
         color: var(--white);
+        font-family: var(--font);
     }
 
 

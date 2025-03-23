@@ -283,8 +283,6 @@
 
 
 
-
-
 {#if $progres != -100}
     <div id="loading-data">
         <progress value={$progres} max={$toLoad}></progress>

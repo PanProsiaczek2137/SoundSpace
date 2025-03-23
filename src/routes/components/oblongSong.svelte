@@ -1,6 +1,6 @@
 <script lang="ts">
     import { playedSong, playList, formatDuration, isPlaying, song } from '../ts/audioSys.svelte.ts'
-    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData, saveSongDuration } from '../ts/store.svelte'
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData } from '../ts/store.svelte'
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte.ts'
@@ -28,6 +28,7 @@
     let handlePointerMove: any;
 
     let loading = true
+    let saveTime = 0;
 
     onMount(()=>{
 
@@ -152,6 +153,10 @@
                         thisElement.style.position = 'absolute'
                         thisElement.style.zIndex = "999"
                         areWeMoveingTheSong.set(true);
+                        console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
+                        saveTime = song.currentTime;
+                        console.log("Ustawiono czas na: " + saveTime)
+                        console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
                     }, holdDuration);
 
                 }
@@ -171,6 +176,10 @@
                 thisElement.style.position = 'absolute'
                 thisElement.style.zIndex = "999"
                 areWeMoveingTheSong.set(true);
+                console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
+                saveTime = song.currentTime;
+                console.log("Ustawiono czas na: " + saveTime)
+                console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
             }
         })
 
@@ -225,13 +234,20 @@
                     heldTtem.style.position = 'static';
 
                     areWeMoveingTheSong.set(false);
+                    setTimeout(() => {
+                        song.currentTime = saveTime;
+                        setTimeout(() => {
+                            if(song.currentTime != saveTime)
+                            song.currentTime = saveTime;
+                        }, 100);
+                    }, 100);
+
                 }
                 heldTtem = null;
             }
 
             clearTimeout(holdTime);
             updateBackgroundColor();
-
         };
 
         document.addEventListener('pointerup', handlePointerUp);

@@ -31,8 +31,7 @@ type SongsMetaData = Record<string, SongMetaData>;
 
 
 export async function readSongsMetaDataFile(/*songName: string*/) {
-    await existsTheFile(true, "");
-        
+    if(await existsTheFile(true, "")){
         try {
             const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
             const jsonData = JSON.parse(file); // Parsowanie całego pliku do JSON
@@ -47,7 +46,9 @@ export async function readSongsMetaDataFile(/*songName: string*/) {
             alert('Błąd przy odczycie pliku: ' + error);
             return null;
         }
-
+    }else{
+        return {};
+    }
 }
 
 export async function readTheImgFile(named: any){
@@ -93,9 +94,7 @@ export async function addSongMetadata(name: string) {
         let fileName = name.split('\\').pop() || name.split('/').pop(); // Pobieramy nazwę pliku
         if (!fileName) throw new Error("Nie można uzyskać nazwy pliku.");
 
-        //let currentPlatform = platform(); // Pobieramy platformę tylko raz
         let path: string;
-
         if (platform() === "android" || platform() === "ios") {
             path = `/storage/emulated/0/Music/${fileName}`;
         } else {
@@ -103,22 +102,25 @@ export async function addSongMetadata(name: string) {
             path = await join(audio, fileName);
         }
 
-        // Obsługa okładki albumu
+        // **🔹 Obsługa okładki albumu**
         let picturePath: string | null = null;
         if (data?.common?.picture && Array.isArray(data.common.picture) && data.common.picture.length > 0) {
             const pictureData = new Uint8Array(data.common.picture[0].data);
-            const pictureFileName = `${fileName}_cover.jpg`; // Możesz dostosować rozszerzenie do formatu obrazka
+            
+            let pictureFileName = data.common.album?.trim() || `${fileName}_name`;
+            pictureFileName = pictureFileName.replace(/[<>:"\/\\|?*]/g, "_") + ".png"; // Zamiana niedozwolonych znaków
+
             picturePath = await createBinaryFile(pictureData, pictureFileName);
         }
 
         let songData = {
-            title: data?.common?.title || fileName, // Jeśli brak tytułu, użyj nazwy pliku
-            artist: data.common.artist || null,
-            genre: (Array.isArray(data.common.genre) && data.common.genre.length > 0) ? data.common.genre[0] : null,
+            title: data?.common?.title?.trim() || fileName, // Jeśli brak tytułu, użyj nazwy pliku
+            artist: data?.common?.artist?.trim() || null,
+            genre: (Array.isArray(data?.common?.genre) && data.common.genre.length > 0) ? data.common.genre[0].trim() : null,
             picture: picturePath, // Ścieżka do okładki, jeśli istnieje
-            year: data.common.year || null,
-            album: data.common.album || null,
-            duration: data.format.duration || null,
+            year: data?.common?.year || null,
+            album: data?.common?.album?.trim() || null,
+            duration: data?.format?.duration || null,
             filePath: path, // Pełna ścieżka do pliku
             fileName: fileName // Nazwa pliku bez ścieżki
         };
@@ -132,7 +134,7 @@ export async function addSongMetadata(name: string) {
         return songData;
 
     } catch (error) {
-        console.error(error);
+        console.error("Błąd podczas dodawania metadanych piosenki:", error);
     }
 }
 
@@ -161,6 +163,7 @@ async function existsTheFile(main: boolean, name: string){
 async function createTextFile(){ //Only main
     try {
         const file = await create('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
+        await file.write(new TextEncoder().encode('{}'));
         await file.close()
         console.log('plik storzono!')
     } catch (error) {
@@ -223,6 +226,7 @@ async function countSpecificAlbum(album: string) {
 
     return count;
 }
+
 
 async function removeTheFile(name: string){ //main or music
     try {
@@ -312,27 +316,35 @@ export async function loadingSongsLogic() {
     
     if (!(await existsTheFile(true, ""))) {
         await createTextFile();
-        await writeTheFile('{}');
     }
 
+    
+
     let mainFileContent = (await readTheFile(true, '')) ?? '{}';
-    let mainFile: SongsMetaData = JSON.parse(mainFileContent);
+    let mainFile = JSON.parse(mainFileContent);
     
     if (!(await existsTheFolder('albumCovers'))) {
         await createFolder('albumCovers');
     }
 
-    // 1. Usuwanie nieistniejących plików
-    const keys = Object.keys(mainFile);
-    for (let i = 0; i < keys.length; i++) {
-        const filePath = keys[i];
-        const fileData = mainFile[filePath];
-        const exists = await existsTheFile(false, fileData.fileName);
+    // Pobranie listy plików z katalogu muzycznego
+    const musicFolderContent = await getContentOfMusicFolder();
+    const existingFiles = new Set((musicFolderContent ?? []).map(file => file.name));
 
-        if (!exists) {
+    // 1. Usuwanie nieistniejących plików
+    for (const filePath in mainFile) {
+        const fileData = mainFile[filePath];
+        if (!existingFiles.has(fileData.fileName)) {
             console.log(`Plik nie istnieje: ${filePath}. Usuwam z listy.`);
-            if (await countSpecificAlbum(fileData.album) == 1) {
-                removeTheFile(`albumCovers/${fileData.album}.png`);
+            if(fileData.album == null){
+                await removeTheFile(`albumCovers/${fileData.fileName}_name.png`);
+            }else{
+                delete mainFile[filePath];
+                await writeTheFile(JSON.stringify(mainFile, null, 2));
+
+                if (await countSpecificAlbum(fileData.album) == 0) {
+                    await removeTheFile(`albumCovers/${fileData.album}.png`);
+                }
             }
             delete mainFile[filePath];
         }
@@ -341,4 +353,5 @@ export async function loadingSongsLogic() {
     await writeTheFile(JSON.stringify(mainFile, null, 2));
     
     await loadAllMetaData();
+    
 }
