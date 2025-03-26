@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { getContentOfMusicFolder, readSongsMetaDataFile, addSongMetadata } from './saveSongData.svelte';
+import { keepScreenOn } from "tauri-plugin-keep-screen-on-api";
 
 export let progres = writable(-1);
 export let toLoad = writable(0);
@@ -41,6 +42,7 @@ export async function loadAllMetaData() {
     } else {
         //progres.set(-10); // Brak nowych plików do dodania
         console.log("Koniec!");
+        keepScreenOn(false);
         progres.set(-100);
 
     }
@@ -52,6 +54,7 @@ export async function loadAllMetaData() {
             progres.set(index + 1);  // Zwiększamy progres
         }
         console.log("Koniec!");
+        keepScreenOn(false);
         //window.location.reload();
         progres.set(allSongsToLoad.length);  // Ustawiamy pełny pasek po zakończeniu
         progres.set(-100);

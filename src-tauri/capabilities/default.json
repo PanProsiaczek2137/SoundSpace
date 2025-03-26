@@ -324,6 +324,7 @@
       ]
     },
 
+    "keep-screen-on:allow-keep-screen-on",
     "fs:allow-app-read-recursive",
     "fs:read-dirs",
     "fs:read-files",

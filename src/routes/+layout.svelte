@@ -283,9 +283,23 @@
 
 
 
-{#if $progres != -100}
+{#if $progres != -100 && $progres != -1}
     <div id="loading-data">
-        <progress value={$progres} max={$toLoad}></progress>
+        <div id="loading-content">
+            <img id="logo" src="headphones.png" alt="SoundSpace Logo">
+            <progress value="{$progres}" max="{$toLoad}"></progress>
+            <div id="loading-info">
+                <span>{$progres} / {$toLoad} załadowano</span>
+                <span id="">Szacowany czas: {formatDuration(($toLoad - $progres) * 0.5)} min</span>
+            </div>
+        </div>
+    </div>
+{:else if $progres == -1}
+    <div id="loading-data">
+        <div id="loading-content">
+            <img id="logo" src="headphones.png" alt="SoundSpace Logo">
+            <div class="spinner"></div>
+        </div>
     </div>
 {/if}
 

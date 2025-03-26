@@ -228,7 +228,7 @@ export function loadVolumeRange(){
     });
     
     audioControlBar.addEventListener("pointerleave", () => {
-        console.log("NOOOO!");
+        console.log("NOOOO2!");
         
         hideTimeout = setTimeout(() => {
             if (!audioControlBar.matches(":hover")) { // Sprawdzamy, czy kursor jest poza elementem

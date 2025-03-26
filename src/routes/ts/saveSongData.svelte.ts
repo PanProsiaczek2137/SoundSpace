@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 import * as mm from 'music-metadata';
 import { audioDir, join, appLocalDataDir } from '@tauri-apps/api/path';
 import { loadAllMetaData } from './loadingMetaData.svelte';
+import { keepScreenOn } from "tauri-plugin-keep-screen-on-api";
 import { progres } from '../ts/loadingMetaData.svelte'
 import { onMount } from 'svelte';
 //import { showLoadingFiles } from './+layout.svelte';
@@ -71,7 +72,7 @@ export async function readTheImgFile(named: any){
 async function createBinaryFile(data: Uint8Array, name: string) { //Only main
     try {
         const imageData = new Uint8Array([...data]);
-        const path = await join(await appLocalDataDir(),"albumCovers" , name);
+        const path = await join(await appLocalDataDir(), "albumCovers", name.replace(/[<>:"\/\\|?*']/g, "_"));
         const file = await create(path);
 
         await file.write(imageData);
@@ -108,7 +109,7 @@ export async function addSongMetadata(name: string) {
             const pictureData = new Uint8Array(data.common.picture[0].data);
             
             let pictureFileName = data.common.album?.trim() || `${fileName}_name`;
-            pictureFileName = pictureFileName.replace(/[<>:"\/\\|?*]/g, "_") + ".png"; // Zamiana niedozwolonych znaków
+            pictureFileName = pictureFileName.replace(/[<>:"\/\\|?*']/g, "_") + ".png"; // Zamiana niedozwolonych znaków
 
             picturePath = await createBinaryFile(pictureData, pictureFileName);
         }
@@ -232,12 +233,12 @@ async function removeTheFile(name: string){ //main or music
     try {
         await remove(name, { baseDir: BaseDirectory.AppLocalData });
     } catch (error) {
-        console.error('Błąd przy odczycie pliku1:', error);  
-        alert(error)
+        console.error('Plik najprawdopodobniej nie istnieje. Błąd przy usuwaniu pliku "'+name+'", błąd to:', error);  
+        //alert(error)
     }
 }
 
-async function readTheFile(main: boolean, name: string){ //main or music
+export async function readTheFile(main: boolean, name: string){ //main or music
     try {
         if(main){
             const file = await readTextFile('songsMetaData.json', { baseDir: BaseDirectory.AppLocalData });
@@ -312,6 +313,7 @@ export async function getContentOfMusicFolder() {
 
 
 export async function loadingSongsLogic() {
+    keepScreenOn(true);
     console.log('oczyszczanie!');
     
     if (!(await existsTheFile(true, ""))) {
@@ -337,13 +339,13 @@ export async function loadingSongsLogic() {
         if (!existingFiles.has(fileData.fileName)) {
             console.log(`Plik nie istnieje: ${filePath}. Usuwam z listy.`);
             if(fileData.album == null){
-                await removeTheFile(`albumCovers/${fileData.fileName}_name.png`);
+                await removeTheFile(`albumCovers/${(fileData.fileName).replace(/[<>:"\/\\|?*']/g, "_")}_name.png`);
             }else{
                 delete mainFile[filePath];
                 await writeTheFile(JSON.stringify(mainFile, null, 2));
 
                 if (await countSpecificAlbum(fileData.album) == 0) {
-                    await removeTheFile(`albumCovers/${fileData.album}.png`);
+                    await removeTheFile(`albumCovers/${(fileData.album).replace(/[<>:"\/\\|?*']/g, "_")}.png`);
                 }
             }
             delete mainFile[filePath];

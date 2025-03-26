@@ -16,6 +16,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_keep_screen_on::init())
         .invoke_handler(tauri::generate_handler![greet]);
 
     #[cfg(not(target_os = "android"))]
