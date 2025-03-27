@@ -52,9 +52,8 @@ export function contextMenu(){
 
     selectedPanel.subscribe(value=>{
       setTimeout(() => {
-        if(value == "library"){
-        
 
+        if(value == "library"){
           const bottomLibrary = document.getElementById("bottom-library");
           console.log(bottomLibrary)
           if(bottomLibrary)
@@ -64,6 +63,7 @@ export function contextMenu(){
           })
   
         }
+        
       }, 250);
 
 

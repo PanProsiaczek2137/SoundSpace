@@ -20,8 +20,8 @@ tym bardziej
  ✔ stworzenie i działanie zakładki settings (zakładki: Ogólne, Wygląd, Sktóty Klawiszowe, Odtwarzanie, Informacje, Rozszerzenia)<br>
  ✔ jak zmienisz kolejność piosenek to czas odtwarzanej zostaje taki sam<br>
  ✔ zrobić ładny ekran ładowanie się matadanych i włanczania aplikacji<br>
- - zrobić aby home działo<br>
- - przesuwanie piosenek na telefonie<br>
+ ✔ zrobić aby home działo<br>
+ - przesuwanie piosenek na telefonie i ogłulnie porawki aby nie wkurzało z korzystania<br>
  - zoptymalizowanie debugowanie dopieszczenie i odspagetytyfikowanie kodu (naprzykład kiedy spmisz na bibliotekę a tam jest sporo piosenek)<br>
  - cieszenie się że już nie muszę się męczyć z tym ciągnącym się projektem<br>
 

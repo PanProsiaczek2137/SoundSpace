@@ -1,7 +1,7 @@
 <script lang="ts">
     import Song from "./song.svelte";
     import { playList } from "../ts/audioSys.svelte";
-    import { readTheFile } from '../ts/saveSongData.svelte'
+    import { readTheFile, readTheImgFile } from '../ts/saveSongData.svelte'
     import { onMount } from "svelte";
     export let type: string;
     export let data: string;
@@ -10,6 +10,9 @@
 
     let randomPlaylists: HTMLElement | null = null;
     let mouseX = 0, mouseY = 0;
+    let imgs:any = [];
+
+    let Xfrom = "";
 
     function updateGlow(event: MouseEvent) {
         if (!randomPlaylists) return;
@@ -67,9 +70,9 @@
 
 
     onMount(async () => {
-    if (type == "od artysty X") {
+
         const allSongs = await readTheFile(true, "");
-        
+            
         if (!allSongs) {
             console.warn("Plik nie zawiera danych lub nie istnieje.");
             return;
@@ -90,32 +93,120 @@
             return;
         }
 
-        let list: any[] = [];
-        for (let i = 0; i < keys.length; i++) {
-            if (parsedSongs[keys[i]].artist == data) {
+
+
+        if (type == "od artysty X") {
+            let list: any[] = [];
+            for (let i = 0; i < keys.length; i++) {
+                if (parsedSongs[keys[i]].artist == data) {
+                    list.push(parsedSongs[keys[i]]);
+                }
+            }
+
+            let tempList = [];
+            let count = Math.min(15, list.length); // Jeśli jest mniej niż 15 piosenek, wybierz wszystkie
+
+            console.log(`Znaleziono ${list.length} piosenek dla artysty.`);
+
+            for (let i = 0; i < count; i++) {
+                const randomSongIndex = Math.floor(Math.random() * list.length);
+                const randomSong = list.splice(randomSongIndex, 1)[0]; // Usuwa i zwraca wybraną piosenkę
+                tempList.push(randomSong);
+            }
+
+            songToPrint = [...tempList];
+
+            // Pobieranie obrazków dla każdej piosenki
+            imgs = await Promise.all(songToPrint.map((song: any) => readTheImgFile(song.picture)));
+
+            console.log("Losowe piosenki:", songToPrint);
+
+        }
+
+
+        if (type == "z albumu X") {
+            let list: any[] = [];
+            for (let i = 0; i < keys.length; i++) {
+                if (parsedSongs[keys[i]].album == data) {
+                    list.push(parsedSongs[keys[i]]);
+                }
+            }
+            imgs[0] = await readTheImgFile(list[0].picture)
+            songToPrint = list;
+        }
+
+
+        if (type == "losowe utwory") {
+            let list: any[] = [];
+            for (let i = 0; i < 15; i++) {
+                if (parsedSongs[keys[i]].album == data) {
+                    list.push(parsedSongs[keys[i]]);
+                }
+            }
+            //imgs[0] = await readTheImgFile(list[0].picture)
+            //songToPrint = list;
+        }
+
+
+        if (type == "losowe utwory") {
+            let list: any[] = [];
+
+            // Pobranie wszystkich piosenek
+            for (let i = 0; i < keys.length; i++) {
                 list.push(parsedSongs[keys[i]]);
             }
-        }
 
+            let tempList = [];
+            let count = Math.min(15, list.length); // Jeśli jest mniej niż 15 piosenek, wybierz wszystkie
 
-        if (list.length < 15) {
-            console.warn("Za mało piosenek od tego artysty, dodajemy wszystkie.");
-            songToPrint = [...list]; // Jeśli mniej niż 15, bierzemy wszystkie
-        } else {
-            // Losujemy 15 unikalnych indeksów
-            const selectedIndexes = new Set<number>();
-            while (selectedIndexes.size < 15) {
-                const randomIndex = Math.floor(Math.random() * list.length);
-                selectedIndexes.add(randomIndex);
+            console.log(`Znaleziono ${list.length} piosenek w bazie.`);
+
+            for (let i = 0; i < count; i++) {
+                const randomSongIndex = Math.floor(Math.random() * list.length);
+                const randomSong = list.splice(randomSongIndex, 1)[0]; // Usuwa i zwraca wybraną piosenkę
+                tempList.push(randomSong);
             }
 
-            // Pobieramy piosenki według wylosowanych indeksów
-            songToPrint = Array.from(selectedIndexes).map(index => list[index]);
+            songToPrint = [...tempList];
+
+            // Pobieranie obrazków dla każdej piosenki
+            imgs = await Promise.all(songToPrint.map((song: any) => readTheImgFile(song.picture)));
+
+            console.log("Losowe piosenki:", songToPrint);
         }
 
-        console.log("Losowe 15 piosenek:", songToPrint);
-    }
-});
+
+
+        if (type == "długie utwory") {
+            let list: any[] = [];
+            for (let i = 0; i < keys.length; i++) {
+                if (parsedSongs[keys[i]].duration > 600) {
+                    list.push(parsedSongs[keys[i]]);
+                }
+            }
+
+            let tempList = [];
+            let count = Math.min(10, list.length); // Jeśli jest mniej niż 15 piosenek, wybierz wszystkie
+
+            console.log(`Znaleziono ${list.length} piosenek dla artysty.`);
+
+            for (let i = 0; i < count; i++) {
+                const randomSongIndex = Math.floor(Math.random() * list.length);
+                const randomSong = list.splice(randomSongIndex, 1)[0]; // Usuwa i zwraca wybraną piosenkę
+                tempList.push(randomSong);
+            }
+
+            songToPrint = [...tempList];
+
+            // Pobieranie obrazków dla każdej piosenki
+            imgs = await Promise.all(songToPrint.map((song: any) => readTheImgFile(song.picture)));
+
+            console.log("Losowe piosenki:", songToPrint);
+
+        }
+
+
+    });
 
 
 
@@ -130,20 +221,21 @@
             onmouseleave={handleMouseLeave}
             onclick={setToRandomSongs}
         >
-            <h1>Losowe playlisty</h1>
+            <h1>Losowa playlista</h1>
         </div>
     {/if}
 
 
 
     {#if type == "od artysty X"}
-        <h2>Od Artysty X</h2>
+        <h2>Od Artysty {data}</h2>
         <div id="scroll-container">
             {#if songToPrint.length != 0}
                 {#each songToPrint as data, index}
-                <Song name={data.title}
-                        image="Lonerism.png" 
+                <Song   name={data.title}
+                        image={imgs[index]}
                         album={data.album}
+                        fileName={data.fileName}
                         artist={data.artist} />
                 {/each}
             {/if}
@@ -152,17 +244,49 @@
 
 
 
-    {#if type == "od albumu X"}
-        <h2>Z Albumu X</h2>
+    {#if type == "z albumu X"}
+        <h2>Z Albumu {data}</h2>
         <div id="scroll-container">
-            {#each Array(15) as _}
-            <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-                    image="Lonerism.png" 
-                    album="Lonerism" 
-                    artist="Tame Impala" />
+            {#each songToPrint as data, index}
+            <Song   name={data.title}
+                    image={imgs[0]}
+                    album={data.album}
+                    fileName={data.fileName}
+                    artist={data.artist} />
             {/each}
         </div>
     {/if}
+
+
+
+    {#if type == "losowe utwory"}
+        <h2>Losowe Utwory</h2>
+        <div id="scroll-container">
+            {#each songToPrint as data, index}
+            <Song   name={data.title}
+                    image={imgs[index]}
+                    album={data.album}
+                    fileName={data.fileName}
+                    artist={data.artist} />
+            {/each}
+        </div>
+    {/if}
+
+
+
+    {#if type == "długie utwory"}
+        <h2>Długie Słuchanie</h2>
+        <div id="scroll-container">
+            {#each songToPrint as data, index}
+            <Song   name={data.title}
+                    image={imgs[index]}
+                    album={data.album}
+                    fileName={data.fileName}
+                    artist={data.artist} />
+            {/each}
+        </div>
+    {/if}
+
 </div>
 
 <style>
@@ -170,6 +294,7 @@
     #scroll-container{
         display: flex;
         overflow-x: scroll;
+        overflow-y: hidden;
     }
 
 
@@ -181,6 +306,8 @@
         width: 100%;
         height: 300px;
         overflow-y: hidden;
+        margin-top: 35px;
+        margin-bottom: 10px;
     }
 
     #random-playlists {

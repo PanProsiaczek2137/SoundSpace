@@ -400,7 +400,6 @@
             //@ts-ignore
             newPlaylist.splice(get(playedSong) + 1, 0, { type: 'musicFolder', src: get(ContextMenuOn).name });
 
-
             console.log(newPlaylist);
             playList.set(newPlaylist); // Zaktualizuj playList
 

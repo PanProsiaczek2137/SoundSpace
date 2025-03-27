@@ -6,7 +6,6 @@ import * as mm from 'music-metadata';
 import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
 import { progres } from './loadingMetaData.svelte'
-import type { event } from '@tauri-apps/api';
 export let playList = writable([
     {type: 'musicFolder', src: "'Cause I'm A Man [FGPsQedwR1g].mp3"},
 ]);

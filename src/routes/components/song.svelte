@@ -4,41 +4,41 @@
     export let image = "default.png";
     export let name = "Unknown Song"; // Domyślny tytuł utworu
     export let album = "Album"
+    export let fileName = ""
     export let artist = "Unknown Artist"
     import { getContentOfMusicFolder } from '../ts/saveSongData.svelte'
-    import { canShowContextMenu, visibleContextMenu } from '../ts/store.svelte.ts'
+    import { canShowContextMenu, visibleContextMenu, ContextMenuOn } from '../ts/store.svelte.ts'
     import { onMount, onDestroy } from 'svelte';
     
-    let containers: HTMLElement[] = [];
+    let thisElement: HTMLElement
 
     onMount(()=>{
-        containers = Array.from(document.getElementsByClassName("container-song")) as HTMLElement[];
 
-        containers.forEach( element =>{
-            element.addEventListener("pointerenter", () => {
-                canShowContextMenu.set(true);
-                console.log("enter");
-            });
-
-            element.addEventListener("pointerleave", () => {
-                canShowContextMenu.set(false);
-                console.log("leave");
-            });
+        thisElement.addEventListener("pointerenter", () => {
+            canShowContextMenu.set(true);
+            console.log("enter");
+            console.log(fileName)
+            ContextMenuOn.set({name: fileName})
         });
+
+        thisElement.addEventListener("pointerleave", () => {
+           canShowContextMenu.set(false);
+            console.log("leave");
+        });
+
     });
 
     onDestroy(() => {
         // Usuwamy nasłuchiwacze z wszystkich kontenerów
-        containers.forEach(element => {
-            element.removeEventListener("pointerenter", () => {
-                canShowContextMenu.set(true);
-                console.log("enter");
-            });
-            element.removeEventListener("pointerleave", () => {
-                canShowContextMenu.set(false);
-                console.log("leave");
-            });
+        thisElement.removeEventListener("pointerenter", () => {
+            canShowContextMenu.set(true);
+            console.log("enter");
         });
+        thisElement.removeEventListener("pointerleave", () => {
+            canShowContextMenu.set(false);
+            console.log("leave");
+        });
+
     });
 
 </script>
@@ -46,20 +46,14 @@
 
 
 
-<div class="container-song">
+<div class="container-song" bind:this={thisElement}>
     <div id="img-container" onclick={(()=>{
         //console.log('aiopsdfujioasdju')
         // playList.set([])
         if(get(visibleContextMenu) == false){
             (async ()=>{
                 playList.set([])
-                const songs = await getContentOfMusicFolder();
-                let setTo = [];
-                if(songs)
-                for(let song of songs){
-                    setTo.push({type: 'musicFolder', src: song.name})
-                }
-                playList.set(setTo)
+                playList.set([{type: 'musicFolder', src: fileName}])
             })()
         }
 
