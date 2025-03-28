@@ -8,25 +8,27 @@
     height: 50px;
     border-bottom: 1px solid var(--ligth-black);
     display: flex;
-    overflow-x: auto; /* Pozwala na przewijanie na osi X */
+    overflow-x: auto !important; /* Pozwala na przewijanie na osi X */
     overflow-y: hidden; /* Ukrywa przewijanie na osi Y */
 }
+
 #settings-bottom{
     width: 100%;
     height: calc(100% - 50px);
+    scrollbar-width: unset !important;
 }
 
 
 #settings-category-container::-webkit-scrollbar {
-    height: 0; /* Ukrywa poziomy pasek przewijania */
+    height: 0;
 }
 
 #settings-category-container::-webkit-scrollbar-track {
-    background: transparent; /* Pasek przewijania nie ma tła */
+    background: transparent !important; /* Pasek przewijania nie ma tła */
 }
 
 #settings-category-container::-webkit-scrollbar-thumb {
-    background: transparent; /* Pasek przewijania nie jest widoczny */
+    background: transparent !important; /* Pasek przewijania nie jest widoczny */
 }
 
 

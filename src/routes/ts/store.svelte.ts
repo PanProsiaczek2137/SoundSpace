@@ -18,6 +18,14 @@ export let selectedCategory = writable("")
 
 export let isDropDownOpen = writable(false);
 
+export let playPlaylistFormStart = writable(false);
+
+export let saveTimeWhileMovingSong = writable(0);
+saveTimeWhileMovingSong.subscribe(value=>{
+    console.log("(((((((((((((((((((((((((((((((")
+    console.log(value)
+    console.log("(((((((((((((((((((((((((((((((")
+})
 
 
 /*

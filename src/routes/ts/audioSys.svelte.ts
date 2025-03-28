@@ -3,11 +3,11 @@ import { writable, get } from "svelte/store";
 import { currentPlatform } from "./store.svelte"
 import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
-import {readyToLoadMetaData, playlistMetaData} from './store.svelte'
+import {readyToLoadMetaData, playlistMetaData, playPlaylistFormStart} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
 import { progres } from './loadingMetaData.svelte'
 export let playList = writable([
-    {type: 'musicFolder', src: "'Cause I'm A Man [FGPsQedwR1g].mp3"},
+    {type: 'musicFolder', src: "' Cause I'm A Man [FGPsQedwR1g].mp3"},
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
@@ -19,6 +19,11 @@ let songMetaData = {};
 let platfrom = get(currentPlatform)
 
 playList.subscribe(()=>{
+    let formStart = false
+    if(get(playPlaylistFormStart)){
+        formStart = true;
+        playedSong.set(-1);
+    }
     readyToLoadMetaData.set(false);
     (async ()=>{
         const metaData = await readSongsMetaDataFile()
@@ -26,6 +31,9 @@ playList.subscribe(()=>{
         setTimeout(() => {
             readyToLoadMetaData.set(true);
         }, 100);
+        if(formStart){
+            playedSong.set(0);
+        }
     })()
 })
 
@@ -76,6 +84,9 @@ export function formatDuration(seconds: number): string {
 }
 
 playedSong.subscribe(async (value) => {
+    if(value == -1 || get(progres) == -1){
+        return;
+    }
     isPlaying.set(false);
 
     setTimeout(async () => {

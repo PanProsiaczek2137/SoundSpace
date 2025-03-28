@@ -126,7 +126,7 @@
 
 </script>
 
-<div id="container" class="scrollY">
+<div id="container-home" class="scrollY">
 
 
 
@@ -187,8 +187,12 @@
 </div>
 
 <style>
-  #container {
+  #container-home {
     background-color: var(--black);
     margin-top: -5px;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 </style>

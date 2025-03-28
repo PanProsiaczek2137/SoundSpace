@@ -29,12 +29,15 @@
     import { toLoad, progres } from './ts/loadingMetaData.svelte.ts'
     import { keyboardShortcuts, spectialButtons } from './ts/keyboardShortcuts.svelte.ts'
     import { returnSongMetadata, loadingSongsLogic } from './ts/saveSongData.svelte.ts'
-    import { updateColors } from './ts/colorUtils.svelte.ts'
+    import { updateColors, showScroll } from './ts/colorUtils.svelte.ts'
     onMount(() => {
         // Przekazanie wartości do updateColors, które muszą być zapisane z localStorage
         const color = localStorage.getItem('color') || '#000000';
         const shadeFactor = parseFloat(localStorage.getItem('shadeFactor') || '0.5');
         updateColors(color, shadeFactor);
+        console.log(localStorage.getItem('isScrollEnabled') + " <---")
+        showScroll(String(localStorage.getItem('isScrollEnabled')));
+
     });
     keyboardShortcuts()
     onMount(()=>{spectialButtons(); loadingSongsLogic();})

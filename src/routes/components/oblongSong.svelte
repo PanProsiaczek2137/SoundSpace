@@ -1,6 +1,6 @@
 <script lang="ts">
     import { playedSong, playList, formatDuration, isPlaying, song } from '../ts/audioSys.svelte.ts'
-    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData } from '../ts/store.svelte'
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData, saveTimeWhileMovingSong } from '../ts/store.svelte'
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte.ts'
@@ -28,7 +28,6 @@
     let handlePointerMove: any;
 
     let loading = true
-    let saveTime = 0;
 
     onMount(()=>{
 
@@ -148,14 +147,15 @@
                 if(!(platform() == "android" || platform() == "ios")){
                     holdTime = setInterval(() => {
                         console.log('trzymamy');
+                        isPlaying.set(false)
                         heldTtem = thisElement;
                         thisElement.style.backgroundColor = '#161616'
                         thisElement.style.position = 'absolute'
                         thisElement.style.zIndex = "999"
                         areWeMoveingTheSong.set(true);
                         console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
-                        saveTime = song.currentTime;
-                        console.log("Ustawiono czas na: " + saveTime)
+                        saveTimeWhileMovingSong.set(song.currentTime);
+                        console.log("Ustawiono czas na: " + get(saveTimeWhileMovingSong))
                         console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
                     }, holdDuration);
 
@@ -171,14 +171,15 @@
             if(platform() == "android" || platform() == "ios"){
                 console.log("Przesuwamy!");
                 console.log('trzymamy');
+                isPlaying.set(false)
                 heldTtem = thisElement;
                 thisElement.style.backgroundColor = '#161616'
                 thisElement.style.position = 'absolute'
                 thisElement.style.zIndex = "999"
                 areWeMoveingTheSong.set(true);
                 console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
-                saveTime = song.currentTime;
-                console.log("Ustawiono czas na: " + saveTime)
+                saveTimeWhileMovingSong.set(song.currentTime);
+                console.log("Ustawiono czas na: " + get(saveTimeWhileMovingSong))
                 console.log("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{")
             }
         })
@@ -235,11 +236,14 @@
 
                     areWeMoveingTheSong.set(false);
                     setTimeout(() => {
-                        song.currentTime = saveTime;
+                        song.currentTime = get(saveTimeWhileMovingSong);
+
                         setTimeout(() => {
-                            if(song.currentTime != saveTime)
-                            song.currentTime = saveTime;
-                        }, 100);
+                            if(song.currentTime < get(saveTimeWhileMovingSong)){
+                                song.currentTime = get(saveTimeWhileMovingSong);
+                            }
+                        }, 200);
+
                     }, 100);
 
                 }
@@ -252,11 +256,47 @@
 
         document.addEventListener('pointerup', handlePointerUp);
 
-        handlePointerMove = (event:any) => {
+        let movingAllSongs = writable(0);
+        let loop: any; // Utrzymujemy referencję do intervala poza subskrypcją
+
+        movingAllSongs.subscribe(value => {
+            if (value === 1) {
+                if (!loop) { // Jeśli interval jeszcze nie działa, uruchom go
+                    loop = setInterval(() => {
+                        container.scrollBy(0, -5); // Przewijanie w górę
+                    }, 5);
+                }
+            } else if (value === -1) {
+                if (!loop) { // Jeśli interval jeszcze nie działa, uruchom go
+                    loop = setInterval(() => {
+                        container.scrollBy(0, 5); // Przewijanie w dół
+                    }, 5);
+                }
+            } else if (value === 0) {
+                if (loop) { // Zatrzymaj interwał tylko jeśli jest aktywny
+                    clearInterval(loop);
+                    loop = null; // Wyzeruj referencję do loop
+                }
+            }
+        });
+
+        handlePointerMove = (event: any) => {
             if (get(areWeMoveingTheSong)) {
                 if (heldTtem && thisElement && document.body.contains(thisElement)) { // Dodanie sprawdzenia
                     if (platform() == "android" || platform() == "ios") {
+                        // Przesuwanie elementu na ekranie
                         thisElement.style.top = (Number(event.clientY) + window.innerHeight - 900) + "px";
+                        
+                        // Sprawdzamy, czy element jest blisko góry ekranu
+                        if (event.clientY < 100) {
+                            movingAllSongs.set(1); // Ustawiamy przewijanie w górę
+                        }
+                        // Sprawdzamy, czy element jest blisko dołu ekranu
+                        else if (event.clientY > window.innerHeight - 100) {
+                            movingAllSongs.set(-1); // Ustawiamy przewijanie w dół
+                        } else {
+                            movingAllSongs.set(0); // Zatrzymujemy przewijanie
+                        }
                     } else {
                         thisElement.style.top = (Number(event.clientY) - 25) + "px";
                     }
@@ -445,6 +485,7 @@
         position: relative;
         background-color: var(--black);
         padding: 20px;
+        margin-right: 7px;
     }
 
 </style>

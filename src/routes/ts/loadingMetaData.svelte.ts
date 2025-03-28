@@ -60,3 +60,9 @@ export async function loadAllMetaData() {
         progres.set(-100);
     }
 }
+
+progres.subscribe(value=>{
+    console.log(".............................");
+    console.log(value);
+    console.log(".............................");
+})

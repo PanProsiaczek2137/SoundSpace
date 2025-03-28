@@ -1,42 +1,42 @@
-/* Stylizacja dla elementu z klasą .scrollY */
+
+/*
 .scrollY {
-    overflow-y: auto; /* Pokaż pasek przewijania, gdy zawartość wychodzi poza kontener */
-    scrollbar-width: thin; /* Ustawia cienki pasek przewijania w Firefox */
-    scrollbar-color: var(--dark-white) var(--black); /* Kolor suwaka (#888) i tła (#ccc) w Firefox */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-white) var(--black);
 }
 
-/* Stylizacja suwaka w przeglądarkach obsługujących ::-webkit-scrollbar */
 .scrollY::-webkit-scrollbar {
-    width: 8px; /* Szerokość suwaka */
+    width: 8px; 
 }
 
 .scrollY::-webkit-scrollbar-track {
-    background: #ccc; /* Kolor tła paska przewijania */
-    border-radius: 0; /* Usuwa zaokrąglenie rogów toru */
+    background: #ccc; 
+    border-radius: 0; 
 }
 
 .scrollY::-webkit-scrollbar-thumb {
-    background-color: #888; /* Kolor suwaka */
-    border-radius: 0; /* Usuwa zaokrąglenie rogów suwaka */
+    background-color: #888; 
+    border-radius: 0;
 }
 
-/* Usunięcie strzałek */
+
 .scrollY::-webkit-scrollbar-button {
-    display: none !important; /* Zignoruj wszelkie próby wyświetlenia strzałek */
+    display: none !important; 
 }
 
-/* Alternatywne podejście do usunięcia strzałek w WebKit */
+
 .scrollY::-webkit-scrollbar-button:start {
-    display: none !important; /* Usunięcie strzałek startowych */
+    display: none !important;
 }
 
 .scrollY::-webkit-scrollbar-button:end {
-    display: none !important; /* Usunięcie strzałek końcowych */
+    display: none !important; 
 }
 
-/* Stylizacja dla starych wersji przeglądarek (np. Internet Explorer) */
+
 .scrollY {
-    -ms-overflow-style: none; /* Usunięcie strzałek w IE */
+    -ms-overflow-style: none;
 }
 
 
@@ -46,43 +46,44 @@
 
 
 
-/* Stylizacja dla elementu z klasą .scrollY */
+
 .scrollX {
-    overflow-x: auto; /* Pokaż pasek przewijania, gdy zawartość wychodzi poza kontener */
-    scrollbar-width: thin; /* Ustawia cienki pasek przewijania w Firefox */
-    scrollbar-color: var(--dark-white) var(--black); /* Kolor suwaka (#888) i tła (#ccc) w Firefox */
+    overflow-x: auto; 
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-white) var(--black);
 }
 
-/* Stylizacja suwaka w przeglądarkach obsługujących ::-webkit-scrollbar */
+
 .scrollX::-webkit-scrollbar {
-    height: 8px; /* Szerokość suwaka */
+    height: 8px; 
 }
 
 .scrollX::-webkit-scrollbar-track {
-    background: #ccc; /* Kolor tła paska przewijania */
-    border-radius: 0; /* Usuwa zaokrąglenie rogów toru */
+    background: #ccc;
+    border-radius: 0;
 }
 
 .scrollX::-webkit-scrollbar-thumb {
-    background-color: #888; /* Kolor suwaka */
-    border-radius: 0; /* Usuwa zaokrąglenie rogów suwaka */
+    background-color: #888;
+    border-radius: 0;
 }
 
-/* Usunięcie strzałek */
+
 .scrollX::-webkit-scrollbar-button {
-    display: none !important; /* Zignoruj wszelkie próby wyświetlenia strzałek */
+    display: none !important; 
 }
 
-/* Alternatywne podejście do usunięcia strzałek w WebKit */
+
 .scrollX::-webkit-scrollbar-button:start {
-    display: none !important; /* Usunięcie strzałek startowych */
+    display: none !important; 
 }
 
 .scrollX::-webkit-scrollbar-button:end {
-    display: none !important; /* Usunięcie strzałek końcowych */
+    display: none !important;
 }
 
-/* Stylizacja dla starych wersji przeglądarek (np. Internet Explorer) */
+
 .scrollX {
-    -ms-overflow-style: none; /* Usunięcie strzałek w IE */
+    -ms-overflow-style: none;
 }
+*/

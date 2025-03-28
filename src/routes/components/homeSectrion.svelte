@@ -2,7 +2,9 @@
     import Song from "./song.svelte";
     import { playList } from "../ts/audioSys.svelte";
     import { readTheFile, readTheImgFile } from '../ts/saveSongData.svelte'
+    import { currentPlatform, playPlaylistFormStart } from '../ts/store.svelte.ts'
     import { onMount } from "svelte";
+    import { get } from "svelte/store";
     export let type: string;
     export let data: string;
 
@@ -13,13 +15,18 @@
     let imgs:any = [];
 
     let Xfrom = "";
+    const platform = get(currentPlatform);
 
     function updateGlow(event: MouseEvent) {
         if (!randomPlaylists) return;
-        const rect = randomPlaylists.getBoundingClientRect();
-        mouseX = event.clientX - rect.left;
-        mouseY = event.clientY - rect.top;
-        randomPlaylists.style.background = `radial-gradient(circle at ${mouseX}px ${mouseY}px, var(--ligth-black), var(--black))`;
+        if(platform() === "android" || platform() === "ios"){
+            randomPlaylists.style.background = `radial-gradient(circle at 50% 50%, var(--ligth-black), var(--black))`;
+        }else{
+            const rect = randomPlaylists.getBoundingClientRect();
+            mouseX = event.clientX - rect.left;
+            mouseY = event.clientY - rect.top;
+            randomPlaylists.style.background = `radial-gradient(circle at ${mouseX}px ${mouseY}px, var(--ligth-black), var(--black))`;
+        }
     }
 
 
@@ -65,7 +72,9 @@
         for(let i = 0; i < randomSongs.length; i++){
             tempPlayList.push({type: 'musicFolder', src: randomSongs[i].fileName});
         }
+        playPlaylistFormStart.set(true);
         playList.set(tempPlayList);
+        playPlaylistFormStart.set(false);
     }
 
 
@@ -305,7 +314,8 @@
     #home-section-container {
         width: 100%;
         height: 300px;
-        overflow-y: hidden;
+        overflow: hidden;
+        overflow-y: hidden !important;
         margin-top: 35px;
         margin-bottom: 10px;
     }
@@ -343,6 +353,7 @@
         padding-bottom: 6px;
         margin-left: 25px;
         position: relative;
+        text-wrap: nowrap;
     }
 
     #random-playlists:hover h1 {

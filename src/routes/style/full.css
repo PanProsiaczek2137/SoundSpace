@@ -77,11 +77,13 @@
 
 #play-list{
     width: 25%;
-    overflow-y: auto;
+    overflow-y: auto !important;
     overflow-x: hidden;
     max-height: 100%;
     z-index: 400;
     background-color: var(--black);
+    scrollbar-color: unset !important;
+    scrollbar-width: unset !important;
 }
 
 

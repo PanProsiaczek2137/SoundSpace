@@ -48,3 +48,90 @@ export function updateColors(color: string, shadeFactor: number) {
     document.documentElement.style.setProperty("--white", whiteColor);
     document.documentElement.style.setProperty("--dark-white", darkWhiteColor);
 }
+
+
+
+
+export function showScroll(show: string) {
+    let styleTag = document.getElementById('dynamicStyles');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamicStyles';
+        document.head.appendChild(styleTag);
+    }
+
+    if (show == "true") {
+        // Kiedy checkbox jest zaznaczony, włącz pasek przewijania
+        styleTag.innerHTML = `
+            .scrollY {
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--dark-white) var(--black);
+            }
+            .scrollY::-webkit-scrollbar {
+                width: 8px;
+            }
+            .scrollY::-webkit-scrollbar-track {
+                background: #ccc;
+            }
+            .scrollY::-webkit-scrollbar-thumb {
+                background-color: #888;
+            }
+            .scrollY::-webkit-scrollbar-button {
+                display: none !important;
+            }
+            .scrollY::-webkit-scrollbar-button:start,
+            .scrollY::-webkit-scrollbar-button:end {
+                display: none !important;
+            }
+            .scrollY {
+                -ms-overflow-style: none;
+            }
+
+            .scrollX {
+                overflow-x: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--dark-white) var(--black);
+            }
+            .scrollX::-webkit-scrollbar {
+                height: 8px;
+            }
+            .scrollX::-webkit-scrollbar-track {
+                background: #ccc;
+            }
+            .scrollX::-webkit-scrollbar-thumb {
+                background-color: #888;
+            }
+            .scrollX::-webkit-scrollbar-button {
+                display: none !important;
+            }
+            .scrollX::-webkit-scrollbar-button:start,
+            .scrollX::-webkit-scrollbar-button:end {
+                display: none !important;
+            }
+            .scrollX {
+                -ms-overflow-style: none;
+            }
+        `;
+    } else {
+        // Kiedy checkbox jest odznaczony, ukryj paski przewijania
+        styleTag.innerHTML = `
+            .scrollY::-webkit-scrollbar {
+                width: 0 !important; /* Ukryj suwak */
+            }
+            .scrollX::-webkit-scrollbar {
+                height: 0 !important; /* Ukryj suwak */
+            }
+
+            .scrollY {
+                overflow-y: scroll !important; /* Pozostaw przewijanie, ale ukryj suwak */
+                scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
+            }
+
+            .scrollX {
+                overflow-x: scroll !important; /* Pozostaw przewijanie, ale ukryj suwak */
+                scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
+            }
+        `;
+    }
+}

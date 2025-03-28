@@ -1,8 +1,10 @@
 <script lang="ts">
-    import { updateColors } from '../../ts/colorUtils.svelte';
+    import { updateColors, showScroll } from '../../ts/colorUtils.svelte';
 
     let shadeFactor = 0.5;
     let color: string = "#000000";
+
+    let isScrollHidenChecked = localStorage.getItem('isScrollEnabled') === 'true';
 
     // Inicjalizacja ustawień przy starcie aplikacji
     if (localStorage.getItem('color')) {
@@ -24,9 +26,107 @@
         shadeFactor = parseFloat((event.target as HTMLInputElement).value);
         updateColors(color, shadeFactor);
     }
+    
+
+    function changeScroll(){
+        showScroll(String(isScrollHidenChecked));
+        localStorage.setItem('isScrollEnabled', String(isScrollHidenChecked));
+    }
+
+
+    /*
+    changeScroll()
+    function changeScroll() {
+    let styleTag = document.getElementById('dynamicStyles');
+    if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = 'dynamicStyles';
+        document.head.appendChild(styleTag);
+    }
+
+    if (isScrollHidenChecked) {
+        // Kiedy checkbox jest zaznaczony, włącz pasek przewijania
+        styleTag.innerHTML = `
+            .scrollY {
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--dark-white) var(--black);
+            }
+            .scrollY::-webkit-scrollbar {
+                width: 8px;
+            }
+            .scrollY::-webkit-scrollbar-track {
+                background: #ccc;
+            }
+            .scrollY::-webkit-scrollbar-thumb {
+                background-color: #888;
+            }
+            .scrollY::-webkit-scrollbar-button {
+                display: none !important;
+            }
+            .scrollY::-webkit-scrollbar-button:start,
+            .scrollY::-webkit-scrollbar-button:end {
+                display: none !important;
+            }
+            .scrollY {
+                -ms-overflow-style: none;
+            }
+
+            .scrollX {
+                overflow-x: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--dark-white) var(--black);
+            }
+            .scrollX::-webkit-scrollbar {
+                height: 8px;
+            }
+            .scrollX::-webkit-scrollbar-track {
+                background: #ccc;
+            }
+            .scrollX::-webkit-scrollbar-thumb {
+                background-color: #888;
+            }
+            .scrollX::-webkit-scrollbar-button {
+                display: none !important;
+            }
+            .scrollX::-webkit-scrollbar-button:start,
+            .scrollX::-webkit-scrollbar-button:end {
+                display: none !important;
+            }
+            .scrollX {
+                -ms-overflow-style: none;
+            }
+        `;
+    } else {
+        // Kiedy checkbox jest odznaczony, ukryj paski przewijania
+        styleTag.innerHTML = `
+            .scrollY::-webkit-scrollbar {
+                width: 0 !important; 
+            }
+            .scrollX::-webkit-scrollbar {
+                height: 0 !important;
+            }
+
+            .scrollY {
+                overflow-y: scroll !important;
+                scrollbar-color: transparent transparent !important;
+            }
+
+            .scrollX {
+                overflow-x: scroll !important; 
+                scrollbar-color: transparent transparent !important;
+            }
+        `;
+    }
+
+    localStorage.setItem('isScrollEnabled', String(isScrollHidenChecked));
+}
+*/
+
+    
 </script>
 
-<div class="color-settings">
+<div id="settings-container-appearance">
     <div class="setting-item">
         <label for="colorPicker">kolor:</label>
         <input
@@ -50,10 +150,82 @@
         />
         <span>{shadeFactor}</span>
     </div>
+
+    <div id="">
+        <label for="scrollVisibleCheckBox" class="checkbox-label">
+            <input id="scrollVisibleCheckBox" type="checkbox" bind:checked={isScrollHidenChecked} onchange={changeScroll} class="checkbox-input">
+            <span>czy ma być widać scroll</span>
+        </label>
+    </div>
 </div>
 
+
 <style>
-    .color-settings {
+
+    /* Stylizacja kontenera etykiety */
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--white);
+        font-family: var(--font);
+    }
+
+    /* Ukryj domyślny checkbox */
+    .checkbox-input {
+        margin-right: 15px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--ligth-black);
+        border-radius: 5px;
+        background-color: var(--black);
+        margin-right: 10px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Stylizacja stanu zaznaczonego checkboxa */
+    .checkbox-input:checked {
+        background-color: var(--dark-white);
+        border-color: var(--ligth-black);
+    }
+
+    /* Tworzenie okrągłego środka, który pojawi się po zaznaczeniu */
+    .checkbox-input:checked::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        background-color: var(--black);
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+        transform: translate(-50%, -50%); /* Wyśrodkowanie względem środka */
+    }
+
+
+    /* Dodanie efektu hover na checkboxie */
+    .checkbox-input:hover {
+        border-color: var(--white);
+    }
+
+    /* Stylizacja tekstu obok checkboxa */
+    .checkbox-label span {
+        font-size: 1.4rem;
+        font-weight: 500;
+    }
+
+
+
+
+
+    #settings-container-appearance {
         display: flex;
         flex-direction: column;
         gap: 20px; /* Odstęp między elementami */

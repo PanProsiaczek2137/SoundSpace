@@ -7,7 +7,7 @@
     export let fileName = ""
     export let artist = "Unknown Artist"
     import { getContentOfMusicFolder } from '../ts/saveSongData.svelte'
-    import { canShowContextMenu, visibleContextMenu, ContextMenuOn } from '../ts/store.svelte.ts'
+    import { canShowContextMenu, visibleContextMenu, ContextMenuOn, playPlaylistFormStart } from '../ts/store.svelte.ts'
     import { onMount, onDestroy } from 'svelte';
     
     let thisElement: HTMLElement
@@ -52,8 +52,10 @@
         // playList.set([])
         if(get(visibleContextMenu) == false){
             (async ()=>{
+                playPlaylistFormStart.set(true);
                 playList.set([])
                 playList.set([{type: 'musicFolder', src: fileName}])
+                playPlaylistFormStart.set(false);
             })()
         }
 
