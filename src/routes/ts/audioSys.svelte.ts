@@ -3,11 +3,11 @@ import { writable, get } from "svelte/store";
 import { currentPlatform } from "./store.svelte"
 import * as path from '@tauri-apps/api/path';
 import * as mm from 'music-metadata';
-import {readyToLoadMetaData, playlistMetaData, playPlaylistFormStart} from './store.svelte'
+import {readyToLoadMetaData, playlistMetaData, playPlaylistFormStart, canWePlaySong, volume} from './store.svelte'
 import {readSongsMetaDataFile, readTheImgFile} from './saveSongData.svelte'
 import { progres } from './loadingMetaData.svelte'
 export let playList = writable([
-    {type: 'musicFolder', src: "' Cause I'm A Man [FGPsQedwR1g].mp3"},
+    {type: 'musicFolder', src: "SoundSpace"},
 ]);
 export let playedSong = writable(0);
 export let isPlaying = writable(false);
@@ -18,7 +18,7 @@ export let song = new Audio();
 let songMetaData = {};
 let platfrom = get(currentPlatform)
 
-playList.subscribe(()=>{
+playList.subscribe( value => {
     let formStart = false
     if(get(playPlaylistFormStart)){
         formStart = true;
@@ -33,9 +33,18 @@ playList.subscribe(()=>{
         }, 100);
         if(formStart){
             playedSong.set(0);
+            setTimeout(() => {
+                console.log("UStawiamy na:"+ JSON.stringify(value))
+                localStorage.setItem('playList', JSON.stringify(value));
+            }, 500);
         }
     })()
 })
+
+
+
+
+
 
 
 
@@ -88,7 +97,7 @@ playedSong.subscribe(async (value) => {
         return;
     }
     isPlaying.set(false);
-
+    localStorage.setItem('playedSong', String(value));
     setTimeout(async () => {
         if (get(playList)[value].type === 'musicFolder') {
             const filePath = await readTheFile(get(playList)[value].src);
@@ -102,8 +111,11 @@ playedSong.subscribe(async (value) => {
 
 
                 setTimeout(() => {
-                    if(get(progres) == -100)
-                    isPlaying.set(true)
+                    if(get(progres) == -100 && get(canWePlaySong)){
+                        isPlaying.set(true);
+                        canWePlaySong.set(false);
+                    }
+
                     if(get(isPlaying)){
                         console.log("PLAY!!!!!!!!!!!!!!!!!!!!!!")
                         song.play()
@@ -179,15 +191,25 @@ async function updateFullImgs(){
     }
 }
 
-      
+let mute = false;
 export function loadVolumeRange(){
     const volumeRange = document.getElementById("volume-range") as HTMLInputElement;
     const volumeButton = document.getElementById("volume-button") as HTMLButtonElement;
     const volumeButtonImg = document.getElementById("volume-button-img") as HTMLImageElement;
     const audioControlBar = document.getElementById("audio-control-bar") as HTMLElement;
 
-    let mute = false;
-    let volume = 0.5; 
+    //let mute = false;
+    //let volume = 0.5; 
+
+    if(platfrom() === "android" || platfrom() === "ios"){
+        localStorage.setItem('volume', "0.5");
+        mute = false;
+        volume.set(0.5);
+        song.volume = 0.5;
+    }
+
+    UpdateImg()
+
     volumeButton.addEventListener("click", ()=>{
         mute = !mute;
         console.log("mute: "+mute);
@@ -196,36 +218,11 @@ export function loadVolumeRange(){
 
     volumeRange.addEventListener('input', event=>{
         //@ts-ignore
-        volume = Number(event.target.value) / 100
+        volume.set(Number(event.target.value) / 100)
         mute = false;
+        localStorage.setItem('volume', String(get(volume)));
         UpdateImg()
     })
-
-    function UpdateImg(){
-        if(!mute){
-            song.volume = volume;
-        }else{
-            song.volume = 0;
-        }
-
-        if(mute){
-            if(volume === 0){
-                volumeButtonImg.src = "volume/mute0.svg";
-            }else if(volume > 0 && volume < 0.5){
-                volumeButtonImg.src = "volume/mute1.svg";
-            }else{
-                volumeButtonImg.src = "volume/mute2.svg";
-            }
-        }else{
-            if(volume === 0){
-                volumeButtonImg.src = "volume/volume0.svg";
-            }else if(volume > 0 && volume < 0.5){
-                volumeButtonImg.src = "volume/volume1.svg";
-            }else{
-                volumeButtonImg.src = "volume/volume2.svg";
-            }
-        }
-    }
 
 
     let hideTimeout:any; // Zmienna do anulowania ukrywania
@@ -254,9 +251,35 @@ export function loadVolumeRange(){
         }
     });
     
-    
 }
     
+
+export function UpdateImg(){
+    const volumeButtonImg = document.getElementById("volume-button-img") as HTMLImageElement;
+    if(!mute){
+        song.volume = get(volume);
+    }else{
+        song.volume = 0;
+    }
+
+    if(mute){
+        if(get(volume) === 0){
+            volumeButtonImg.src = "volume/mute0.svg";
+        }else if(get(volume) > 0 && get(volume) < 0.5){
+            volumeButtonImg.src = "volume/mute1.svg";
+        }else{
+            volumeButtonImg.src = "volume/mute2.svg";
+        }
+    }else{
+        if(get(volume) === 0){
+            volumeButtonImg.src = "volume/volume0.svg";
+        }else if(get(volume) > 0 && get(volume) < 0.5){
+            volumeButtonImg.src = "volume/volume1.svg";
+        }else{
+            volumeButtonImg.src = "volume/volume2.svg";
+        }
+    }
+}
 
 
 async function readTheFile(named: string) {

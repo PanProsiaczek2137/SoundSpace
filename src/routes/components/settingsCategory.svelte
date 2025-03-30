@@ -5,6 +5,22 @@
 
     export let type: string; // Dodajemy typowanie dla większej przejrzystości
 
+    let translation = "";
+    if(type == "General")
+        translation = "Ogólne"
+    if(type == "Appearance")
+        translation = "Wygląd"
+    if(type == "Shortcuts")
+        translation = "Skróty"
+    if(type == "General")
+        translation = "Ogólne"
+    if(type == "Playback")
+        translation = "Odtwarzacz"
+    if(type == "Extensions")
+        translation = "Rozszerzenia"
+    if(type == "Information")
+        translation = "Informacje"
+
     const platform = get(currentPlatform);
     let thisElement: HTMLElement;
     let loading = true;
@@ -59,13 +75,13 @@
     <button disabled bind:this={thisElement} id="settings-category" class="button disablet-button-settings" onclick={()=>{
         selectedCategory.set(type)
     }}>
-        <p>{type}</p>
+        <p>{translation}</p>
     </button>
 {:else}
     <button bind:this={thisElement} id="settings-category" class="button" onclick={()=>{
         selectedCategory.set(type)
     }}>
-        <p>{type}</p>
+        <p>{translation}</p>
     </button>
 {/if}
 

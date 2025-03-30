@@ -112,6 +112,10 @@ export function showScroll(show: string) {
             .scrollX {
                 -ms-overflow-style: none;
             }
+
+            #bottom-library{
+                width: 100%;
+            }
         `;
     } else {
         // Kiedy checkbox jest odznaczony, ukryj paski przewijania
@@ -123,14 +127,22 @@ export function showScroll(show: string) {
                 height: 0 !important; /* Ukryj suwak */
             }
 
+            #bottom-library{
+                width: calc(100% - 10px)
+            }
+
             .scrollY {
                 overflow-y: scroll !important; /* Pozostaw przewijanie, ale ukryj suwak */
-                scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
+                /*scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
             }
 
             .scrollX {
                 overflow-x: scroll !important; /* Pozostaw przewijanie, ale ukryj suwak */
-                scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
+                /*scrollbar-color: transparent transparent !important; /* Zrób suwak niewidoczny */
+            }
+
+            #scroll-container{
+                scrollbar-color: transparent transparent !important;
             }
         `;
     }

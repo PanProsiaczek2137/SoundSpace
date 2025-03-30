@@ -23,13 +23,41 @@
     import {} from './style/loadingData.css'
     import {} from './style/description.css'
 
-    import { playList, playedSong, isPlaying, visible, duration, currentTime, formatDuration, song, loadVolumeRange } from './ts/audioSys.svelte.ts'
-    import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter } from './ts/store.svelte.ts'
+    import { playList, playedSong, isPlaying, visible, duration, currentTime, formatDuration, song, loadVolumeRange, UpdateImg } from './ts/audioSys.svelte.ts'
+    import { currentPlatform, selectedPanel, ContextMenuOn, selectedFilter, canWePlaySong, volume } from './ts/store.svelte.ts'
     import { contextMenu } from './ts/contextMenu.svelte.ts';
     import { toLoad, progres } from './ts/loadingMetaData.svelte.ts'
     import { keyboardShortcuts, spectialButtons } from './ts/keyboardShortcuts.svelte.ts'
     import { returnSongMetadata, loadingSongsLogic } from './ts/saveSongData.svelte.ts'
     import { updateColors, showScroll } from './ts/colorUtils.svelte.ts'
+    //import { runBlueTooth } from './ts/bluetooth.svelte.ts'
+    //import { invoke } from '@tauri-apps/api/core';
+    /*
+    onMount(() => {
+        const test = document.getElementById('testtt') as HTMLParagraphElement;
+
+        setTimeout(() => {
+            console.log("Wykonujemy!");
+            addSong('/storage/emulated/0/Music/');
+            
+            async function addSong(filePath: string) {
+                try {
+                    // Zmieniamy 'file_path' na 'filePath'
+                    const result = await invoke('add_song_to_player', { filePath: filePath });
+                    console.log(result);
+                    test.innerText = String(result);
+                } catch (error) {
+                    console.error('Błąd:', error);
+                    test.innerText = String(error)
+                }
+            }
+        }, 10000);
+    });
+    */
+
+
+
+
     onMount(() => {
         // Przekazanie wartości do updateColors, które muszą być zapisane z localStorage
         const color = localStorage.getItem('color') || '#000000';
@@ -38,8 +66,40 @@
         console.log(localStorage.getItem('isScrollEnabled') + " <---")
         showScroll(String(localStorage.getItem('isScrollEnabled')));
 
+        setTimeout(() => {
+            const storedPlayList = localStorage.getItem('playList');
+            if (storedPlayList) {
+                try {
+                    console.log("USTAWIAMY! na:" + storedPlayList)
+                    playList.set(JSON.parse(storedPlayList));
+                    playedSong.set(Number(localStorage.getItem('playedSong')));
+                    if(Number(localStorage.getItem('playedSong')) == 0){
+                        playedSong.set(-1);
+                        setTimeout(() => {
+                            playedSong.set(0);
+                        }, 100);
+                    }
+                } catch (error) {
+                    console.error("Błąd parsowania playList z localStorage:", error);
+                    // Możesz dodać logikę obsługi błędów, np. ustawić domyślną wartość playList
+                }
+            }
+
+            const volumeRange = document.getElementById("volume-range") as HTMLInputElement;
+            volume.set(Number(localStorage.getItem('volume')))
+            volumeRange.value = String(Number(localStorage.getItem('volume')) * 100)
+            console.error(localStorage.getItem('volume'))
+            UpdateImg();
+        }, 500);
+        /*
+        if(platform() === "android" || platform() === "ios"){
+            setTimeout(() => {
+                runBlueTooth();                
+            }, 5000);
+        }
+        */
     });
-    keyboardShortcuts()
+    //keyboardShortcuts()
     onMount(()=>{spectialButtons(); loadingSongsLogic();})
 
 
@@ -92,6 +152,50 @@
                 
             }
         };
+        
+
+
+        const timeline = document.getElementById('time') as HTMLInputElement;
+        const audioControlBar = document.getElementById('audio-control-bar') as HTMLElement;
+
+        if (timeline && audioControlBar && !(platform() === "android" || platform() === "ios")) { // Upewniamy się, że element istnieje
+            timeline.addEventListener('mouseover', (event) => {
+                enter(event)
+            });
+
+            audioControlBar.addEventListener('mouseover', (event) => {
+                enter(event)
+            });
+
+            timeline.addEventListener('mouseleave', () => {
+                leave()
+            });
+
+            audioControlBar.addEventListener('mouseleave', () => {
+                leave()
+            });
+
+            function enter(event: any){
+                const rect = timeline.getBoundingClientRect();
+                const mouseX = event.clientX;
+                const mouseY = event.clientY;
+
+                const distanceX = Math.max(rect.left - mouseX, mouseX - rect.right, 0);
+                const distanceY = Math.max(rect.top - mouseY, mouseY - rect.bottom, 0);
+                const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+
+                if (distance <= 20) {
+                    timeline.classList.add('active');
+                } else {
+                    timeline.classList.remove('active');
+                }
+            }
+
+            function leave(){
+                timeline.classList.remove('active');
+            }
+        }
+
 
         // Nadpisujemy setter `value`, aby wykrywać zmiany ustawiane przez kod
         const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
@@ -274,11 +378,17 @@
             descriptionContainer.style.display = "none";
         }
     });
-
+    
+    onMount(()=>{
+        const audioControlBar = document.getElementById("audio-control-bar") as HTMLElement;
+        audioControlBar.addEventListener('click', (event: any) => {
+            if(event.target.id == "audio-control-bar" || event.target.id == "others-settings" || event.target.id == "picture-and-info-song-name" || event.target.id == "picture-and-info-artist-album" || event.target.id == "picture-and-info" || event.target.id == "album-pucture-on-bar"){
+                visible.set(!get(visible))
+            }
+        })    
+    })
+    
 </script>
-
-
-
 
 
 
@@ -336,6 +446,10 @@
         }else{
             playNext.disabled = false;
         }
+
+        setTimeout(() => {
+            localStorage.setItem('playList', JSON.stringify(get(playList)));
+        }, 500);
 
     }}>
     dodaj jako następne
@@ -420,6 +534,10 @@
             }else{
                 playNext.disabled = false;
             }
+
+            setTimeout(() => {
+                localStorage.setItem('playList', JSON.stringify(get(playList)));
+            }, 500);
 
         }}>
         dodaj jako następne
@@ -517,7 +635,7 @@
                     {:else}
                         <img src="left-bar/home.svg" alt="" draggable="false">
                     {/if}
-                    <p>Home</p>
+                    <p>Główna</p>
                 </button>
 
                 <button id="left-bar-library" class="left-bar-buttons button" onclick={()=>{selectedPanel.set('library')}} style="background-color: {$selectedPanel === 'library' ? 'var(--ligth-black)' : 'transparent'}">
@@ -526,7 +644,7 @@
                     {:else}
                         <img src="left-bar/library.svg" alt="" draggable="false">
                     {/if}
-                    <p>Library</p>
+                    <p>Biblioteka</p>
                 </button>
 
                 <button id="left-bar-settings" class="left-bar-buttons button" onclick={()=>{selectedPanel.set('settings')}} style="background-color: {$selectedPanel === 'settings' ? 'var(--ligth-black)' : 'transparent'}">
@@ -535,7 +653,7 @@
                     {:else}
                         <img src="left-bar/settings.svg" alt="" draggable="false">
                     {/if}
-                    <p>Settings</p>
+                    <p>Ustawienia</p>
                 </button>
             </div>
             <main id="content">
@@ -631,6 +749,7 @@
                         <button class="button" id="play-previus" onclick={()=>{
                                 let local = get(playedSong);
                                 local--;
+                                canWePlaySong.set(true);
                                 playedSong.set(local);
                                 /*setTimeout(() => {
                                     isPlaying.set(true);
@@ -645,6 +764,7 @@
                         <button class="button" id="play-next" onclick={()=>{
                                 let local = get(playedSong);
                                 local++;
+                                canWePlaySong.set(true);
                                 playedSong.set(local);
                                 /*setTimeout(() => {
                                     isPlaying.set(true);

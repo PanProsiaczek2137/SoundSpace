@@ -1,3 +1,4 @@
+import { onMount } from 'svelte';
 import { isPlaying, playedSong, playList } from './audioSys.svelte';
 import { readSongsMetaDataFile, readTheImgFile } from './saveSongData.svelte'
 import { get } from 'svelte/store';
@@ -34,14 +35,27 @@ export async function updateMediaSessionMetadata(songData: any) {
 
 
 export function spectialButtons() {
+    onMount(()=>{
+        const info = 'mediaSession' in navigator;
+        const test = document.getElementById("testtt") as HTMLParagraphElement;
+        test.innerText = String(info);
+    })
+
+    console.log("MediaSession API dostępne:", 'mediaSession' in navigator);
+
     const nextSongButton = document.getElementById("play-next") as HTMLButtonElement;
     const playPrevius = document.getElementById("play-previus") as HTMLButtonElement;
 
     if ('mediaSession' in navigator) {
-        navigator.mediaSession.setActionHandler('play', () => {
-            console.log("PLAY!")
-            isPlaying.set(true);
-        });
+        try {
+            navigator.mediaSession.setActionHandler('play', () => {
+                console.log("PLAY!");
+                isPlaying.set(true);
+            });
+        } catch (e) {
+            console.error("Błąd Media Session (play):", e);
+        }
+        
 
         navigator.mediaSession.setActionHandler('pause', () => {
             console.log("pause!")

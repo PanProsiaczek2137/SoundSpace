@@ -5,7 +5,7 @@
     import { readTheImgFile } from '../ts/saveSongData.svelte'
     import { readSongsMetaDataFile } from '../ts/saveSongData.svelte'
     import { onMount } from 'svelte';
-    import { canShowContextMenu, ContextMenuOn, visibleContextMenu } from '../ts/store.svelte'
+    import { canShowContextMenu, ContextMenuOn, visibleContextMenu, canWePlaySong } from '../ts/store.svelte'
     import { isDropDownOpen } from '../ts/store.svelte'
     import InformationPage from './settingsPage/informationPage.svelte';
 
@@ -84,10 +84,15 @@
 
             if(get(selectedFilter) == "all"){
                 playedSong.set(-1);
+                canWePlaySong.set(true);
                 playList.set([{type: 'musicFolder', src: data.fileName}]);
                 playedSong.set(0);
+                setTimeout(() => {
+                    localStorage.setItem('playList', JSON.stringify(get(playList)));
+                }, 500);
             }else{
                 playedSong.set(-1)
+                canWePlaySong.set(true);
                 playList.set([]);
                 const matadata = await readSongsMetaDataFile(); 
                 const songs = await printSelectedData(get(selectedFilter), get(selectedValue), matadata);
@@ -101,6 +106,9 @@
                 console.log(list);
                 console.log('--------')
                 playList.set(list)
+                setTimeout(() => {
+                    localStorage.setItem('playList', JSON.stringify(get(playList)));
+                }, 500);
             }
 
         }

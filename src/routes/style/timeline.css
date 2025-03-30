@@ -77,3 +77,17 @@
     background: var(--white);
   }
   
+
+.timeline.active {
+    height: 7px;
+}
+
+.timeline.active::-webkit-slider-thumb{
+  width: 15px;
+  height: 15px;
+  margin-top: -7px;
+}
+
+.timeline.active::before{
+  height: 7px;
+}

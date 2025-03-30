@@ -1,7 +1,7 @@
 <div id="information-container">
     <h1>SoundSpace</h1><br>
     <p>Wersja aplikacji: 1.0.0</p><br>
-    <p>Data wydania: 1 kwietnia 2025</p><br>
+    <p>Data wydania: 30 marzec 2025</p><br>
     <p>Twórca: Mr.Piggy</p><br>
 
     <h2>masz pytanie, bądź znalazłeś błąd?</h2>

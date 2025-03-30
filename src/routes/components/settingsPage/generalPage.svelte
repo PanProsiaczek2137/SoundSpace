@@ -4,40 +4,107 @@
     import { get } from 'svelte/store';
     import { currentPlatform } from '../../ts/store.svelte';
 
-    onMount(async ()=>{
+    onMount(async () => {
         const autoTurnOnCheckBox = document.getElementById("autoTurnOn") as HTMLInputElement;
-        if(await isEnabled()){
+        if (await isEnabled()) {
             autoTurnOnCheckBox.checked = true;
-        }else{
+        } else {
             autoTurnOnCheckBox.checked = false;
         }
-    })
+    });
 
     function handleChange(event: Event) {
         const checked = (event.target as HTMLInputElement).checked;
-        if(checked){
-            enable()
-        }else{
-            disable()
+        if (checked) {
+            enable();
+        } else {
+            disable();
         }
     }
-    // when using `"withGlobalTauri": true`, you may use
-    // const { enable, isEnabled, disable } = window.__TAURI__.autostart;
 
-    // Enable autostart
     const platform = get(currentPlatform);
-
 </script>
 
-
 {#if !(platform() === "android" || platform() === "ios")}
-<label for="autoTurnOn">
-    <input id="autoTurnOn" type="checkbox" onchange={handleChange}>
-    autoTurnOn
-</label>
+    <div id="settings-container-autostart">
+        <div class="setting-item">
+            <label for="autoTurnOn" class="checkbox-label">
+                <input id="autoTurnOn" type="checkbox" onchange={handleChange} class="checkbox-input">
+                <span>Uruchamiaj automatycznie</span>
+            </label>
+        </div>
+    </div>
 {:else}
-<p style="color: var(--white);">Jeśli masz pomysł na jakieś ustawienia, powiedz :></p>
+    <p style="color: var(--white);">Jeśli masz pomysł na jakieś ustawienia, powiedz :></p>
 {/if}
+
+<style>
+    #settings-container-autostart {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .setting-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--white);
+        font-family: var(--font);
+    }
+
+    .checkbox-input {
+        margin-right: 15px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--ligth-black);
+        border-radius: 5px;
+        background-color: var(--black);
+        margin-right: 10px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .checkbox-input:checked {
+        background-color: var(--dark-white);
+        border-color: var(--ligth-black);
+    }
+
+    .checkbox-input:checked::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        background-color: var(--black);
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+        transform: translate(-50%, -50%);
+    }
+
+    .checkbox-input:hover {
+        border-color: var(--white);
+    }
+
+    .checkbox-label span {
+        font-size: 1.4rem;
+        font-weight: 500;
+    }
+</style>
 
 
 <!--

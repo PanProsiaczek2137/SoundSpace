@@ -11,8 +11,8 @@
         });
   })
 
-  let loading = true;
-  let list:any = [];
+  let list: { type: string, data: string, loading: boolean }[] = [];
+
   onMount(async () => {
     const allSongs = await readTheFile(true, "");
 
@@ -32,66 +32,51 @@
     const artistCounts: Record<string, number> = {};
     const albumCounts: Record<string, number> = {};
 
-    // Zliczanie utworów dla każdego artysty i albumu
     for (const key in parsedSongs) {
         const song = parsedSongs[key];
-
-        // Liczenie piosenek dla artystów
-        if (song.artist) {
-            if (!artistCounts[song.artist]) {
-                artistCounts[song.artist] = 0;
-            }
-            artistCounts[song.artist]++;
-        }
-
-        // Liczenie piosenek dla albumów
-        if (song.album) {
-            if (!albumCounts[song.album]) {
-                albumCounts[song.album] = 0;
-            }
-            albumCounts[song.album]++;
-        }
+        if (song.artist) artistCounts[song.artist] = (artistCounts[song.artist] || 0) + 1;
+        if (song.album) albumCounts[song.album] = (albumCounts[song.album] || 0) + 1;
     }
 
-    // Filtracja artystów z min. 10 utworami
     const artistsWith10Songs = Object.keys(artistCounts).filter(artist => artistCounts[artist] >= 10);
-
-    // Filtracja albumów z min. 5 utworami
     const albumsWith5Songs = Object.keys(albumCounts).filter(album => albumCounts[album] >= 5);
-
-    console.log("Artyści z więcej niż 10 piosenkami:", artistsWith10Songs);
-    console.log("Albumy z więcej niż 5 piosenkami:", albumsWith5Songs);
 
     let wasThereLong = false;
     for(let i = 0; i < 15; i++){
       const random = Math.floor(Math.random() * 10);
-      if(random == 0 || random == 1 || random == 2 ){
-        const randomArtist = Math.floor(Math.random() * artistsWith10Songs.length);
-        list.push({type: "od artysty X", data: artistsWith10Songs[randomArtist]})
-        artistsWith10Songs.slice(randomArtist, 1);
+      if(random <= 2 && artistsWith10Songs.length) {
+        const randomIndex = Math.floor(Math.random() * artistsWith10Songs.length);
+        list.push({ type: "od artysty X", data: artistsWith10Songs[randomIndex], loading: true });
+        artistsWith10Songs.splice(randomIndex, 1);
       }
-      if(random == 3 || random == 4 || random == 5 ){
-        const randomAlbum = Math.floor(Math.random() * albumsWith5Songs.length);
-        list.push({type: "z albumu X", data: albumsWith5Songs[randomAlbum]})
-        albumsWith5Songs.slice(randomAlbum, 1);
+      if(random >= 3 && random <= 5 && albumsWith5Songs.length) {
+        const randomIndex = Math.floor(Math.random() * albumsWith5Songs.length);
+        list.push({ type: "z albumu X", data: albumsWith5Songs[randomIndex], loading: true });
+        albumsWith5Songs.splice(randomIndex, 1);
       }
-      if(random == 6 || random == 7){
-        list.push({type: "losowe utwory", data: ""})
+      if(random >= 6 && random <= 7) {
+        list.push({ type: "losowe utwory", data: "", loading: true });
       }
-      if(random == 9){
-        if(wasThereLong){
-          list.push({type: "losowe utwory", data: ""})
-        }else{
-          list.push({type: "długie utwory", data: ""})
+      if(random == 9) {
+        if(wasThereLong) {
+          list.push({ type: "losowe utwory", data: "", loading: true });
+        } else {
+          list.push({ type: "długie utwory", data: "", loading: true });
           wasThereLong = true;
         }
       }
     }
-    loading = false;
+
+    for (let i = 0; i < list.length; i++) {
+      setTimeout(() => {
+        list[i].loading = false;
+      }, i * 300); 
+    }
   });
 
 
-  /*
+
+    /*
   WSZYSTKIE MOŻLIWE
 
   od artysty X
@@ -120,70 +105,17 @@
   długie utwory
   */
 
-  
-
 
 
 </script>
 
 <div id="container-home" class="scrollY">
-
-
-
   <HomeSectrion type="losowa playlista" data=""></HomeSectrion>
-  {#if loading == false}
-    {#each list as data, index}
+  {#each list as data, index}
+    {#if !data.loading}
       <HomeSectrion type={data.type} data={data.data}></HomeSectrion>
-    {/each}
-  {/if}
-
-  <!--
-  <HomeSectrion type="od artysty X" data="The Alan Parsons Project"></HomeSectrion>
-  <HomeSectrion type="z albumu X" data="The Wall"></HomeSectrion>
-  <HomeSectrion type="losowe utwory" data=""></HomeSectrion>
-  <HomeSectrion type="długie utwory" data=""></HomeSectrion>
-  -->
-  
-  <!--
-  <div id="songs">
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-    <div class="test scroll-container">
-      <Song name="Nothing That Has Happened So Far Has Been Anything We Could Control" 
-            image="Lonerism.png" 
-            album="Lonerism" 
-            artist="Tame Impala" />
-    </div>
-  </div>
-  -->
+    {/if}
+  {/each}
 </div>
 
 <style>

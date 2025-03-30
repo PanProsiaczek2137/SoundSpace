@@ -335,6 +335,7 @@
     "os:default",
     "notification:default",
     "notification:allow-register-listener",
-    "fs:default"
+    "fs:default",
+    "blec:default"
   ]
 }

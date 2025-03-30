@@ -46,6 +46,7 @@
 @media (max-width: 480px) {
     #left-bar{
         min-width: 0px;
+        border-right: 0px;
     }
     .left-bar-buttons img{
         display: none;

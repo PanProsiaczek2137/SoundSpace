@@ -1,6 +1,6 @@
 <script lang="ts">
     import { playedSong, playList, formatDuration, isPlaying, song } from '../ts/audioSys.svelte.ts'
-    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData, saveTimeWhileMovingSong } from '../ts/store.svelte'
+    import { currentPlatform, areWeMoveingTheSong, playlistMetaData, readyToLoadMetaData, saveTimeWhileMovingSong, playWhenDrop, canWePlaySong } from '../ts/store.svelte'
     import { get, writable } from 'svelte/store';
     import { onMount, onDestroy } from 'svelte';
     import { readSongsMetaDataFile, readTheImgFile } from '../ts/saveSongData.svelte.ts'
@@ -113,12 +113,12 @@
         function updateBackgroundColor() {
             if (!thisElement || !document.body.contains(thisElement)) return; // Sprawdzenie, czy element jest nadal w DOM
 
-            const isPlaying = get(playedSong) === index;
+            const isPlayingSong = get(playedSong) === index;
             let newColor = 'var(--black)';
 
             if (heldTtem === thisElement) {
                 newColor = '#161616';
-            } else if (isPlaying) {
+            } else if (isPlayingSong) {
                 newColor = 'var(--ligth-black)';
             }
 
@@ -146,8 +146,9 @@
 
                 if(!(platform() == "android" || platform() == "ios")){
                     holdTime = setInterval(() => {
+                        playWhenDrop.set(get(isPlaying))
                         console.log('trzymamy');
-                        isPlaying.set(false)
+                        song.pause();
                         heldTtem = thisElement;
                         thisElement.style.backgroundColor = '#161616'
                         thisElement.style.position = 'absolute'
@@ -169,9 +170,9 @@
         thisElement.addEventListener("contextmenu", event =>{
             event.preventDefault(); 
             if(platform() == "android" || platform() == "ios"){
-                console.log("Przesuwamy!");
+                playWhenDrop.set(get(isPlaying))
                 console.log('trzymamy');
-                isPlaying.set(false)
+                song.pause();
                 heldTtem = thisElement;
                 thisElement.style.backgroundColor = '#161616'
                 thisElement.style.position = 'absolute'
@@ -188,10 +189,8 @@
 
         thisElement.addEventListener('pointerup', () => {
             if (get(areWeMoveingTheSong) === false) {
+                canWePlaySong.set(true);
                 playedSong.set(index);
-                setTimeout(() => {
-                    isPlaying.set(true);
-                }, 150);
             }
             clearTimeout(holdTime);
             updateBackgroundColor();
@@ -244,8 +243,26 @@
                             }
                         }, 200);
 
-                    }, 100);
+                        isPlaying.set(false);
+                        if(get(playWhenDrop)){
+                            isPlaying.set(true);
+                        }else{
+                            isPlaying.set(false);
+                        }
+                        if(get(playWhenDrop) && get(isPlaying) == false){
+                            setTimeout(() => {
+                                isPlaying.set(true);
+                                song.play();
+                            }, 100);
+                        }
 
+
+                        setTimeout(() => {
+                            localStorage.setItem('playList', JSON.stringify(get(playList)));
+                        }, 500);
+
+                    }, 100);
+                    
                 }
                 heldTtem = null;
             }
@@ -394,6 +411,13 @@
             thisElement.removeEventListener('pointerup', () => {});
         }
     });
+
+
+    playWhenDrop.subscribe(value=>{
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+        console.log(value)
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+    })
 
 
 </script>

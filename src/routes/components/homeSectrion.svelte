@@ -2,7 +2,7 @@
     import Song from "./song.svelte";
     import { playList } from "../ts/audioSys.svelte";
     import { readTheFile, readTheImgFile } from '../ts/saveSongData.svelte'
-    import { currentPlatform, playPlaylistFormStart } from '../ts/store.svelte.ts'
+    import { currentPlatform, playPlaylistFormStart, canWePlaySong } from '../ts/store.svelte.ts'
     import { onMount } from "svelte";
     import { get } from "svelte/store";
     export let type: string;
@@ -73,6 +73,7 @@
             tempPlayList.push({type: 'musicFolder', src: randomSongs[i].fileName});
         }
         playPlaylistFormStart.set(true);
+        canWePlaySong.set(true);
         playList.set(tempPlayList);
         playPlaylistFormStart.set(false);
     }
