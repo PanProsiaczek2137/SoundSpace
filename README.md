@@ -3,9 +3,27 @@ SoundSpace to open-source'owy odtwarzacz muzyki na **Androida** i **Desktop**. P
 
 <h2> Instalacja </h2>
 <h3>Desctop</h3>
-Pójźnej ci kochany objaśnię ten proces
+<h4>Upewnij się, że masz zainstalowane następujące narzędzia:</h4>
+Node.js, Rust, Cargo, Tauri CLI
+<h4>sklonuj repozytorium</h4>
+git clone https://github.com/PanProsiaczek2137/SoundSpace.git
+<h4>Zainstaluj zależności NPM</h4>
+npm install
+<h4>budowanie aplikacji</h4>
+tauri dev
+<h4>skompiluj aplikację</h4>
+tauri build
+
 <h3>Android</h3>
-tym bardziej
+<h4>Upewnij się, że masz zainstalowane następujące narzędzia:</h4>
+Node.js, Rust, Cargo, Tauri CLI, Android Studio, Java Development Kit (JDK), Gradle
+<h4>Zainstaluj zależności NPM i zainicjuj aplikację android</h4>
+npm install
+tauri android init
+<h4>zbuduj aplikację</h4>
+tauri android build
+<h4>nie zapomnij jej podpisać</h4>
+używając keytool dostarczonego przez JDK
 
 ## Do zrobienia
  ✔ odczytywanie i zapizywanie metadanych plików<br>
@@ -23,8 +41,8 @@ tym bardziej
  ✔ zrobić aby home działo<br>
  ✔ przesuwanie piosenek na telefonie i ogłulnie porawki aby nie wkurzało z korzystania<br>
  ✔ szukanie w filtrze<br>
- - zoptymalizowanie debugowanie dopieszczenie i częściowe odspagetytyfikowanie kodu<br>
- - cieszenie się że już nie muszę się męczyć z tym ciągnącym się projektem<br>
+ ✔ zoptymalizowanie debugowanie dopieszczenie i częściowe odspagetytyfikowanie kodu<br>
+ ✨ cieszenie się że już nie muszę się męczyć z tym ciągnącym się projektem<br>
 
 ## Do zrobienia kiedyś
  - menu bar do skipowania stopoawnia i sprawdzania czasu jako powiadomienie na telefonie<br>
